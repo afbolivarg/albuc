@@ -1,103 +1,97 @@
-import Image from "next/image"
+import { Button } from "@/components/ui/button"
+import { signInWithGoogle } from "@/app/actions/auth"
+import { getCurrentUser } from "@/lib/auth/user"
+import { redirect } from "next/navigation"
 
-export default function Home() {
+export default async function HomePage() {
+  const user = await getCurrentUser()
+
+  if (user) {
+    redirect("/library")
+  }
+
   return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm/6 text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-[family-name:var(--font-geist-mono)] font-semibold">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <div className="min-h-screen bg-background">
+      {/* Navigation */}
+      <nav className="flex items-center justify-between p-6">
+        <div className="flex items-center space-x-2">
+          <div className="text-2xl font-serif font-bold text-foreground">
+            📚 Alexandria
+          </div>
+        </div>
+        <form action={signInWithGoogle}>
+          <Button type="submit">Continue with Google</Button>
+        </form>
+      </nav>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+      {/* Hero Section */}
+      <main className="container mx-auto px-6 py-20">
+        <div className="max-w-4xl mx-auto text-center">
+          <h1 className="text-5xl md:text-6xl font-serif font-bold text-foreground mb-6">
+            Your Personal Library,
+            <br />
+            <span className="text-primary">Beautifully Organized</span>
+          </h1>
+
+          <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
+            Search any book, save to your cozy library, and write rich notes in
+            Markdown. All with a warm, tactile interface that makes reading feel
+            like home.
+          </p>
+
+          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
+            <form action={signInWithGoogle}>
+              <Button size="lg" type="submit" className="text-lg px-8 py-3">
+                Continue with Google
+              </Button>
+            </form>
+            <Button variant="outline" size="lg" className="text-lg px-8 py-3">
+              Try a Demo
+            </Button>
+          </div>
+
+          {/* Demo Preview */}
+          <div className="bg-card backdrop-blur-sm rounded-2xl shadow-xl p-8 max-w-3xl mx-auto border">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center">
+                <div className="bg-muted rounded-xl p-4 mb-4">
+                  <div className="text-3xl mb-2">🔍</div>
+                  <h3 className="font-serif font-semibold text-foreground">
+                    Search Books
+                  </h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Find any book from Open Library with rich metadata
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="bg-muted rounded-xl p-4 mb-4">
+                  <div className="text-3xl mb-2">📖</div>
+                  <h3 className="font-serif font-semibold text-foreground">
+                    Track Status
+                  </h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Want, Owned, Reading, or Read with star ratings
+                </p>
+              </div>
+
+              <div className="text-center">
+                <div className="bg-muted rounded-xl p-4 mb-4">
+                  <div className="text-3xl mb-2">✍️</div>
+                  <h3 className="font-serif font-semibold text-foreground">
+                    Rich Notes
+                  </h3>
+                </div>
+                <p className="text-muted-foreground text-sm">
+                  Write beautiful notes in Markdown with live preview
+                </p>
+              </div>
+            </div>
+          </div>
         </div>
       </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
     </div>
   )
 }
