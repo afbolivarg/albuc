@@ -110,20 +110,22 @@ export function BookNotes({ book }: BookNotesProps) {
                         </h3>
                       ),
                       p: ({ children }) => (
-                        <p className="leading-relaxed mb-4">{children}</p>
+                        <p className="leading-relaxed mb-4 font-serif">
+                          {children}
+                        </p>
                       ),
                       blockquote: ({ children }) => (
-                        <blockquote className="border-l-4 border-muted pl-4 py-2 bg-muted/30 italic mb-4">
+                        <blockquote className="border-l-4 border-muted pl-4 py-2 bg-muted/30 italic mb-4 font-serif">
                           {children}
                         </blockquote>
                       ),
                       ul: ({ children }) => (
-                        <ul className="list-disc list-inside mb-4 space-y-1">
+                        <ul className="list-disc list-inside mb-4 space-y-1 font-serif">
                           {children}
                         </ul>
                       ),
                       ol: ({ children }) => (
-                        <ol className="list-decimal list-inside mb-4 space-y-1">
+                        <ol className="list-decimal list-inside mb-4 space-y-1 font-serif">
                           {children}
                         </ol>
                       ),
@@ -193,17 +195,17 @@ export function BookNotes({ book }: BookNotesProps) {
                 </p>
               ),
               blockquote: ({ children }) => (
-                <blockquote className="border-l-4 border-muted pl-6 py-4 bg-muted/30 italic mb-6 rounded-r-lg">
+                <blockquote className="border-l-4 border-muted pl-6 py-4 bg-muted/30 italic mb-6 rounded-r-lg font-serif">
                   {children}
                 </blockquote>
               ),
               ul: ({ children }) => (
-                <ul className="list-disc list-inside mb-4 space-y-2 text-lg">
+                <ul className="list-disc list-inside mb-4 space-y-2 text-lg font-serif">
                   {children}
                 </ul>
               ),
               ol: ({ children }) => (
-                <ol className="list-decimal list-inside mb-4 space-y-2 text-lg">
+                <ol className="list-decimal list-inside mb-4 space-y-2 text-lg font-serif">
                   {children}
                 </ol>
               ),

@@ -4,6 +4,7 @@ import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
 import { StatusPill } from "./status-pill"
 import { StarRating } from "@/components/star-rating"
+import { BookOpen } from "lucide-react"
 
 interface BookCardProps {
   book: UserBook
@@ -33,8 +34,8 @@ export function BookCard({ book }: BookCardProps) {
                 className="w-full h-full object-cover"
               />
             ) : (
-              <div className="text-muted-foreground text-center p-4">
-                <div className="text-2xl mb-2">📖</div>
+              <div className="text-muted-foreground text-center p-4 flex flex-col items-center justify-center gap-2">
+                <BookOpen className="w-10 h-10" />
                 <div className="text-xs font-medium">No Cover</div>
               </div>
             )}
@@ -42,7 +43,7 @@ export function BookCard({ book }: BookCardProps) {
 
           {/* Title and Author */}
           <div className="mb-2">
-            <h3 className="font-serif font-semibold text-foreground text-sm leading-tight line-clamp-2 group-hover:text-primary transition-colors">
+            <h3 className="font-serif font-semibold text-foreground text-sm leading-tight line-clamp-1 group-hover:text-primary transition-colors">
               {book.title}
             </h3>
             <p className="text-xs text-muted-foreground line-clamp-1">

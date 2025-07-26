@@ -2,6 +2,8 @@ import { Button } from "@/components/ui/button"
 import { signInWithGoogle } from "@/app/actions/auth"
 import { getCurrentUser } from "@/lib/auth/user"
 import { redirect } from "next/navigation"
+import Link from "next/link"
+import { SquareLibrary } from "lucide-react"
 
 export default async function HomePage() {
   const user = await getCurrentUser()
@@ -14,11 +16,17 @@ export default async function HomePage() {
     <div className="min-h-screen bg-background">
       {/* Navigation */}
       <nav className="flex items-center justify-between p-6">
-        <div className="flex items-center space-x-2">
-          <div className="text-2xl font-serif font-bold text-foreground">
-            📚 Alexandria
-          </div>
-        </div>
+        <Link
+          href="/"
+          className="flex items-center space-x-2 cursor-pointer select-auto"
+          tabIndex={0}
+          aria-label="Go to Library"
+        >
+          <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-text">
+            <SquareLibrary className="w-6 h-6" />
+            Alexandria
+          </span>
+        </Link>
         <form action={signInWithGoogle}>
           <Button type="submit">Continue with Google</Button>
         </form>
@@ -34,9 +42,9 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Search any book, save to your cozy library, and write rich notes in
-            Markdown. All with a warm, tactile interface that makes reading feel
-            like home.
+            Search any book, save to your Alexandria library, and write rich
+            notes in Markdown. All with a warm, tactile interface that makes
+            reading feel like home.
           </p>
 
           {/* Demo Preview */}
@@ -50,7 +58,7 @@ export default async function HomePage() {
                   </h3>
                 </div>
                 <p className="text-muted-foreground text-sm">
-                  Find any book from Open Library with rich metadata
+                  Find any book with rich metadata and save it to your library
                 </p>
               </div>
 
