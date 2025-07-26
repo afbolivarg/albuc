@@ -39,17 +39,6 @@ export default async function HomePage() {
             like home.
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center mb-12">
-            <form action={signInWithGoogle}>
-              <Button size="lg" type="submit" className="text-lg px-8 py-3">
-                Continue with Google
-              </Button>
-            </form>
-            <Button variant="outline" size="lg" className="text-lg px-8 py-3">
-              Try a Demo
-            </Button>
-          </div>
-
           {/* Demo Preview */}
           <div className="bg-card backdrop-blur-sm rounded-2xl shadow-xl p-8 max-w-3xl mx-auto border">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
