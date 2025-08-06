@@ -20,8 +20,14 @@ const ebGaramond = EB_Garamond({
 })
 
 export const metadata: Metadata = {
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL || "https://albuc.com"
+  ),
   title: "Albuc",
-  description: "Your personal library, beautifully organized",
+  description: "Your Personal Library and Notes, Beautifully Organized",
+  openGraph: {
+    images: "/og.png",
+  },
 }
 
 export default function RootLayout({
