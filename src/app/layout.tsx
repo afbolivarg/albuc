@@ -20,7 +20,7 @@ const ebGaramond = EB_Garamond({
 })
 
 export const metadata: Metadata = {
-  title: "Alexandria",
+  title: "Albuc",
   description: "Your personal library, beautifully organized",
 }
 

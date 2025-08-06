@@ -59,7 +59,7 @@ export function AddBookModal({ open, onOpenChange }: AddBookModalProps) {
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="text-2xl font-serif text-foreground">
-            Add Book to Alexandria
+            Add Book to Albuc
           </DialogTitle>
         </DialogHeader>
 
@@ -95,7 +95,7 @@ export function AddBookModal({ open, onOpenChange }: AddBookModalProps) {
               <div className="flex items-center justify-center py-12">
                 <div className="flex items-center space-x-2 text-muted-foreground">
                   <Loader2 className="h-5 w-5 animate-spin" />
-                  <span>Searching Alexandria...</span>
+                  <span>Searching Albuc...</span>
                 </div>
               </div>
             ) : hasSearched ? (

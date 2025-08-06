@@ -1,5 +1,6 @@
 import { UserBook } from "@/lib/db/schema"
 import { BookCard } from "./book-card"
+import { LibraryBig } from "lucide-react"
 
 interface BookGridProps {
   books: UserBook[]
@@ -8,8 +9,8 @@ interface BookGridProps {
 export function BookGrid({ books }: BookGridProps) {
   if (books.length === 0) {
     return (
-      <div className="text-center py-20">
-        <div className="text-6xl mb-4">📚</div>
+      <div className="text-center py-20 flex flex-col items-center justify-center">
+        <LibraryBig className="w-10 h-10 mb-4" />
         <h3 className="text-xl font-serif font-semibold text-foreground mb-2">
           Your library is empty
         </h3>

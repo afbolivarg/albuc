@@ -24,7 +24,7 @@ export default async function HomePage() {
         >
           <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-text">
             <SquareLibrary className="w-6 h-6" />
-            Alexandria
+            Albuc
           </span>
         </Link>
         <form action={signInWithGoogle}>
@@ -42,9 +42,9 @@ export default async function HomePage() {
           </h1>
 
           <p className="text-xl text-muted-foreground mb-8 max-w-2xl mx-auto leading-relaxed">
-            Search any book, save to your Alexandria library, and write rich
-            notes in Markdown. All with a warm, tactile interface that makes
-            reading feel like home.
+            Search any book, save to your Albuc library, and write rich notes in
+            Markdown. All with a warm, tactile interface that makes reading feel
+            like home.
           </p>
 
           {/* Demo Preview */}

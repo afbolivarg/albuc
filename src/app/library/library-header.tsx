@@ -32,7 +32,7 @@ export function LibraryHeader({ user }: LibraryHeaderProps) {
           >
             <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-text">
               <SquareLibrary className="w-6 h-6" />
-              Alexandria
+              Albuc
             </span>
           </Link>
 
