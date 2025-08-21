@@ -1,6 +1,6 @@
 export const baseUrl = process.env.NEXT_PUBLIC_SITE_URL
 
-const sitemapRoutes = ["/"]
+const sitemapRoutes = ["/", "/llms.txt"]
 
 export default async function sitemap() {
   const routes = sitemapRoutes.map(route => ({
