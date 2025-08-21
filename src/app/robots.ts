@@ -16,6 +16,6 @@ export default function robots() {
         disallow: fullDisallowList,
       },
     ],
-    sitemap: `${baseUrl}/sitemap.xml`,
+    sitemap: `${baseUrl}sitemap.xml`,
   }
 }
