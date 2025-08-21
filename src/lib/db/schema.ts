@@ -47,7 +47,6 @@ export const books = pgTable(
     status: bookStatusEnum("status").notNull(),
     rating: numeric("rating", { precision: 2, scale: 1 }), // 0.5 steps allowed, 0-5 range
     noteMarkdown: text("note_markdown"),
-    noteHtml: text("note_html"), // sanitized pre-render for fast view
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },

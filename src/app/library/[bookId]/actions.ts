@@ -142,14 +142,10 @@ export async function updateBookNotesAction(
       return { error: "Book not found" }
     }
 
-    // Process markdown - in production, you'd want proper sanitization
-    const noteHtml = noteMarkdown?.trim() || null
-
     // Update the book with new notes
     const updatedBook = await updateBook({
       ...currentBook,
       noteMarkdown: noteMarkdown?.trim() || null,
-      noteHtml,
       updatedAt: new Date(),
     })
 
