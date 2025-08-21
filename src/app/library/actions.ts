@@ -1,0 +1,113 @@
+"use server"
+
+import { redirect } from "next/navigation"
+import { revalidatePath } from "next/cache"
+import { createClient as createServerClient } from "@/lib/supabase/server"
+import { searchBooks as searchOpenLibrary } from "@/lib/open-library"
+import { getCurrentUser } from "@/lib/supabase/user"
+import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries"
+
+export async function signOut() {
+  const supabase = await createServerClient()
+
+  const { error } = await supabase.auth.signOut()
+
+  if (error) {
+    throw new Error("Failed to sign out")
+  }
+
+  redirect("/")
+}
+
+export async function searchBooksAction(
+  prevState: { results: any[]; error?: string }, // eslint-disable-line @typescript-eslint/no-explicit-any
+  formData: FormData
+) {
+  const user = await getCurrentUser()
+
+  if (!user) {
+    throw new Error("Unauthorized")
+  }
+
+  const query = formData.get("query") as string
+
+  if (!query?.trim()) {
+    return { results: [] }
+  }
+
+  try {
+    if (!query.trim()) {
+      return { results: [], total: 0, page: 1 }
+    }
+    const result = await searchOpenLibrary(query, 1, 10)
+
+    return {
+      results: result.results || [],
+    }
+  } catch (error) {
+    console.error("Search error:", error)
+    return {
+      results: [],
+      error: "Failed to search books",
+    }
+  }
+}
+
+export async function addBookAction(
+  prevState: { success: boolean; error?: string },
+  formData: FormData
+) {
+  try {
+    const user = await getUser()
+
+    if (!user) {
+      throw new Error("Authentication required")
+    }
+
+    const bookData = {
+      workKey: formData.get("workKey") as string,
+      editionKey: (formData.get("editionKey") as string) || undefined,
+      title: formData.get("title") as string,
+      authors: JSON.parse(formData.get("authors") as string),
+      authorKeys: JSON.parse((formData.get("authorKeys") as string) || "[]"),
+      publishYear: parseInt(formData.get("publishYear") as string) || undefined,
+      coverId: parseInt(formData.get("coverId") as string) || undefined,
+      isbn10: JSON.parse((formData.get("isbn10") as string) || "[]"),
+      isbn13: JSON.parse((formData.get("isbn13") as string) || "[]"),
+      status: formData.get("status") as "WANT" | "OWNED" | "READING" | "READ",
+      rating: parseFloat(formData.get("rating") as string) || undefined,
+    }
+
+    const existingBook = await getUserBookByWorkKey(user.id, bookData.workKey)
+
+    if (existingBook) {
+      return {
+        success: false,
+        error: "Book already exists in your library",
+      }
+    }
+
+    await createBook({
+      userId: user.id,
+      workKey: bookData.workKey,
+      title: bookData.title,
+      status: bookData.status,
+      authors: bookData.authors,
+      authorKeys: bookData.authorKeys,
+      publishYear: bookData.publishYear,
+      coverId: bookData.coverId,
+      isbn10: bookData.isbn10,
+      isbn13: bookData.isbn13,
+      rating: bookData.rating?.toString() || undefined,
+    })
+
+    revalidatePath("/library")
+    return { success: true }
+  } catch (error) {
+    console.error("Error adding book:", error)
+    return {
+      success: false,
+      error: error instanceof Error ? error.message : "Failed to add book",
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import { UserBook } from "@/lib/db/schema"
+import { Book } from "@/lib/db/schema"
 import Image from "next/image"
 import Link from "next/link"
 import { Card, CardContent } from "@/components/ui/card"
@@ -7,7 +7,7 @@ import { StarRating } from "@/components/star-rating"
 import { BookOpen } from "lucide-react"
 
 interface BookCardProps {
-  book: UserBook
+  book: Book
 }
 
 export function BookCard({ book }: BookCardProps) {

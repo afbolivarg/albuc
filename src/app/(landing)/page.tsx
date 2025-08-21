@@ -1,9 +1,9 @@
 import { Button } from "@/components/ui/button"
-import { signInWithGoogle } from "@/app/actions/auth"
-import { getCurrentUser } from "@/lib/auth/user"
+import { SquareLibrary } from "lucide-react"
+import { getCurrentUser } from "@/lib/supabase/user"
+import { signInWithGoogle } from "./actions"
 import { redirect } from "next/navigation"
 import Link from "next/link"
-import { SquareLibrary } from "lucide-react"
 
 export default async function HomePage() {
   const user = await getCurrentUser()

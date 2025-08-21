@@ -1,30 +1,14 @@
-import { getCurrentUser } from "@/lib/auth/user"
-import { getUserBooks } from "@/lib/db/queries"
+import { getUserWithBooks } from "@/lib/db/queries"
 import { BookGrid } from "./book-grid"
-import { AddBookButton } from "./add-book-button"
+import { AddBook } from "./add-book"
+import { redirect } from "next/navigation"
 
-interface SearchParams {
-  status?: "WANT" | "OWNED" | "READING" | "READ"
-  search?: string
-  sortBy?: "updated_at" | "rating" | "title" | "author" | "publish_year"
-  sortOrder?: "asc" | "desc"
-}
+export default async function LibraryPage() {
+  const user = await getUserWithBooks()
 
-export default async function LibraryPage({
-  searchParams,
-}: {
-  searchParams: Promise<SearchParams>
-}) {
-  const { status, search, sortBy, sortOrder } = await searchParams
-
-  const user = await getCurrentUser()
-
-  const books = await getUserBooks(user!.id, {
-    status,
-    search,
-    sortBy,
-    sortOrder,
-  })
+  if (!user) {
+    redirect("/")
+  }
 
   return (
     <main className="container mx-auto px-6 py-8">
@@ -34,14 +18,14 @@ export default async function LibraryPage({
             My Library
           </h1>
           <p className="text-muted-foreground">
-            {books.length} {books.length === 1 ? "book" : "books"} in your
-            collection
+            {user.books.length} {user.books.length === 1 ? "book" : "books"} in
+            your collection
           </p>
         </div>
-        <AddBookButton />
+        <AddBook />
       </div>
 
-      <BookGrid books={books} />
+      <BookGrid books={user.books} />
     </main>
   )
 }

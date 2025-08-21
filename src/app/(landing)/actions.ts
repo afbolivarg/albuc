@@ -29,15 +29,3 @@ export async function signInWithGoogle() {
     redirect(data.url)
   }
 }
-
-export async function signOut() {
-  const supabase = await createServerClient()
-
-  const { error } = await supabase.auth.signOut()
-
-  if (error) {
-    throw new Error("Failed to sign out")
-  }
-
-  redirect("/")
-}

@@ -2,34 +2,30 @@ import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft, BookOpen } from "lucide-react"
-import { UserBook } from "@/lib/db/schema"
+import { Book } from "@/lib/db/schema"
 import { getCoverUrl } from "@/lib/open-library"
 import { StatusSelector } from "./status-selector"
 import { RatingSelector } from "./rating-selector"
+import { Label } from "@/components/ui/label"
 
 interface BookDetailHeaderProps {
-  book: UserBook
+  book: Book
 }
 
 export function BookDetailHeader({ book }: BookDetailHeaderProps) {
   const coverUrl = getCoverUrl(book.coverId || undefined, "L")
 
   return (
-    <div className="mb-8">
-      {/* Back Button */}
-      <div className="mb-6">
+    <div className="space-y-4">
+      <Button variant="outline" size="sm" asChild>
         <Link href="/library">
-          <Button variant="outline" size="sm">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Library
-          </Button>
+          <ArrowLeft className="h-4 w-4" />
+          Back to Library
         </Link>
-      </div>
+      </Button>
 
-      {/* Header Content */}
-      <div className="bg-card backdrop-blur-sm rounded-2xl border p-8">
+      <div className="bg-card rounded-2xl border p-8">
         <div className="flex flex-col md:flex-row gap-8">
-          {/* Cover */}
           <div className="w-48 h-72 mx-auto md:mx-0 flex-shrink-0 rounded-xl overflow-hidden bg-muted flex items-center justify-center shadow-lg">
             {coverUrl ? (
               <Image
@@ -47,14 +43,13 @@ export function BookDetailHeader({ book }: BookDetailHeaderProps) {
             )}
           </div>
 
-          {/* Metadata */}
-          <div className="flex-1">
-            <div className="mb-6">
-              <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground mb-3 leading-tight">
+          <div className="flex-1 space-y-4">
+            <div className="space-y-1">
+              <h1 className="text-3xl md:text-4xl font-serif font-bold text-foreground leading-tight">
                 {book.title}
               </h1>
 
-              <div className="text-lg text-muted-foreground mb-4">
+              <div className="text-lg text-muted-foreground">
                 {book.authors && book.authors.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
                     by{" "}
@@ -71,30 +66,23 @@ export function BookDetailHeader({ book }: BookDetailHeaderProps) {
               </div>
 
               {book.publishYear && (
-                <p className="text-muted-foreground mb-4">
+                <p className="text-muted-foreground">
                   First published: {book.publishYear}
                 </p>
               )}
             </div>
 
-            {/* Status and Rating Controls */}
-            <div className="space-y-4 mb-6">
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Status:
-                </span>
-                <StatusSelector bookId={book.id} currentStatus={book.status} />
-              </div>
+            <div className="flex flex-col items-start gap-2">
+              <Label>Status</Label>
+              <StatusSelector bookId={book.id} currentStatus={book.status} />
+            </div>
 
-              <div className="flex items-center gap-4">
-                <span className="text-sm font-medium text-muted-foreground">
-                  Rating:
-                </span>
-                <RatingSelector
-                  bookId={book.id}
-                  currentRating={book.rating ? parseFloat(book.rating) : 0}
-                />
-              </div>
+            <div className="flex flex-col items-start gap-2">
+              <Label>Rating</Label>
+              <RatingSelector
+                bookId={book.id}
+                currentRating={book.rating ? parseFloat(book.rating) : 0}
+              />
             </div>
           </div>
         </div>

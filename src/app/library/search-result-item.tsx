@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useTransition } from "react"
+import { useRef, useActionState, startTransition, useState } from "react"
 import Image from "next/image"
 import { Button } from "@/components/ui/button"
 import { Card } from "@/components/ui/card"
@@ -12,9 +12,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { BookSearchResult, getCoverUrl } from "@/lib/open-library"
-import { addBookToLibrary } from "@/app/actions/books"
+import { addBookAction } from "./actions"
 import { StarRating } from "@/components/star-rating"
-import { Plus, Check, Loader2, BookOpen } from "lucide-react"
+import { Plus, Check, Loader, BookOpen } from "lucide-react"
+import { bookStatusEnum } from "@/lib/db/schema"
+
+type BookStatus = (typeof bookStatusEnum.enumValues)[number]
 
 interface SearchResultItemProps {
   book: BookSearchResult
@@ -22,37 +25,38 @@ interface SearchResultItemProps {
 }
 
 export function SearchResultItem({ book, onAdd }: SearchResultItemProps) {
-  const [status, setStatus] = useState<"WANT" | "OWNED" | "READING" | "READ">(
-    "WANT"
+  const statusRef = useRef<BookStatus>(bookStatusEnum.enumValues[0])
+  const [rating, setRating] = useState<number>(0)
+  const [state, formAction, isPending] = useActionState(
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    async (prevState: any, formData: FormData) => {
+      const result = await addBookAction(prevState, formData)
+      if (result.success) {
+        onAdd()
+      }
+      return result
+    },
+    { success: false }
   )
-  const [rating, setRating] = useState(0)
-  const [isAdding, startAddTransition] = useTransition()
-  const [isAdded, setIsAdded] = useState(false)
 
   const coverUrl = getCoverUrl(book.coverId, "M")
 
-  const handleAdd = () => {
-    startAddTransition(async () => {
-      try {
-        await addBookToLibrary({
-          workKey: book.workKey,
-          editionKey: book.editionKey,
-          title: book.title,
-          authors: book.authors,
-          authorKeys: book.authorKeys,
-          publishYear: book.publishYear,
-          coverId: book.coverId,
-          isbn10: book.isbn10,
-          isbn13: book.isbn13,
-          status,
-          rating: rating > 0 ? rating : undefined,
-        })
-        setIsAdded(true)
-        setTimeout(onAdd, 1500) // Close modal after success
-      } catch (error) {
-        console.error("Error adding book:", error)
-        // TODO: Show error toast
-      }
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+
+    formData.append("workKey", book.workKey)
+    formData.append("editionKey", book.editionKey || "")
+    formData.append("title", book.title)
+    formData.append("authors", JSON.stringify(book.authors))
+    formData.append("authorKeys", JSON.stringify(book.authorKeys || []))
+    formData.append("publishYear", book.publishYear?.toString() || "")
+    formData.append("coverId", book.coverId?.toString() || "")
+    formData.append("isbn10", JSON.stringify(book.isbn10 || []))
+    formData.append("isbn13", JSON.stringify(book.isbn13 || []))
+
+    startTransition(() => {
+      formAction(formData)
     })
   }
 
@@ -94,23 +98,29 @@ export function SearchResultItem({ book, onAdd }: SearchResultItemProps) {
           )}
 
           {/* Controls */}
-          <div className="flex items-center gap-4 flex-wrap">
+          <form
+            onSubmit={handleSubmit}
+            className="flex items-center gap-4 flex-wrap"
+          >
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Status:</span>
               <Select
-                value={status}
-                onValueChange={(value: "WANT" | "OWNED" | "READING" | "READ") =>
-                  setStatus(value)
-                }
+                name="status"
+                defaultValue={statusRef.current}
+                onValueChange={(value: BookStatus) => {
+                  statusRef.current = value
+                }}
               >
                 <SelectTrigger className="w-24 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="WANT">Want</SelectItem>
-                  <SelectItem value="OWNED">Owned</SelectItem>
-                  <SelectItem value="READING">Reading</SelectItem>
-                  <SelectItem value="READ">Read</SelectItem>
+                  {bookStatusEnum.enumValues.map(statusValue => (
+                    <SelectItem key={statusValue} value={statusValue}>
+                      {statusValue.charAt(0) +
+                        statusValue.slice(1).toLowerCase()}
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
             </div>
@@ -118,24 +128,29 @@ export function SearchResultItem({ book, onAdd }: SearchResultItemProps) {
             <div className="flex items-center gap-2">
               <span className="text-xs text-muted-foreground">Rating:</span>
               <StarRating rating={rating} onChange={setRating} size="sm" />
+              <input type="hidden" name="rating" value={rating.toString()} />
             </div>
 
             <Button
-              onClick={handleAdd}
-              disabled={isAdding || isAdded}
+              type="submit"
+              disabled={isPending || state.success}
               size="sm"
-              className={`${isAdded ? "bg-green-600 hover:bg-green-600" : ""}`}
+              className={`${state.success ? "bg-green-600 hover:bg-green-600" : ""}`}
             >
-              {isAdding ? (
-                <Loader2 className="h-3 w-3 animate-spin mr-1" />
-              ) : isAdded ? (
+              {isPending ? (
+                <Loader className="h-3 w-3 animate-spin mr-1" />
+              ) : state.success ? (
                 <Check className="h-3 w-3 mr-1" />
               ) : (
                 <Plus className="h-3 w-3 mr-1" />
               )}
-              {isAdding ? "Adding..." : isAdded ? "Added!" : "Add"}
+              Add
             </Button>
-          </div>
+
+            {state.error && (
+              <span className="text-xs text-destructive">{state.error}</span>
+            )}
+          </form>
         </div>
       </div>
     </Card>

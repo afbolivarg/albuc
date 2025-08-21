@@ -1,75 +1,121 @@
-import { getCurrentUser } from "@/lib/auth/user"
+import { getCurrentUser } from "@/lib/supabase/user"
 import { db } from "@/lib/db"
-import { userBooks } from "@/lib/db/schema"
-import { eq, desc, and, or, ilike } from "drizzle-orm"
+import { Book, NewBook, NewUser, User, books, users } from "@/lib/db/schema"
+import { eq, desc, and } from "drizzle-orm"
 
 export async function getUser() {
-  return await getCurrentUser()
+  const supabaseUser = await getCurrentUser()
+
+  if (!supabaseUser) {
+    return null
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.googleSub, supabaseUser.id),
+  })
+
+  return user ?? null
 }
 
-export async function getUserBooks(
-  userId: string,
-  filters?: {
-    status?: "WANT" | "OWNED" | "READING" | "READ"
-    search?: string
-    sortBy?: "updated_at" | "rating" | "title" | "author" | "publish_year"
-    sortOrder?: "asc" | "desc"
-  }
-) {
-  // Build where conditions
-  const conditions = [eq(userBooks.userId, userId)]
+export async function getUserByGoogleSub(googleSub: string) {
+  const user = await db.query.users.findFirst({
+    where: eq(users.googleSub, googleSub),
+  })
 
-  // Apply search filter
-  if (filters?.search) {
-    conditions.push(
-      or(
-        ilike(userBooks.title, `%${filters.search}%`)
-        // TODO: Add array search for authors when needed
-      )!
-    )
-  }
+  return user ?? null
+}
 
-  // Apply status filter
-  if (filters?.status) {
-    conditions.push(eq(userBooks.status, filters.status))
-  }
-
-  // Apply sorting
-  const sortColumn = filters?.sortBy || "updated_at"
-  const sortDirection = filters?.sortOrder || "desc"
-
-  let orderByClause
-  if (sortColumn === "updated_at") {
-    orderByClause =
-      sortDirection === "desc" ? desc(userBooks.updatedAt) : userBooks.updatedAt
-  } else if (sortColumn === "title") {
-    orderByClause =
-      sortDirection === "desc" ? desc(userBooks.title) : userBooks.title
-  } else if (sortColumn === "rating") {
-    orderByClause =
-      sortDirection === "desc" ? desc(userBooks.rating) : userBooks.rating
-  } else if (sortColumn === "publish_year") {
-    orderByClause =
-      sortDirection === "desc"
-        ? desc(userBooks.publishYear)
-        : userBooks.publishYear
-  } else {
-    orderByClause = desc(userBooks.updatedAt)
-  }
-
+export async function updateUser(user: User) {
   return await db
-    .select()
-    .from(userBooks)
-    .where(and(...conditions))
-    .orderBy(orderByClause)
+    .update(users)
+    .set(user)
+    .where(eq(users.googleSub, user.googleSub))
+    .returning()
+}
+
+export async function createUser(user: NewUser) {
+  return await db.insert(users).values(user).returning()
+}
+
+export async function getUserWithBooks() {
+  const supabaseUser = await getCurrentUser()
+
+  if (!supabaseUser) {
+    return null
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.googleSub, supabaseUser.id),
+    with: {
+      books: {
+        orderBy: desc(books.updatedAt),
+      },
+    },
+  })
+
+  return user ?? null
+}
+
+export async function getUserWithBook(bookId: string) {
+  const supabaseUser = await getCurrentUser()
+
+  if (!supabaseUser) {
+    return null
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.googleSub, supabaseUser.id),
+    with: {
+      books: {
+        where: eq(books.id, bookId),
+      },
+    },
+  })
+  return user ?? null
+}
+
+export async function getUserBookByWorkKey(userId: string, workKey: string) {
+  const result = await db.query.books.findFirst({
+    where: and(eq(books.userId, userId), eq(books.workKey, workKey)),
+  })
+  return result ?? null
 }
 
 export async function getUserBook(userId: string, bookId: string) {
-  const books = await db
+  const result = await db
     .select()
-    .from(userBooks)
-    .where(and(eq(userBooks.userId, userId), eq(userBooks.id, bookId)))
+    .from(books)
+    .where(and(eq(books.userId, userId), eq(books.id, bookId)))
     .limit(1)
 
-  return books.length > 0 ? books[0] : null
+  return result.length > 0 ? result[0] : null
 }
+
+export async function createBook(book: NewBook) {
+  return await db.insert(books).values(book).returning()
+}
+
+export async function updateBook(book: Book) {
+  return await db
+    .update(books)
+    .set(book)
+    .where(eq(books.id, book.id))
+    .returning()
+}
+
+// export async function getUserUsageAndPlan(userId: string) {
+//   const [{ total }] = await db
+//     .select({ total: count(userBooks.id) })
+//     .from(userBooks)
+//     .where(eq(userBooks.userId, userId))
+
+//   const plan = await getUserPlan(userId)
+
+//   return {
+//     current: Number(total ?? 0),
+//     limit: plan.bookLimit,
+//     plan: plan.plan,
+//     canAddMore:
+//       plan.bookLimit === Infinity || Number(total ?? 0) < plan.bookLimit,
+//   } as const
+// }
