@@ -1,16 +1,26 @@
-// import { subscriptions, database } from "@/db"
 const LEMONSQUEEZY_API_BASE = "https://api.lemonsqueezy.com/v1"
 
-export async function getPlanDetail(type: "monthly" | "lifetime") {
+export async function getPlanDetail(type: "monthly" | "yearly" | "lifetime") {
+  let variantId: string | undefined
+  switch (type) {
+    case "monthly":
+      variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY
+      break
+    case "yearly":
+      variantId =
+        process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY ||
+        process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY
+      break
+    case "lifetime":
+      variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME
+      break
+  }
+
   const response = await fetch(
-    `https://api.lemonsqueezy.com/v1/variants/${
-      type === "monthly"
-        ? process.env.LEMONSQUEEZY_VARIANT_ID_MONTHLY
-        : process.env.LEMONSQUEEZY_VARIANT_ID_LIFETIME
-    }`,
+    `https://api.lemonsqueezy.com/v1/variants/${variantId}`,
     {
       headers: {
-        Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+        Authorization: `Bearer ${process.env.LEMON_SQUEEZY_API_KEY}`,
       },
     }
   )
@@ -60,7 +70,7 @@ export async function createCheckoutLink(
     headers: {
       Accept: "application/vnd.api+json",
       "Content-Type": "application/vnd.api+json",
-      Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
+      Authorization: `Bearer ${process.env.LEMON_SQUEEZY_API_KEY}`,
     },
     body: JSON.stringify(body),
   })
@@ -72,74 +82,3 @@ export async function createCheckoutLink(
   const { data } = await response.json()
   return data.attributes.url as string
 }
-
-// Retrieve a pre-signed Customer Portal URL for the user's LS customer
-export async function getCustomerPortalUrl(customerId: string) {
-  const response = await fetch(
-    `${LEMONSQUEEZY_API_BASE}/customers/${customerId}`,
-    {
-      headers: {
-        Authorization: `Bearer ${process.env.LEMONSQUEEZY_API_KEY}`,
-      },
-      // Do not cache sensitive URLs
-      cache: "no-store",
-    }
-  )
-
-  if (!response.ok) {
-    throw new Error(`Failed to fetch customer: ${await response.text()}`)
-  }
-
-  const { data } = await response.json()
-  return (data?.attributes?.urls?.customer_portal as string | null) || null
-}
-
-// export async function createCheckoutLink(
-//   variantId: string,
-//   storeId: string,
-//   userId: string,
-//   userEmail: string,
-//   selectedCompanyId: string,
-//   discountCode?: string
-// ) {
-//   const response = await fetch(`https://api.lemonsqueezy.com/v1/checkouts`, {
-//     method: "POST",
-//     headers: {
-//       Authorization: `Bearer ${env.LEMON_SQUEEZY_API_KEY}`,
-//     },
-//     body: JSON.stringify({
-//       data: {
-//         type: "checkouts",
-//         attributes: {
-//           checkout_data: {
-//             custom: {
-//               userId,
-//               companyId: selectedCompanyId,
-//             },
-//             email: userEmail,
-//             discount_code: discountCode || undefined,
-//           },
-//         },
-//         relationships: {
-//           store: { data: { type: "stores", id: storeId } },
-//           variant: { data: { type: "variants", id: variantId } },
-//         },
-//       },
-//     }),
-//   })
-
-//   if (!response.ok) {
-//     throw new Error(`Failed to create checkout: ${await response.text()}`)
-//   }
-//   const { data } = await response.json()
-
-//   return data.attributes.url
-// }
-
-// export async function getSubscriptionByCompanyId(companyId: string) {
-//   const subscription = await database.query.subscriptions.findFirst({
-//     where: eq(subscriptions.companyId, companyId),
-//   })
-
-//   return subscription
-// }

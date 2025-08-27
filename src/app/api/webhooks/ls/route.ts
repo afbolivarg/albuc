@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server"
 import { db } from "@/lib/db"
-import { subscriptions, orders } from "@/lib/db/schema"
+import { subscriptions, orders, users } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import crypto from "crypto"
 
@@ -9,10 +9,14 @@ export async function POST(request: NextRequest) {
   const signature = request.headers.get("X-Signature") || ""
 
   // Verify webhook signature
-  const secret =
-    process.env.LEMONSQUEEZY_WEBHOOK_SECRET ||
-    process.env.LEMON_SQUEEZY_WEBHOOK_SECRET ||
-    ""
+  const secret = process.env.LEMON_SQUEEZY_WEBHOOK_SECRET
+  if (!secret) {
+    return NextResponse.json(
+      { error: "Webhook secret not configured" },
+      { status: 500 }
+    )
+  }
+
   const hmac = crypto.createHmac("sha256", secret)
   const digest = hmac.update(rawBody).digest("hex")
   if (signature !== digest) {
@@ -27,6 +31,19 @@ export async function POST(request: NextRequest) {
   if (!userId) {
     return NextResponse.json({ error: "Missing userId" }, { status: 400 })
   }
+
+  // Verify user exists in database (userId is the Supabase user ID / googleSub)
+  const existingUser = await db
+    .select()
+    .from(users)
+    .where(eq(users.googleSub, userId))
+    .limit(1)
+
+  if (existingUser.length === 0) {
+    return NextResponse.json({ error: "User not found" }, { status: 404 })
+  }
+
+  const dbUserId = existingUser[0].id
 
   switch (eventType) {
     case "subscription_created":
@@ -45,7 +62,7 @@ export async function POST(request: NextRequest) {
       const existing = await db
         .select()
         .from(subscriptions)
-        .where(eq(subscriptions.userId, userId))
+        .where(eq(subscriptions.userId, dbUserId))
         .limit(1)
 
       if (existing.length > 0) {
@@ -59,10 +76,10 @@ export async function POST(request: NextRequest) {
             endsAt: endsAt || null,
             updatedAt: new Date(),
           })
-          .where(eq(subscriptions.userId, userId))
+          .where(eq(subscriptions.userId, dbUserId))
       } else {
         await db.insert(subscriptions).values({
-          userId,
+          userId: dbUserId,
           subscriptionId,
           customerId: data.attributes.customer_id?.toString() || null,
           variantId,
@@ -83,7 +100,7 @@ export async function POST(request: NextRequest) {
             eventType === "subscription_cancelled" ? "cancelled" : "expired",
           updatedAt: new Date(),
         })
-        .where(eq(subscriptions.userId, userId))
+        .where(eq(subscriptions.userId, dbUserId))
       break
     }
 
@@ -91,7 +108,7 @@ export async function POST(request: NextRequest) {
       await db
         .update(subscriptions)
         .set({ status: "paused", updatedAt: new Date() })
-        .where(eq(subscriptions.userId, userId))
+        .where(eq(subscriptions.userId, dbUserId))
       break
     }
 
@@ -99,7 +116,7 @@ export async function POST(request: NextRequest) {
       await db
         .update(subscriptions)
         .set({ status: "active", updatedAt: new Date() })
-        .where(eq(subscriptions.userId, userId))
+        .where(eq(subscriptions.userId, dbUserId))
       break
     }
 
@@ -142,7 +159,7 @@ export async function POST(request: NextRequest) {
           .where(eq(orders.orderId, orderId))
       } else {
         await db.insert(orders).values({
-          userId,
+          userId: dbUserId,
           orderId,
           customerId: data.attributes.customer_id?.toString() || null,
           variantId: variantId || "",

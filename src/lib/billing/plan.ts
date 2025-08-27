@@ -12,7 +12,7 @@ export async function getUserPlan(userId: string): Promise<{
   bookLimit: number
 }> {
   // Lifetime if there is a paid, non-refunded order for lifetime variant
-  const lifetimeVariantId = process.env.LEMONSQUEEZY_VARIANT_ID_LIFETIME
+  const lifetimeVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME
 
   if (lifetimeVariantId) {
     const lifetime = await db
@@ -44,4 +44,23 @@ export async function getUserPlan(userId: string): Promise<{
   }
 
   return { plan: "free", bookLimit: FREE_LIMIT }
+}
+
+export async function canUserAccessCheckout(
+  userId: string
+): Promise<{ canAccess: boolean; reason?: string }> {
+  const userPlan = await getUserPlan(userId)
+
+  if (userPlan.plan === "lifetime") {
+    return { canAccess: false, reason: "You already have lifetime access." }
+  }
+
+  if (userPlan.plan === "monthly") {
+    return {
+      canAccess: false,
+      reason: "You already have an active subscription.",
+    }
+  }
+
+  return { canAccess: true }
 }

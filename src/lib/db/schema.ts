@@ -10,6 +10,19 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core"
 
+export const subscriptionStatusEnum = pgEnum("subscription_status", [
+  "active",
+  "on_trial",
+  "paused",
+  "past_due",
+  "cancelled",
+  "expired",
+])
+export const orderStatusEnum = pgEnum("order_status", [
+  "paid",
+  "refunded",
+  "failed",
+])
 export const bookStatusEnum = pgEnum("book_status", [
   "WANT",
   "OWNED",
@@ -17,7 +30,6 @@ export const bookStatusEnum = pgEnum("book_status", [
   "READ",
 ])
 
-// Users table for Google authentication
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   googleSub: text("google_sub").notNull().unique(), // Google OIDC sub
@@ -27,7 +39,50 @@ export const users = pgTable("users", {
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
 
-// Books cataloged by users (junction to a canonical Work/Edition)
+export const subscriptions = pgTable(
+  "subscriptions",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    subscriptionId: text("subscription_id").notNull().unique(),
+    customerId: text("customer_id"),
+    variantId: text("variant_id").notNull(),
+    status: subscriptionStatusEnum("status").notNull(),
+    renewsAt: timestamp("renews_at"),
+    endsAt: timestamp("ends_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  table => [
+    index("subscriptions_user_id_idx").on(table.userId),
+    index("subscriptions_status_idx").on(table.status),
+  ]
+)
+
+export const orders = pgTable(
+  "orders",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    userId: uuid("user_id")
+      .notNull()
+      .references(() => users.id, { onDelete: "cascade" }),
+    orderId: text("order_id").notNull().unique(),
+    customerId: text("customer_id"),
+    variantId: text("variant_id").notNull(),
+    status: orderStatusEnum("status").notNull(),
+    paidAt: timestamp("paid_at"),
+    refundedAt: timestamp("refunded_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+    updatedAt: timestamp("updated_at").notNull().defaultNow(),
+  },
+  table => [
+    index("orders_user_id_idx").on(table.userId),
+    index("orders_status_idx").on(table.status),
+  ]
+)
+
 export const books = pgTable(
   "books",
   {
@@ -57,7 +112,6 @@ export const books = pgTable(
   ]
 )
 
-// relations
 export const booksRelations = relations(books, ({ one }) => ({
   user: one(users, {
     fields: [books.userId],
@@ -67,74 +121,28 @@ export const booksRelations = relations(books, ({ one }) => ({
 
 export const userRelations = relations(users, ({ many }) => ({
   books: many(books),
+  subscriptions: many(subscriptions),
+  orders: many(orders),
+}))
+
+export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
+  user: one(users, {
+    fields: [subscriptions.userId],
+    references: [users.id],
+  }),
+}))
+
+export const ordersRelations = relations(orders, ({ one }) => ({
+  user: one(users, {
+    fields: [orders.userId],
+    references: [users.id],
+  }),
 }))
 
 export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 export type Book = typeof books.$inferSelect
 export type NewBook = typeof books.$inferInsert
-
-// Billing: subscriptions (recurring) and orders (one-time/lifetime)
-// Enums for billing
-export const subscriptionStatusEnum = pgEnum("subscription_status", [
-  "active",
-  "on_trial",
-  "paused",
-  "past_due",
-  "cancelled",
-  "expired",
-])
-
-export const orderStatusEnum = pgEnum("order_status", [
-  "paid",
-  "refunded",
-  "failed",
-])
-
-export const subscriptions = pgTable(
-  "subscriptions",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    subscriptionId: text("subscription_id").notNull().unique(),
-    customerId: text("customer_id"),
-    variantId: text("variant_id").notNull(),
-    status: subscriptionStatusEnum("status").notNull(),
-    renewsAt: timestamp("renews_at"),
-    endsAt: timestamp("ends_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  table => ({
-    subscriptionsUserIdIdx: index("subscriptions_user_id_idx").on(table.userId),
-    subscriptionsStatusIdx: index("subscriptions_status_idx").on(table.status),
-  })
-)
-
-export const orders = pgTable(
-  "orders",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    orderId: text("order_id").notNull().unique(),
-    customerId: text("customer_id"),
-    variantId: text("variant_id").notNull(),
-    status: orderStatusEnum("status").notNull(),
-    paidAt: timestamp("paid_at"),
-    refundedAt: timestamp("refunded_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  table => ({
-    ordersUserIdIdx: index("orders_user_id_idx").on(table.userId),
-    ordersStatusIdx: index("orders_status_idx").on(table.status),
-  })
-)
-
 export type Subscription = typeof subscriptions.$inferSelect
 export type NewSubscription = typeof subscriptions.$inferInsert
 export type Order = typeof orders.$inferSelect

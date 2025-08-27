@@ -17,7 +17,7 @@ export function BookCard({ book }: BookCardProps) {
 
   return (
     <Link href={`/library/${book.id}`}>
-      <Card className="group hover:shadow-lg transition-all duration-200 bg-card backdrop-blur-sm hover:scale-105 cursor-pointer">
+      <Card className="group transition-all duration-200 bg-card hover:scale-105 cursor-pointer">
         <CardContent>
           {/* Cover */}
           <div className="aspect-[2/3] mb-3 rounded-lg overflow-hidden bg-muted flex items-center justify-center relative">

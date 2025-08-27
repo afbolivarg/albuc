@@ -1,7 +1,17 @@
 import { getCurrentUser } from "@/lib/supabase/user"
 import { db } from "@/lib/db"
-import { Book, NewBook, NewUser, User, books, users } from "@/lib/db/schema"
+import {
+  Book,
+  NewBook,
+  NewUser,
+  User,
+  books,
+  users,
+  subscriptions,
+  orders,
+} from "@/lib/db/schema"
 import { eq, desc, and } from "drizzle-orm"
+import { PlanType } from "@/lib/billing/plan"
 
 export async function getUser() {
   const supabaseUser = await getCurrentUser()
@@ -15,6 +25,66 @@ export async function getUser() {
   })
 
   return user ?? null
+}
+
+export async function getUserWithPlan(): Promise<
+  (User & { plan: PlanType; bookLimit: number }) | null
+> {
+  const supabaseUser = await getCurrentUser()
+
+  if (!supabaseUser) {
+    return null
+  }
+
+  const user = await db.query.users.findFirst({
+    where: eq(users.googleSub, supabaseUser.id),
+    with: {
+      subscriptions: true,
+      orders: true,
+    },
+  })
+
+  if (!user) {
+    return null
+  }
+
+  // Determine plan based on subscriptions and orders
+  const lifetimeVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME
+
+  // Check for lifetime access first
+  if (lifetimeVariantId) {
+    const hasLifetime = user.orders.some(
+      order => order.variantId === lifetimeVariantId && order.status === "paid"
+    )
+
+    if (hasLifetime) {
+      return {
+        ...user,
+        plan: "lifetime" as PlanType,
+        bookLimit: Number.POSITIVE_INFINITY,
+      }
+    }
+  }
+
+  // Check for active subscription
+  const activeSubscription = user.subscriptions.find(sub =>
+    ["active", "on_trial"].includes(sub.status)
+  )
+
+  if (activeSubscription) {
+    return {
+      ...user,
+      plan: "monthly" as PlanType,
+      bookLimit: Number.POSITIVE_INFINITY,
+    }
+  }
+
+  // Default to free plan
+  return {
+    ...user,
+    plan: "free" as PlanType,
+    bookLimit: 10,
+  }
 }
 
 export async function getUserByGoogleSub(googleSub: string) {

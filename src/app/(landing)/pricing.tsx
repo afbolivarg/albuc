@@ -5,7 +5,12 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import { signInWithGoogle } from "./actions"
+import {
+  signInWithGoogleFree,
+  subscribeMonthly,
+  subscribeYearly,
+  subscribeLifetime,
+} from "./actions"
 
 interface PricingCardProps {
   price: string | number
@@ -19,6 +24,7 @@ interface PricingCardProps {
   onBillingToggle?: (checked: boolean) => void
   yearlyPrice?: string
   monthlyPrice?: string
+  planType?: "free" | "monthly" | "yearly" | "lifetime"
 }
 
 function PricingCard({
@@ -33,6 +39,7 @@ function PricingCard({
   onBillingToggle,
   yearlyPrice,
   monthlyPrice,
+  planType = "free",
 }: PricingCardProps) {
   const displayPrice = showBillingToggle
     ? isYearly
@@ -83,7 +90,21 @@ function PricingCard({
             </li>
           ))}
         </ul>
-        <form action={signInWithGoogle}>
+        <form
+          action={
+            planType === "free"
+              ? signInWithGoogleFree
+              : planType === "lifetime"
+                ? subscribeLifetime
+                : showBillingToggle
+                  ? isYearly
+                    ? subscribeYearly
+                    : subscribeMonthly
+                  : planType === "monthly"
+                    ? subscribeMonthly
+                    : signInWithGoogleFree
+          }
+        >
           <Button type="submit" variant={buttonVariant} className="w-full">
             {buttonText}
           </Button>
@@ -118,6 +139,7 @@ export function PricingSection() {
             features={["Access to all features", "Start your personal library"]}
             buttonText="Sign up"
             buttonVariant="outline"
+            planType="free"
           />
 
           {/* Curator Plan */}
@@ -133,6 +155,7 @@ export function PricingSection() {
             onBillingToggle={setIsYearly}
             yearlyPrice="4.00"
             monthlyPrice="12.00"
+            planType="monthly"
           />
 
           {/* Archivist Plan */}
@@ -142,6 +165,7 @@ export function PricingSection() {
             features={["Lifetime access", "All current & future features"]}
             buttonText="Get started"
             buttonVariant="outline"
+            planType="lifetime"
           />
         </div>
       </div>
