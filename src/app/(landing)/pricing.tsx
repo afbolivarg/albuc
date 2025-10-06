@@ -1,6 +1,5 @@
 "use client"
 
-import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -106,8 +105,6 @@ function PricingCard({
 }
 
 export function PricingSection() {
-  const [isYearly, setIsYearly] = useState(true)
-
   return (
     <>
       {/* Pricing Section */}

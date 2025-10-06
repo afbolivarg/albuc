@@ -2,7 +2,6 @@
 
 import { User } from "@/lib/db/schema"
 import { PlanType } from "@/lib/billing/plan"
-import { Badge } from "@/components/ui/badge"
 import Image from "next/image"
 import { LogOut, CreditCard, Library } from "lucide-react"
 import {

@@ -58,12 +58,6 @@ export async function POST(req: Request) {
 
     // 6. Build context with citations
     let systemPrompt: string
-    let sources: Array<{
-      bookId: string
-      title: string
-      authors: string[]
-      publishYear: number | null
-    }> = []
 
     if (relevantChunks.length === 0) {
       systemPrompt = `You are a reading copilot. The user has asked a question but you couldn't find any relevant information in their library. Politely let them know that you need relevant notes or books in their library to answer this question.`
@@ -99,8 +93,6 @@ export async function POST(req: Request) {
           })
         }
       }
-
-      sources = Array.from(uniqueBooks.values())
 
       systemPrompt = `You are a reading copilot helping the user understand and recall information from their personal library.
 

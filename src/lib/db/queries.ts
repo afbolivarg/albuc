@@ -7,8 +7,6 @@ import {
   User,
   books,
   users,
-  subscriptions,
-  orders,
   noteChunks,
   NewNoteChunk,
 } from "@/lib/db/schema"

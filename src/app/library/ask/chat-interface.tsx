@@ -79,7 +79,7 @@ export function ChatInterface({
         <div className="bg-amber-50 border border-amber-200 text-amber-900 dark:bg-amber-950/20 dark:border-amber-800 dark:text-amber-200 px-4 py-3 rounded-lg">
           <p className="font-medium">Query Limit Reached</p>
           <p className="text-sm">
-            You've reached your monthly query limit. Upgrade your plan to
+            You&apos;ve reached your monthly query limit. Upgrade your plan to
             continue asking questions.
           </p>
         </div>
@@ -110,8 +110,8 @@ export function ChatInterface({
                 Start a conversation
               </h3>
               <p className="text-sm text-muted-foreground mb-6">
-                Ask anything about your library. I'll search through your notes
-                and books to provide accurate, cited answers.
+                Ask anything about your library. I&apos;ll search through your
+                notes and books to provide accurate, cited answers.
               </p>
             </div>
             <div className="text-left space-y-2">
@@ -121,16 +121,19 @@ export function ChatInterface({
               <ul className="space-y-2 text-sm text-muted-foreground">
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-0.5">•</span>
-                  <span>"What are the key themes in [book title]?"</span>
+                  <span>
+                    &quot;What are the key themes in [book title]?&quot;
+                  </span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-0.5">•</span>
-                  <span>"Summarize my notes about [topic]"</span>
+                  <span>&quot;Summarize my notes about [topic]&quot;</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="text-primary mt-0.5">•</span>
                   <span>
-                    "Find connections between [concept A] and [concept B]"
+                    &quot;Find connections between [concept A] and [concept
+                    B]&quot;
                   </span>
                 </li>
               </ul>

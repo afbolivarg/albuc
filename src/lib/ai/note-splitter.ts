@@ -6,7 +6,6 @@
  */
 
 const TARGET_CHUNK_SIZE = 800 // ~200 tokens
-const MIN_CHUNK_SIZE = 400 // ~100 tokens minimum to avoid tiny chunks
 
 export interface NoteChunk {
   text: string
