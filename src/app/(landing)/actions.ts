@@ -128,7 +128,3 @@ export async function subscribeYearly() {
 export async function subscribeLifetime() {
   return subscribeOrSignIn("lifetime")
 }
-
-export async function signInWithGoogleFree() {
-  return signInWithGoogle()
-}

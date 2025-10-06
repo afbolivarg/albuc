@@ -9,8 +9,10 @@ import {
   users,
   subscriptions,
   orders,
+  noteChunks,
+  NewNoteChunk,
 } from "@/lib/db/schema"
-import { eq, desc, and } from "drizzle-orm"
+import { eq, desc, and, sql } from "drizzle-orm"
 import { PlanType } from "@/lib/billing/plan"
 
 export async function getUser() {
@@ -79,12 +81,8 @@ export async function getUserWithPlan(): Promise<
     }
   }
 
-  // Default to free plan
-  return {
-    ...user,
-    plan: "free" as PlanType,
-    bookLimit: 10,
-  }
+  // No active plan - return null to require subscription
+  return null
 }
 
 export async function getUserByGoogleSub(googleSub: string) {
@@ -189,3 +187,84 @@ export async function updateBook(book: Book) {
 //       plan.bookLimit === Infinity || Number(total ?? 0) < plan.bookLimit,
 //   } as const
 // }
+
+// ========================================
+// Note Chunks Queries
+// ========================================
+
+/**
+ * Create multiple note chunks for a book (used during embedding pipeline)
+ */
+export async function createNoteChunks(chunks: NewNoteChunk[]) {
+  if (chunks.length === 0) {
+    return []
+  }
+  return await db.insert(noteChunks).values(chunks).returning()
+}
+
+/**
+ * Delete all note chunks for a specific book
+ */
+export async function deleteNoteChunksByBookId(bookId: string) {
+  return await db.delete(noteChunks).where(eq(noteChunks.bookId, bookId))
+}
+
+/**
+ * Get all note chunks for a specific book
+ */
+export async function getNoteChunksByBookId(bookId: string) {
+  return await db.select().from(noteChunks).where(eq(noteChunks.bookId, bookId))
+}
+
+/**
+ * Perform semantic search across a user's note chunks
+ * Returns the top K most similar chunks with their book metadata
+ *
+ * @param userId - User ID to search within
+ * @param queryEmbedding - The embedding vector of the search query
+ * @param limit - Maximum number of results to return
+ * @param modelVersion - Optional: only search chunks from specific model version
+ */
+export async function semanticSearchNotes(
+  userId: string,
+  queryEmbedding: number[],
+  limit: number = 8,
+  modelVersion?: string
+) {
+  // Convert the embedding array to the pgvector format string
+  const embeddingString = `[${queryEmbedding.join(",")}]`
+
+  // Build WHERE clause with optional model version filter
+  const modelFilter = modelVersion
+    ? sql`AND nc.model_version = ${modelVersion}`
+    : sql``
+
+  const results = await db.execute(sql`
+    SELECT 
+      nc.id,
+      nc.chunk,
+      nc.book_id,
+      nc.model_version,
+      b.title,
+      b.authors,
+      b.publish_year,
+      (nc.embedding <-> ${embeddingString}::vector) as distance
+    FROM ${noteChunks} nc
+    JOIN ${books} b ON nc.book_id = b.id
+    WHERE b.user_id = ${userId}
+    ${modelFilter}
+    ORDER BY nc.embedding <-> ${embeddingString}::vector
+    LIMIT ${limit}
+  `)
+
+  return results as unknown as Array<{
+    id: string
+    chunk: string
+    book_id: string
+    model_version: string
+    title: string
+    authors: string[]
+    publish_year: number
+    distance: number
+  }>
+}

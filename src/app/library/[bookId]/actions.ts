@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache"
 import { getUserBook, updateBook, getUser } from "@/lib/db/queries"
+import { processBookEmbeddingsAsync } from "@/lib/ai/embedding-pipeline"
 
 export async function updateBookStatusAction(
   prevState: { error?: string; success?: boolean } | null,
@@ -152,6 +153,10 @@ export async function updateBookNotesAction(
     if (!updatedBook || updatedBook.length === 0) {
       return { error: "Failed to update book" }
     }
+
+    // Trigger embedding pipeline asynchronously (Stage 2)
+    // This processes the note chunks and generates embeddings in the background
+    processBookEmbeddingsAsync(bookId, noteMarkdown?.trim() || null)
 
     revalidatePath("/library")
     revalidatePath(`/library/${bookId}`)

@@ -1,7 +1,7 @@
 import Image from "next/image"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
-import { ArrowLeft, BookOpen } from "lucide-react"
+import { ArrowLeft, BookOpen, MessageSquare } from "lucide-react"
 import { Book } from "@/lib/db/schema"
 import { getCoverUrl } from "@/lib/open-library"
 import { StatusSelector } from "./status-selector"
@@ -17,12 +17,20 @@ export function BookDetailHeader({ book }: BookDetailHeaderProps) {
 
   return (
     <div className="space-y-4">
-      <Button variant="outline" size="sm" asChild>
-        <Link href="/library">
-          <ArrowLeft className="h-4 w-4" />
-          Back to Library
-        </Link>
-      </Button>
+      <div className="flex items-center gap-2">
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/library">
+            <ArrowLeft className="h-4 w-4" />
+            Back to Library
+          </Link>
+        </Button>
+        <Button variant="outline" size="sm" asChild>
+          <Link href="/library/ask">
+            <MessageSquare className="h-4 w-4" />
+            Ask About This Book
+          </Link>
+        </Button>
+      </div>
 
       <div className="bg-card rounded-2xl border p-8">
         <div className="flex flex-col md:flex-row gap-8">

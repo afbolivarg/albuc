@@ -112,10 +112,6 @@ function PlanCard({
             <Button disabled className="w-full" variant="outline">
               You have lifetime access
             </Button>
-          ) : planType === "free" ? (
-            <Button disabled className="w-full" variant="outline">
-              Downgrade not available
-            </Button>
           ) : (
             <form action={getButtonAction()} className="w-full">
               <Button
@@ -123,7 +119,7 @@ function PlanCard({
                 className="w-full"
                 variant={isPopular ? "default" : "outline"}
               >
-                Upgrade to {planName}
+                Subscribe to {planName}
               </Button>
             </form>
           )}
@@ -143,28 +139,15 @@ export function PlansDialog({ currentPlan, children }: PlansDialogProps) {
 
   const plans = [
     {
-      planName: "Wanderer",
-      price: "Free",
-      features: ["Access to all features", "Up to 10 books"],
-      planType: "free" as ExtendedPlanType,
-    },
-    {
-      planName: "Curator - Monthly",
+      planName: "Curator",
       price: "12.00",
       period: "month",
-      features: ["Everything in Wanderer", "Unlimited books & notes"],
-      planType: "monthly" as ExtendedPlanType,
-    },
-    {
-      planName: "Curator - Yearly",
-      price: "48.00",
-      period: "year",
       features: [
-        "60% savings vs monthly",
-        "Everything in Curator",
         "Unlimited books & notes",
+        "2,000 AI queries per month",
+        "Full reading copilot features",
       ],
-      planType: "yearly" as ExtendedPlanType,
+      planType: "monthly" as ExtendedPlanType,
       isPopular: true,
     },
     {
@@ -173,7 +156,7 @@ export function PlansDialog({ currentPlan, children }: PlansDialogProps) {
       period: "lifetime",
       features: [
         "Lifetime access",
-        "Everything in Curator",
+        "Unlimited AI queries",
         "All current & future features",
       ],
       planType: "lifetime" as ExtendedPlanType,
@@ -190,7 +173,7 @@ export function PlansDialog({ currentPlan, children }: PlansDialogProps) {
           </DialogTitle>
         </DialogHeader>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-8 px-4 sm:px-6 md:h-[520px] lg:h-[420px]">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8 px-4 sm:px-6 max-w-3xl mx-auto">
           {plans.map((plan, index) => (
             <PlanCard key={index} {...plan} currentPlan={currentPlan} />
           ))}

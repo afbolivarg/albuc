@@ -5,12 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Switch } from "@/components/ui/switch"
-import {
-  signInWithGoogleFree,
-  subscribeMonthly,
-  subscribeYearly,
-  subscribeLifetime,
-} from "./actions"
+import { subscribeMonthly, subscribeYearly, subscribeLifetime } from "./actions"
 
 interface PricingCardProps {
   price: string | number
@@ -24,7 +19,7 @@ interface PricingCardProps {
   onBillingToggle?: (checked: boolean) => void
   yearlyPrice?: string
   monthlyPrice?: string
-  planType?: "free" | "monthly" | "yearly" | "lifetime"
+  planType?: "monthly" | "yearly" | "lifetime"
 }
 
 function PricingCard({
@@ -39,7 +34,7 @@ function PricingCard({
   onBillingToggle,
   yearlyPrice,
   monthlyPrice,
-  planType = "free",
+  planType = "monthly",
 }: PricingCardProps) {
   const displayPrice = showBillingToggle
     ? isYearly
@@ -92,17 +87,13 @@ function PricingCard({
         </ul>
         <form
           action={
-            planType === "free"
-              ? signInWithGoogleFree
-              : planType === "lifetime"
-                ? subscribeLifetime
-                : showBillingToggle
-                  ? isYearly
-                    ? subscribeYearly
-                    : subscribeMonthly
-                  : planType === "monthly"
-                    ? subscribeMonthly
-                    : signInWithGoogleFree
+            planType === "lifetime"
+              ? subscribeLifetime
+              : showBillingToggle
+                ? isYearly
+                  ? subscribeYearly
+                  : subscribeMonthly
+                : subscribeMonthly
           }
         >
           <Button type="submit" variant={buttonVariant} className="w-full">
@@ -131,30 +122,20 @@ export function PricingSection() {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
-          {/* Wanderer Plan */}
-          <PricingCard
-            price="Free"
-            planName="Wanderer"
-            features={["Access to all features", "Start your personal library"]}
-            buttonText="Sign up"
-            buttonVariant="outline"
-            planType="free"
-          />
-
+        <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
           {/* Curator Plan */}
           <PricingCard
-            price="4.00"
+            price="12.00"
             planName="Curator"
-            features={["Everything in Wanderer", "Unlimited books & notes"]}
+            features={[
+              "Unlimited books & notes",
+              "2,000 AI queries per month",
+              "Full reading copilot features",
+            ]}
             buttonText="Get started"
             buttonVariant="secondary"
             isPrimary={true}
-            showBillingToggle={true}
-            isYearly={isYearly}
-            onBillingToggle={setIsYearly}
-            yearlyPrice="4.00"
-            monthlyPrice="12.00"
+            showBillingToggle={false}
             planType="monthly"
           />
 
@@ -162,7 +143,11 @@ export function PricingSection() {
           <PricingCard
             price="100"
             planName="Archivist"
-            features={["Lifetime access", "All current & future features"]}
+            features={[
+              "Lifetime access",
+              "Unlimited AI queries",
+              "All current & future features",
+            ]}
             buttonText="Get started"
             buttonVariant="outline"
             planType="lifetime"

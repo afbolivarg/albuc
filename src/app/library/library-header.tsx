@@ -1,8 +1,9 @@
 import { UserMenu } from "./user-menu"
-import { SquareLibrary } from "lucide-react"
+import { SquareLibrary, MessageSquare } from "lucide-react"
 import { getUserWithPlan } from "@/lib/db/queries"
 import Link from "next/link"
 import { redirect } from "next/navigation"
+import { Button } from "@/components/ui/button"
 
 export async function LibraryHeader() {
   const user = await getUserWithPlan()
@@ -25,7 +26,15 @@ export async function LibraryHeader() {
             Albuc
           </span>
         </Link>
-        <UserMenu user={user} />
+        <div className="flex items-center gap-4">
+          <Button asChild variant="outline" size="sm">
+            <Link href="/library/ask" className="flex items-center gap-2">
+              <MessageSquare className="w-4 h-4" />
+              Ask
+            </Link>
+          </Button>
+          <UserMenu user={user} />
+        </div>
       </div>
     </header>
   )

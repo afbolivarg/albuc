@@ -74,7 +74,7 @@ export default async function Home() {
             </p>
 
             <Button asChild>
-              <Link href="#pricing">Get Started for Free</Link>
+              <Link href="#pricing">Get Started</Link>
             </Button>
           </div>
         </CardContent>
@@ -407,7 +407,7 @@ export default async function Home() {
             clarity.
           </p>
           <Button asChild>
-            <Link href="#pricing">Get Started for Free</Link>
+            <Link href="#pricing">Get Started</Link>
           </Button>
         </CardContent>
       </Card>
