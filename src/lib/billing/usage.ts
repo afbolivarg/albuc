@@ -1,7 +1,7 @@
 import { db } from "@/lib/db"
 import { usageCounters } from "@/lib/db/schema"
 import { eq, and } from "drizzle-orm"
-import { getUserPlan, CURATOR_QUERY_LIMIT } from "./plan"
+import { getUserPlan } from "./plan"
 
 /**
  * Get the current month in YYYY-MM format
@@ -45,6 +45,7 @@ async function getOrCreateUsageCounter(userId: string, month: string) {
 /**
  * Check if user has queries remaining for AI usage
  * Returns { allowed: boolean, queriesUsed: number, queryLimit: number, reason?: string }
+ * Note: All paid plans now have unlimited queries. This function tracks usage for analytics.
  */
 export async function checkAIUsageAllowed(userId: string): Promise<{
   allowed: boolean
@@ -64,38 +65,14 @@ export async function checkAIUsageAllowed(userId: string): Promise<{
     }
   }
 
-  // Archivist (lifetime) plan has unlimited queries
-  if (planInfo.plan === "lifetime") {
-    // Still track usage for stats, but no limits
-    const currentMonth = getCurrentMonth()
-    const counter = await getOrCreateUsageCounter(userId, currentMonth)
-    return {
-      allowed: true,
-      queriesUsed: counter.queriesUsed,
-      queryLimit: Number.POSITIVE_INFINITY,
-    }
-  }
-
-  // Curator (monthly) plan has query limit
+  // All paid plans have unlimited queries - track usage for analytics only
   const currentMonth = getCurrentMonth()
   const counter = await getOrCreateUsageCounter(userId, currentMonth)
 
-  const queryLimit = CURATOR_QUERY_LIMIT
-  const queriesUsed = counter.queriesUsed
-
-  if (queriesUsed >= queryLimit) {
-    return {
-      allowed: false,
-      queriesUsed,
-      queryLimit,
-      reason: `Monthly query limit of ${queryLimit} reached. Upgrade to Archivist for unlimited queries.`,
-    }
-  }
-
   return {
     allowed: true,
-    queriesUsed,
-    queryLimit,
+    queriesUsed: counter.queriesUsed,
+    queryLimit: Number.POSITIVE_INFINITY,
   }
 }
 
@@ -137,17 +114,10 @@ export async function getUsageStats(userId: string): Promise<{
   const currentMonth = getCurrentMonth()
   const counter = await getOrCreateUsageCounter(userId, currentMonth)
 
-  if (planInfo.plan === "lifetime") {
-    return {
-      queriesUsed: counter.queriesUsed,
-      queryLimit: Number.POSITIVE_INFINITY,
-      month: currentMonth,
-    }
-  }
-
+  // All paid plans have unlimited queries
   return {
     queriesUsed: counter.queriesUsed,
-    queryLimit: CURATOR_QUERY_LIMIT,
+    queryLimit: Number.POSITIVE_INFINITY,
     month: currentMonth,
   }
 }

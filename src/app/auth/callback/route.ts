@@ -5,11 +5,11 @@ import { createUser, getUserByGoogleSub, updateUser } from "@/lib/db/queries"
 export async function GET(request: Request) {
   const { searchParams, origin } = new URL(request.url)
   const code = searchParams.get("code")
-  let next = searchParams.get("next") ?? "/library" // if "next" is in param, use it as the redirect URL
+  let next = searchParams.get("next") ?? "/subscribe" // if "next" is in param, use it as the redirect URL
 
   // if "next" is not a relative URL, use the default
   if (!next.startsWith("/")) {
-    next = "/library"
+    next = "/subscribe"
   }
 
   if (code) {

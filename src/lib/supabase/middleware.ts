@@ -57,9 +57,10 @@ export async function updateSession(request: NextRequest) {
   }
 
   if (isAuthRoute && user) {
-    // Redirect to library if already authenticated
+    // Redirect to subscribe page if authenticated but no plan
+    // The subscribe page will handle the final redirect to library if they have a plan
     const url = request.nextUrl.clone()
-    url.pathname = "/library"
+    url.pathname = "/subscribe"
     return NextResponse.redirect(url)
   }
 

@@ -36,9 +36,7 @@ export async function signInWithGoogle() {
   }
 }
 
-export async function subscribeOrSignIn(
-  planType: "monthly" | "yearly" | "lifetime"
-) {
+export async function subscribeOrSignIn(planType: "monthly" | "yearly") {
   const user = await getCurrentUser()
 
   // If user is not logged in, redirect to Google sign-in with checkout redirect
@@ -96,9 +94,6 @@ export async function subscribeOrSignIn(
     case "yearly":
       variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY!
       break
-    case "lifetime":
-      variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME!
-      break
     default:
       throw new Error("Invalid plan type")
   }
@@ -123,8 +118,4 @@ export async function subscribeMonthly() {
 
 export async function subscribeYearly() {
   return subscribeOrSignIn("yearly")
-}
-
-export async function subscribeLifetime() {
-  return subscribeOrSignIn("lifetime")
 }

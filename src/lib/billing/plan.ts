@@ -1,11 +1,10 @@
 import { db } from "@/lib/db"
-import { orders, subscriptions } from "@/lib/db/schema"
-import { and, eq } from "drizzle-orm"
+import { subscriptions } from "@/lib/db/schema"
+import { eq } from "drizzle-orm"
 
-export type PlanType = "monthly" | "lifetime"
+export type PlanType = "monthly" | "yearly"
 
 export const UNLIMITED = Number.POSITIVE_INFINITY
-export const CURATOR_QUERY_LIMIT = 2000 // Monthly query limit for Curator plan
 
 export async function getUserPlan(userId: string): Promise<{
   plan: PlanType
@@ -13,31 +12,10 @@ export async function getUserPlan(userId: string): Promise<{
 } | null> {
   // DEV MODE: Skip payment checks if enabled
   if (process.env.SKIP_PAYMENT_CHECK === "true") {
-    return { plan: "lifetime", bookLimit: UNLIMITED }
+    return { plan: "yearly", bookLimit: UNLIMITED }
   }
 
-  // Lifetime if there is a paid, non-refunded order for lifetime variant
-  const lifetimeVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME
-
-  if (lifetimeVariantId) {
-    const lifetime = await db
-      .select()
-      .from(orders)
-      .where(
-        and(
-          eq(orders.userId, userId),
-          eq(orders.variantId, lifetimeVariantId),
-          eq(orders.status, "paid")
-        )
-      )
-      .limit(1)
-
-    if (lifetime.length > 0) {
-      return { plan: "lifetime", bookLimit: UNLIMITED }
-    }
-  }
-
-  // Monthly if active subscription exists
+  // Check for active subscription (monthly or yearly)
   const sub = await db
     .select()
     .from(subscriptions)
@@ -45,6 +23,14 @@ export async function getUserPlan(userId: string): Promise<{
     .limit(1)
 
   if (sub.length > 0 && ["active", "on_trial"].includes(sub[0].status)) {
+    // Determine if it's monthly or yearly based on variant ID
+    const yearlyVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY
+
+    if (sub[0].variantId === yearlyVariantId) {
+      return { plan: "yearly", bookLimit: UNLIMITED }
+    }
+
+    // Default to monthly for any active subscription
     return { plan: "monthly", bookLimit: UNLIMITED }
   }
 
@@ -62,16 +48,6 @@ export async function canUserAccessCheckout(
     return { canAccess: true }
   }
 
-  if (userPlan.plan === "lifetime") {
-    return { canAccess: false, reason: "You already have lifetime access." }
-  }
-
-  if (userPlan.plan === "monthly") {
-    return {
-      canAccess: false,
-      reason: "You already have an active subscription.",
-    }
-  }
-
+  // User with any active plan can still access checkout to change plans
   return { canAccess: true }
 }

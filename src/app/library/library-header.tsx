@@ -9,7 +9,7 @@ export async function LibraryHeader() {
   const user = await getUserWithPlan()
 
   if (!user) {
-    redirect("/")
+    redirect("/subscribe")
   }
 
   return (

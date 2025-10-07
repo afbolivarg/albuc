@@ -4,7 +4,6 @@ import { useState } from "react"
 import { Card, CardContent } from "@/components/ui/card"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import {
   Dialog,
   DialogContent,
@@ -13,13 +12,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import { PlanType } from "@/lib/billing/plan"
-import {
-  subscribeMonthly,
-  subscribeYearly,
-  subscribeLifetime,
-} from "@/app/(landing)/actions"
-
-type ExtendedPlanType = PlanType | "yearly"
+import { subscribeMonthly, subscribeYearly } from "@/app/(landing)/actions"
 
 interface PlanCardProps {
   planName: string
@@ -27,9 +20,8 @@ interface PlanCardProps {
   period?: string
   features: string[]
   currentPlan: PlanType
-  planType: ExtendedPlanType
+  planType: PlanType
   icon?: React.ReactNode
-  isPopular?: boolean
 }
 
 function PlanCard({
@@ -40,11 +32,8 @@ function PlanCard({
   currentPlan,
   planType,
   icon,
-  isPopular = false,
 }: PlanCardProps) {
-  const isCurrent =
-    currentPlan === planType ||
-    (currentPlan === "monthly" && planType === "yearly")
+  const isCurrent = currentPlan === planType
 
   const getButtonAction = () => {
     switch (planType) {
@@ -52,25 +41,13 @@ function PlanCard({
         return subscribeMonthly
       case "yearly":
         return subscribeYearly
-      case "lifetime":
-        return subscribeLifetime
       default:
         return undefined
     }
   }
 
   return (
-    <Card
-      className={`relative w-full h-full ${isPopular ? "border-primary shadow-lg" : ""}`}
-    >
-      {isPopular && (
-        <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-          <Badge className="bg-primary text-primary-foreground font-serif">
-            Most Popular
-          </Badge>
-        </div>
-      )}
-
+    <Card className="relative w-full h-full">
       <CardContent className="p-6 flex flex-col h-full space-y-6">
         <div className="text-center space-y-2">
           <div className="flex items-center justify-center gap-2">
@@ -79,17 +56,9 @@ function PlanCard({
           </div>
 
           <div className="space-y-1">
-            <div className="text-2xl sm:text-3xl font-bold">
-              {price === "Free" ? "Free" : `$${price}`}
-            </div>
-            {period ? (
-              <div className="text-sm text-muted-foreground">
-                {period === "lifetime" ? "one-time" : `per ${period}`}
-              </div>
-            ) : (
-              <div className="text-sm text-muted-foreground invisible">
-                placeholder
-              </div>
+            <div className="text-2xl sm:text-3xl font-bold">${price}</div>
+            {period && (
+              <div className="text-sm text-muted-foreground">per {period}</div>
             )}
           </div>
         </div>
@@ -108,17 +77,9 @@ function PlanCard({
             <Button disabled className="w-full" variant="outline">
               Current Plan
             </Button>
-          ) : currentPlan === "lifetime" && planType !== "lifetime" ? (
-            <Button disabled className="w-full" variant="outline">
-              You have lifetime access
-            </Button>
           ) : (
             <form action={getButtonAction()} className="w-full">
-              <Button
-                type="submit"
-                className="w-full"
-                variant={isPopular ? "default" : "outline"}
-              >
+              <Button type="submit" className="w-full" variant="default">
                 Subscribe to {planName}
               </Button>
             </form>
@@ -139,27 +100,27 @@ export function PlansDialog({ currentPlan, children }: PlansDialogProps) {
 
   const plans = [
     {
-      planName: "Curator",
-      price: "12.00",
+      planName: "Monthly",
+      price: "9",
       period: "month",
       features: [
         "Unlimited books & notes",
-        "2,000 AI queries per month",
+        "Unlimited AI queries",
         "Full reading copilot features",
       ],
-      planType: "monthly" as ExtendedPlanType,
-      isPopular: true,
+      planType: "monthly" as PlanType,
     },
     {
-      planName: "Archivist",
-      price: "100.00",
-      period: "lifetime",
+      planName: "Yearly",
+      price: "90",
+      period: "year",
       features: [
-        "Lifetime access",
+        "Unlimited books & notes",
         "Unlimited AI queries",
-        "All current & future features",
+        "Full reading copilot features",
+        "2 months free",
       ],
-      planType: "lifetime" as ExtendedPlanType,
+      planType: "yearly" as PlanType,
     },
   ]
 

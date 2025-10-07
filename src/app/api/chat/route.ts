@@ -36,7 +36,7 @@ export async function POST(req: Request) {
 
     const question = textParts
 
-    // 3. Check usage limits
+    // 3. Check if user has an active subscription
     const usageCheck = await checkAIUsageAllowed(user.id)
 
     if (!usageCheck.allowed) {

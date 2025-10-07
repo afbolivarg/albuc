@@ -1,18 +1,13 @@
 const LEMONSQUEEZY_API_BASE = "https://api.lemonsqueezy.com/v1"
 
-export async function getPlanDetail(type: "monthly" | "yearly" | "lifetime") {
+export async function getPlanDetail(type: "monthly" | "yearly") {
   let variantId: string | undefined
   switch (type) {
     case "monthly":
       variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY
       break
     case "yearly":
-      variantId =
-        process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY ||
-        process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY
-      break
-    case "lifetime":
-      variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME
+      variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY
       break
   }
 

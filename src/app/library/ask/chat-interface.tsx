@@ -129,7 +129,7 @@ export function ChatInterface({
                           return (
                             <Response
                               key={idx}
-                              className="prose prose-sm prose-invert max-w-none font-serif"
+                              className="prose prose-sm prose-invert max-w-none"
                             >
                               {part.text}
                             </Response>
@@ -162,15 +162,15 @@ export function ChatInterface({
             </div>
           )}
 
-          {/* Usage Exceeded Warning */}
+          {/* Subscription Required Warning */}
           {!usage.allowed && (
             <div className="bg-muted border border-muted-foreground text-muted-foreground px-4 py-3 rounded-lg my-6">
               <p className="font-medium text-destructive">
-                Query Limit Reached
+                Subscription Required
               </p>
               <p className="text-sm">
-                You&apos;ve reached your monthly query limit. Upgrade your plan
-                to continue asking questions.
+                Subscribe to unlock unlimited AI queries and ask questions about
+                your library.
               </p>
             </div>
           )}
@@ -195,7 +195,7 @@ export function ChatInterface({
                   }}
                   placeholder={
                     !usage.allowed
-                      ? "Query limit reached. Please upgrade to continue."
+                      ? "Subscription required to use AI features."
                       : "Ask a question about your library..."
                   }
                   disabled={isLoading || !usage.allowed}

@@ -29,8 +29,12 @@ export async function GET(
     )
   }
 
-  // Validate plan type
-  if (!["monthly", "yearly", "lifetime"].includes(plan)) {
+  // Validate plan type - only monthly and yearly are supported
+  if (!["monthly", "yearly"].includes(plan)) {
+    // Redirect legacy lifetime requests to monthly
+    if (plan === "lifetime") {
+      redirect("/checkout/monthly")
+    }
     redirect("/?error=invalid_plan")
   }
 
@@ -46,13 +50,7 @@ export async function GET(
       variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY!
       break
     case "yearly":
-      // Fallback to monthly if yearly variant not configured
-      variantId =
-        process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY ||
-        process.env.LEMON_SQUEEZY_VARIANT_ID_MONTHLY!
-      break
-    case "lifetime":
-      variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME!
+      variantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY!
       break
     default:
       redirect("/?error=invalid_plan")

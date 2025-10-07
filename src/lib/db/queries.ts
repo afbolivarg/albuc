@@ -48,33 +48,21 @@ export async function getUserWithPlan(): Promise<
     return null
   }
 
-  // Determine plan based on subscriptions and orders
-  const lifetimeVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_LIFETIME
-
-  // Check for lifetime access first
-  if (lifetimeVariantId) {
-    const hasLifetime = user.orders.some(
-      order => order.variantId === lifetimeVariantId && order.status === "paid"
-    )
-
-    if (hasLifetime) {
-      return {
-        ...user,
-        plan: "lifetime" as PlanType,
-        bookLimit: Number.POSITIVE_INFINITY,
-      }
-    }
-  }
-
-  // Check for active subscription
+  // Check for active subscription (monthly or yearly)
   const activeSubscription = user.subscriptions.find(sub =>
     ["active", "on_trial"].includes(sub.status)
   )
 
   if (activeSubscription) {
+    // Determine if it's monthly or yearly based on variant ID
+    const yearlyVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY
+
+    const plan: PlanType =
+      activeSubscription.variantId === yearlyVariantId ? "yearly" : "monthly"
+
     return {
       ...user,
-      plan: "monthly" as PlanType,
+      plan,
       bookLimit: Number.POSITIVE_INFINITY,
     }
   }

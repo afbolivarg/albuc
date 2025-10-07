@@ -20,7 +20,15 @@ export default async function Home() {
   const user = await getCurrentUser()
 
   if (user) {
-    redirect("/library")
+    // Check if user has a plan
+    const { getUserWithPlan } = await import("@/lib/db/queries")
+    const userWithPlan = await getUserWithPlan()
+
+    if (userWithPlan) {
+      redirect("/library")
+    } else {
+      redirect("/subscribe")
+    }
   }
 
   return (
@@ -47,12 +55,6 @@ export default async function Home() {
                   Albuc
                 </span>
               </Link>
-              <Button variant="link" asChild className="hidden md:inline-block">
-                <Link href="#features">Features</Link>
-              </Button>
-              <Button variant="link" asChild className="hidden md:inline-block">
-                <Link href="#pricing">Pricing</Link>
-              </Button>
             </div>
             <form action={signInWithGoogle}>
               <Button type="submit" variant="outline">
@@ -432,14 +434,7 @@ export default async function Home() {
             </p>
           </div>
 
-          <div className="grid grid-cols-3 gap-12 text-sm">
-            <div>
-              <h4 className="font-semibold mb-3">Product</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>Features</li>
-                <li>Pricing</li>
-              </ul>
-            </div>
+          <div className="grid grid-cols-2 gap-12 text-sm">
             <div>
               <h4 className="font-semibold mb-3">Resources</h4>
               <ul className="space-y-2 text-gray-600">
@@ -451,11 +446,6 @@ export default async function Home() {
               <h4 className="font-semibold mb-3">Contact</h4>
               <ul className="space-y-2 text-gray-600">
                 <li>Email</li>
-                <li>Instagram</li>
-                <li>
-                  X<span className="sr-only">X (Twitter)</span>
-                </li>
-                <li>TikTok</li>
               </ul>
             </div>
           </div>

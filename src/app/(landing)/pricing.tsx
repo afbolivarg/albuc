@@ -3,8 +3,7 @@
 import { Card, CardContent } from "@/components/ui/card"
 import { Check } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Switch } from "@/components/ui/switch"
-import { subscribeMonthly, subscribeYearly, subscribeLifetime } from "./actions"
+import { subscribeMonthly, subscribeYearly } from "./actions"
 
 interface PricingCardProps {
   price: string | number
@@ -13,12 +12,7 @@ interface PricingCardProps {
   buttonText: string
   buttonVariant?: "default" | "outline" | "secondary"
   isPrimary?: boolean
-  showBillingToggle?: boolean
-  isYearly?: boolean
-  onBillingToggle?: (checked: boolean) => void
-  yearlyPrice?: string
-  monthlyPrice?: string
-  planType?: "monthly" | "yearly" | "lifetime"
+  planType: "monthly" | "yearly"
 }
 
 function PricingCard({
@@ -28,55 +22,21 @@ function PricingCard({
   buttonText,
   buttonVariant = "default",
   isPrimary = false,
-  showBillingToggle = false,
-  isYearly,
-  onBillingToggle,
-  yearlyPrice,
-  monthlyPrice,
-  planType = "monthly",
+  planType,
 }: PricingCardProps) {
-  const displayPrice = showBillingToggle
-    ? isYearly
-      ? yearlyPrice
-      : monthlyPrice
-    : price
-
   return (
     <Card
-      className={`rounded-2xl shadow-lg ${isPrimary ? "bg-primary text-primary-foreground relative" : ""}`}
+      className={`rounded-2xl shadow-lg ${isPrimary ? "bg-primary text-primary-foreground" : ""}`}
     >
-      <CardContent className="p-8 space-y-6">
-        <div className="text-center">
-          <div className="text-3xl font-bold mb-2">
-            {typeof displayPrice === "string" && displayPrice !== "Free"
-              ? `$${displayPrice}`
-              : displayPrice}
-            {showBillingToggle && (
-              <span className="text-sm text-muted-foreground"> / month</span>
-            )}
-          </div>
+      <CardContent className="p-8 h-full flex flex-col">
+        <div className="text-center mb-6">
+          <div className="text-3xl font-serif font-bold mb-2">${price}</div>
           <div className={isPrimary ? "text-muted" : "text-muted-foreground"}>
             {planName}
           </div>
-
-          {/* Billing Toggle */}
-          {showBillingToggle && onBillingToggle && (
-            <div className="flex items-center justify-center gap-3 mb-2 absolute top-4 right-4">
-              <span
-                className={`text-sm font-medium ${!isYearly ? "text-primary-foreground/50" : "text-primary-foreground"}`}
-              >
-                Pay yearly
-              </span>
-              <Switch
-                checked={isYearly}
-                onCheckedChange={onBillingToggle}
-                className="data-[state=checked]:bg-primary-foreground/50"
-              />
-            </div>
-          )}
         </div>
 
-        <ul className="space-y-3 text-sm">
+        <ul className="space-y-3 text-sm flex-1">
           {features.map((feature, index) => (
             <li key={index} className="flex items-center gap-2">
               <Check className="w-4 h-4 text-green-500" />
@@ -84,16 +44,10 @@ function PricingCard({
             </li>
           ))}
         </ul>
+
         <form
-          action={
-            planType === "lifetime"
-              ? subscribeLifetime
-              : showBillingToggle
-                ? isYearly
-                  ? subscribeYearly
-                  : subscribeMonthly
-                : subscribeMonthly
-          }
+          action={planType === "monthly" ? subscribeMonthly : subscribeYearly}
+          className="mt-6"
         >
           <Button type="submit" variant={buttonVariant} className="w-full">
             {buttonText}
@@ -120,34 +74,35 @@ export function PricingSection() {
         </div>
 
         <div className="grid md:grid-cols-2 gap-6 max-w-3xl mx-auto">
-          {/* Curator Plan */}
+          {/* Monthly Plan */}
           <PricingCard
-            price="12.00"
-            planName="Curator"
+            price="9"
+            planName="Monthly"
             features={[
               "Unlimited books & notes",
-              "2,000 AI queries per month",
+              "Unlimited AI queries",
               "Full reading copilot features",
+            ]}
+            buttonText="Get started"
+            buttonVariant="default"
+            isPrimary={false}
+            planType="monthly"
+          />
+
+          {/* Yearly Plan */}
+          <PricingCard
+            price="90"
+            planName="Yearly"
+            features={[
+              "Unlimited books & notes",
+              "Unlimited AI queries",
+              "Full reading copilot features",
+              "2 months free",
             ]}
             buttonText="Get started"
             buttonVariant="secondary"
             isPrimary={true}
-            showBillingToggle={false}
-            planType="monthly"
-          />
-
-          {/* Archivist Plan */}
-          <PricingCard
-            price="100"
-            planName="Archivist"
-            features={[
-              "Lifetime access",
-              "Unlimited AI queries",
-              "All current & future features",
-            ]}
-            buttonText="Get started"
-            buttonVariant="outline"
-            planType="lifetime"
+            planType="yearly"
           />
         </div>
       </div>
