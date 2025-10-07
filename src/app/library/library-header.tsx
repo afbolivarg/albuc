@@ -17,11 +17,11 @@ export async function LibraryHeader() {
       <div className="container mx-auto px-6 py-4 flex items-center justify-between">
         <Link
           href="/library"
-          className="flex items-center space-x-2 cursor-pointer select-auto"
+          className="flex items-center space-x-2 cursor-pointer select-none"
           tabIndex={0}
           aria-label="Go to Library"
         >
-          <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-text">
+          <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-none">
             <SquareLibrary className="w-6 h-6" />
             Albuc
           </span>

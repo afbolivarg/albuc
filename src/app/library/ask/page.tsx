@@ -18,7 +18,7 @@ export default async function AskPage() {
   }
 
   return (
-    <div className="container mx-auto max-w-5xl py-8 px-4">
+    <div className="fixed inset-0 top-[65px] flex flex-col">
       <AskContainer initialUsage={initialUsage} />
     </div>
   )
