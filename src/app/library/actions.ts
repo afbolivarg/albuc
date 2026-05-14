@@ -6,6 +6,7 @@ import { createClient as createServerClient } from "@/lib/supabase/server"
 import { searchBooks as searchOpenLibrary } from "@/lib/open-library"
 import { getCurrentUser } from "@/lib/supabase/user"
 import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries"
+import { logError } from "@/lib/logger"
 
 export async function signOut() {
   const supabase = await createServerClient()
@@ -16,6 +17,8 @@ export async function signOut() {
     throw new Error("Failed to sign out")
   }
 
+  revalidatePath("/")
+  revalidatePath("/library")
   redirect("/")
 }
 
@@ -45,7 +48,7 @@ export async function searchBooksAction(
       results: result.results || [],
     }
   } catch (error) {
-    console.error("Search error:", error)
+    logError(error, { operation: "searchBooksAction" })
     return {
       results: [],
       error: "Failed to search books",
@@ -104,7 +107,7 @@ export async function addBookAction(
     revalidatePath("/library")
     return { success: true }
   } catch (error) {
-    console.error("Error adding book:", error)
+    logError(error, { operation: "addBookAction" })
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to add book",

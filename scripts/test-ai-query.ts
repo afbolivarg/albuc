@@ -13,20 +13,25 @@ import { users, books } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
 import { generateEmbedding } from "@/lib/ai/embedding"
 import { semanticSearchNotes } from "@/lib/db/queries"
-import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/billing/usage"
+import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage"
 import { streamText } from "ai"
-import { google } from "@ai-sdk/google"
+import { getChatModel } from "@/lib/ai/provider"
 
 async function testAIQuery() {
-  console.log("🧪 Testing AI Q&A Functionality (Stage 3)\n")
+  console.log("🧪 Testing AI Q&A Functionality\n")
 
-  // 1. Check environment
+  // 1. Check environment (chat model requires provider API key)
   console.log("1️⃣ Checking environment...")
-  if (!process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    console.error("❌ GOOGLE_GENERATIVE_AI_API_KEY not set")
+  try {
+    getChatModel()
+  } catch (e) {
+    console.error("❌ AI provider not configured:", (e as Error).message)
+    console.error(
+      "   Set AI_PROVIDER and the matching API key (e.g. GOOGLE_GENERATIVE_AI_API_KEY)"
+    )
     process.exit(1)
   }
-  console.log("✅ API key is set\n")
+  console.log("✅ Chat model configured\n")
 
   // 2. Find a test user with books and notes
   console.log("2️⃣ Finding test user with notes...")
@@ -154,7 +159,7 @@ ${context}`
     console.log("─".repeat(80))
 
     const result = streamText({
-      model: google("gemini-2.0-flash-exp"),
+      model: getChatModel() as Parameters<typeof streamText>[0]["model"],
       system: systemPrompt,
       prompt: userPrompt,
       temperature: 0.3,

@@ -3,8 +3,9 @@
  * Processes book notes by splitting them into chunks and generating embeddings.
  */
 
+import { logError } from "@/lib/logger"
 import { splitNoteIntoChunks } from "./note-splitter"
-import { generateEmbeddings, EMBEDDING_MODEL } from "./embedding"
+import { generateEmbeddings, getEmbeddingModelId } from "./embedding"
 import { db } from "@/lib/db"
 import { noteChunks, NewNoteChunk } from "@/lib/db/schema"
 import { eq } from "drizzle-orm"
@@ -84,11 +85,12 @@ export async function processBookEmbeddings(
     )
 
     // Step 3: Prepare chunks for insertion with current model version
+    const modelVersion = getEmbeddingModelId()
     const noteChunksToInsert: NewNoteChunk[] = chunks.map((chunk, index) => ({
       bookId,
       chunk: chunk.text,
       embedding: embeddings[index],
-      modelVersion: EMBEDDING_MODEL,
+      modelVersion,
     }))
 
     // Step 4: Delete old chunks and insert new ones in a transaction
@@ -118,10 +120,11 @@ export async function processBookEmbeddings(
     }
   } catch (error) {
     const duration = Date.now() - startTime
-    console.error(
-      `[Embedding Pipeline] FAILED for book ${bookId} after ${duration}ms:`,
-      error
-    )
+    logError(error, {
+      operation: "processBookEmbeddings",
+      bookId,
+      durationMs: duration,
+    })
     return {
       success: false,
       chunksProcessed: 0,
@@ -151,16 +154,16 @@ export async function processBookEmbeddingsAsync(
           `[Embedding Pipeline] ✓ Async processing complete for book ${bookId}: ${result.chunksProcessed} chunks`
         )
       } else {
-        console.error(
-          `[Embedding Pipeline] ✗ Async processing failed for book ${bookId}:`,
-          result.error
-        )
+        logError(new Error(result.error ?? "Embedding failed"), {
+          operation: "processBookEmbeddingsAsync",
+          bookId,
+        })
       }
     })
     .catch(error => {
-      console.error(
-        `[Embedding Pipeline] ✗ Unexpected error for book ${bookId}:`,
-        error
-      )
+      logError(error, {
+        operation: "processBookEmbeddingsAsync",
+        bookId,
+      })
     })
 }

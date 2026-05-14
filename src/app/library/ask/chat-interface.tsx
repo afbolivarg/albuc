@@ -23,7 +23,7 @@ export function ChatInterface({
 }: ChatInterfaceProps) {
   const { messages, sendMessage, status, error } = useChat()
   const [input, setInput] = useState("")
-  const [usage, setUsage] = useState(initialUsage)
+  const [usage, setUsage] = useState(initialUsage) // used for display and increment
   const textareaRef = useRef<HTMLTextAreaElement>(null)
 
   // Track the last completed assistant message to avoid multiple increments
@@ -69,7 +69,7 @@ export function ChatInterface({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
-    if (!input.trim() || isLoading || !usage.allowed) return
+    if (!input.trim() || isLoading) return
 
     sendMessage({ text: input })
     setInput("")
@@ -161,25 +161,17 @@ export function ChatInterface({
               </p>
             </div>
           )}
-
-          {/* Subscription Required Warning */}
-          {!usage.allowed && (
-            <div className="bg-muted border border-muted-foreground text-muted-foreground px-4 py-3 rounded-lg my-6">
-              <p className="font-medium text-destructive">
-                Subscription Required
-              </p>
-              <p className="text-sm">
-                Subscribe to unlock unlimited AI queries and ask questions about
-                your library.
-              </p>
-            </div>
-          )}
         </div>
       </div>
 
       {/* Input Section - Sticky to bottom */}
       <div>
         <div className="max-w-4xl mx-auto pb-4 px-4 md:px-0">
+          {usage.queryLimit !== Infinity && (
+            <p className="text-xs text-muted-foreground mb-2">
+              Queries this month: {usage.queriesUsed}
+            </p>
+          )}
           <form onSubmit={handleSubmit} className="w-full">
             <Card className="p-4">
               <div className="flex gap-2">
@@ -193,18 +185,14 @@ export function ChatInterface({
                       handleSubmit(e)
                     }
                   }}
-                  placeholder={
-                    !usage.allowed
-                      ? "Subscription required to use AI features."
-                      : "Ask a question about your library..."
-                  }
-                  disabled={isLoading || !usage.allowed}
+                  placeholder="Ask a question about your library..."
+                  disabled={isLoading}
                   className="min-h-[60px] max-h-[200px] resize-none border-0 shadow-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground overflow-y-auto"
                 />
                 <Button
                   type="submit"
                   size="icon"
-                  disabled={!input.trim() || isLoading || !usage.allowed}
+                  disabled={!input.trim() || isLoading}
                   className="flex-shrink-0"
                 >
                   <Send className="h-4 w-4" />

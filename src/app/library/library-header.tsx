@@ -1,15 +1,15 @@
 import { UserMenu } from "./user-menu"
 import { SquareLibrary, MessageSquare } from "lucide-react"
-import { getUserWithPlan } from "@/lib/db/queries"
+import { getUser } from "@/lib/db/queries"
 import Link from "next/link"
 import { redirect } from "next/navigation"
 import { Button } from "@/components/ui/button"
 
 export async function LibraryHeader() {
-  const user = await getUserWithPlan()
+  const user = await getUser()
 
   if (!user) {
-    redirect("/subscribe")
+    redirect("/")
   }
 
   return (

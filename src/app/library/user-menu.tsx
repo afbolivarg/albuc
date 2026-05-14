@@ -1,9 +1,8 @@
 "use client"
 
 import { User } from "@/lib/db/schema"
-import { PlanType } from "@/lib/billing/plan"
 import Image from "next/image"
-import { LogOut, CreditCard, Library } from "lucide-react"
+import { LogOut } from "lucide-react"
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -13,12 +12,8 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { signOut } from "./actions"
-import { openCustomerPortal } from "@/app/actions/billing"
-import { PlansDialog } from "./plans"
 
-type UserWithPlan = User & { plan: PlanType; bookLimit: number }
-
-export function UserMenu({ user }: { user: UserWithPlan }) {
+export function UserMenu({ user }: { user: User }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -77,30 +72,6 @@ export function UserMenu({ user }: { user: UserWithPlan }) {
             </div>
           </div>
         </DropdownMenuLabel>
-
-        <DropdownMenuSeparator />
-
-        <PlansDialog currentPlan={user.plan}>
-          <DropdownMenuItem
-            className="flex items-center cursor-pointer"
-            onSelect={e => e.preventDefault()}
-          >
-            <Library className="h-4 w-4" />
-            <span>Plans</span>
-          </DropdownMenuItem>
-        </PlansDialog>
-
-        <DropdownMenuItem asChild>
-          <form action={openCustomerPortal} className="w-full">
-            <button
-              type="submit"
-              className="flex items-center w-full text-left"
-            >
-              <CreditCard className="mr-2 h-4 w-4" />
-              <span>Billing</span>
-            </button>
-          </form>
-        </DropdownMenuItem>
 
         <DropdownMenuSeparator />
 

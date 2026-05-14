@@ -1,3 +1,5 @@
+import { logError } from "@/lib/logger"
+
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org"
 const COVERS_BASE_URL = "https://covers.openlibrary.org"
 
@@ -97,7 +99,7 @@ export async function searchBooks(
       page,
     }
   } catch (error) {
-    console.error("Error searching books:", error)
+    logError(error, { operation: "searchBooks" })
     throw new Error("Failed to search books")
   }
 }

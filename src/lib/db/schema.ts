@@ -24,19 +24,6 @@ const vector = customType<{ data: number[]; driverData: string }>({
   },
 })
 
-export const subscriptionStatusEnum = pgEnum("subscription_status", [
-  "active",
-  "on_trial",
-  "paused",
-  "past_due",
-  "cancelled",
-  "expired",
-])
-export const orderStatusEnum = pgEnum("order_status", [
-  "paid",
-  "refunded",
-  "failed",
-])
 export const bookStatusEnum = pgEnum("book_status", [
   "WANT",
   "OWNED",
@@ -52,50 +39,6 @@ export const users = pgTable("users", {
   imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 })
-
-export const subscriptions = pgTable(
-  "subscriptions",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    subscriptionId: text("subscription_id").notNull().unique(),
-    customerId: text("customer_id"),
-    variantId: text("variant_id").notNull(),
-    status: subscriptionStatusEnum("status").notNull(),
-    renewsAt: timestamp("renews_at"),
-    endsAt: timestamp("ends_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  table => [
-    index("subscriptions_user_id_idx").on(table.userId),
-    index("subscriptions_status_idx").on(table.status),
-  ]
-)
-
-export const orders = pgTable(
-  "orders",
-  {
-    id: uuid("id").primaryKey().defaultRandom(),
-    userId: uuid("user_id")
-      .notNull()
-      .references(() => users.id, { onDelete: "cascade" }),
-    orderId: text("order_id").notNull().unique(),
-    customerId: text("customer_id"),
-    variantId: text("variant_id").notNull(),
-    status: orderStatusEnum("status").notNull(),
-    paidAt: timestamp("paid_at"),
-    refundedAt: timestamp("refunded_at"),
-    createdAt: timestamp("created_at").notNull().defaultNow(),
-    updatedAt: timestamp("updated_at").notNull().defaultNow(),
-  },
-  table => [
-    index("orders_user_id_idx").on(table.userId),
-    index("orders_status_idx").on(table.status),
-  ]
-)
 
 export const books = pgTable(
   "books",
@@ -178,23 +121,7 @@ export const booksRelations = relations(books, ({ one, many }) => ({
 
 export const userRelations = relations(users, ({ many }) => ({
   books: many(books),
-  subscriptions: many(subscriptions),
-  orders: many(orders),
   usageCounters: many(usageCounters),
-}))
-
-export const subscriptionsRelations = relations(subscriptions, ({ one }) => ({
-  user: one(users, {
-    fields: [subscriptions.userId],
-    references: [users.id],
-  }),
-}))
-
-export const ordersRelations = relations(orders, ({ one }) => ({
-  user: one(users, {
-    fields: [orders.userId],
-    references: [users.id],
-  }),
 }))
 
 export const usageCountersRelations = relations(usageCounters, ({ one }) => ({
@@ -215,10 +142,6 @@ export type User = typeof users.$inferSelect
 export type NewUser = typeof users.$inferInsert
 export type Book = typeof books.$inferSelect
 export type NewBook = typeof books.$inferInsert
-export type Subscription = typeof subscriptions.$inferSelect
-export type NewSubscription = typeof subscriptions.$inferInsert
-export type Order = typeof orders.$inferSelect
-export type NewOrder = typeof orders.$inferInsert
 export type UsageCounter = typeof usageCounters.$inferSelect
 export type NewUsageCounter = typeof usageCounters.$inferInsert
 export type NoteChunk = typeof noteChunks.$inferSelect

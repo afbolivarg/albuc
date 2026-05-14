@@ -1,13 +1,14 @@
 "use server"
 
 import { streamText } from "ai"
-import { google } from "@ai-sdk/google"
+import { getChatModel } from "@/lib/ai/provider"
 import { createStreamableValue } from "@ai-sdk/rsc"
 import { z } from "zod"
 import { generateEmbedding } from "@/lib/ai/embedding"
 import { semanticSearchNotes } from "@/lib/db/queries"
-import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/billing/usage"
+import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage"
 import { authenticatedAction } from "@/lib/safe-action"
+import { logError } from "@/lib/logger"
 
 const askQuestionSchema = z.object({
   question: z
@@ -25,13 +26,9 @@ const askQuestionSchema = z.object({
 export const askQuestionAction = authenticatedAction
   .inputSchema(askQuestionSchema)
   .action(async ({ parsedInput: { question }, ctx: { user } }) => {
-    // 1. Check usage limits and plan (user already authenticated by middleware)
     const usageCheck = await checkAIUsageAllowed(user.id)
     if (!usageCheck.allowed) {
-      throw new Error(
-        usageCheck.reason ||
-          "AI feature access denied. Please check your subscription."
-      )
+      throw new Error(usageCheck.reason || "AI feature access denied.")
     }
 
     try {
@@ -87,7 +84,7 @@ ${context}`
 
       // 9. Stream the AI response
       const result = streamText({
-        model: google("gemini-2.0-flash-exp"),
+        model: getChatModel() as Parameters<typeof streamText>[0]["model"],
         system: systemPrompt,
         prompt: userPrompt,
         temperature: 0.3, // Lower temperature for more factual responses
@@ -99,7 +96,7 @@ ${context}`
 
       return { textStream: stream.value }
     } catch (error) {
-      console.error("[AI Q&A] Error:", error)
+      logError(error, { operation: "askQuestionAction" })
       throw new Error(
         error instanceof Error
           ? `Failed to generate answer: ${error.message}`

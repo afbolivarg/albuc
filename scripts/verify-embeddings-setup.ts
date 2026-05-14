@@ -43,13 +43,19 @@ async function verifySetup() {
     return
   }
 
-  // 3. Check environment variable
-  console.log("3. Checking GOOGLE_GENERATIVE_AI_API_KEY...")
-  if (process.env.GOOGLE_GENERATIVE_AI_API_KEY) {
-    console.log("   ✓ API key is set\n")
-  } else {
-    console.log("   ✗ API key is NOT set")
-    console.log("   Add to .env.local: GOOGLE_GENERATIVE_AI_API_KEY=your_key\n")
+  // 3. Check embedding provider env
+  console.log(
+    "3. Checking embedding provider (AI_EMBEDDING_PROVIDER / API key)..."
+  )
+  try {
+    const { getEmbeddingModel } = await import("../src/lib/ai/provider")
+    getEmbeddingModel()
+    console.log("   ✓ Embedding provider configured\n")
+  } catch (e) {
+    console.log("   ✗ Embedding not configured:", (e as Error).message)
+    console.log(
+      "   Set AI_EMBEDDING_PROVIDER and the matching API key (e.g. GOOGLE_GENERATIVE_AI_API_KEY)\n"
+    )
   }
 
   // 4. Check for books with notes but no chunks

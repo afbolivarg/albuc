@@ -1,9 +1,10 @@
 import { streamText, convertToModelMessages, type UIMessage } from "ai"
-import { google } from "@ai-sdk/google"
 import { generateEmbedding } from "@/lib/ai/embedding"
+import { getChatModel } from "@/lib/ai/provider"
 import { semanticSearchNotes } from "@/lib/db/queries"
-import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/billing/usage"
+import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage"
 import { getUser } from "@/lib/db/queries"
+import { logError } from "@/lib/logger"
 
 export async function POST(req: Request) {
   try {
@@ -36,15 +37,13 @@ export async function POST(req: Request) {
 
     const question = textParts
 
-    // 3. Check if user has an active subscription
+    // 3. Check AI usage (auth-based; always allowed for authenticated users)
     const usageCheck = await checkAIUsageAllowed(user.id)
 
     if (!usageCheck.allowed) {
       return new Response(
         JSON.stringify({
-          error:
-            usageCheck.reason ||
-            "AI feature access denied. Please check your subscription.",
+          error: usageCheck.reason || "AI feature access denied.",
         }),
         { status: 402 }
       )
@@ -118,7 +117,7 @@ ${context}`
 
     // 8. Stream the response
     const result = streamText({
-      model: google("gemini-2.0-flash-exp"),
+      model: getChatModel() as Parameters<typeof streamText>[0]["model"],
       system: systemPrompt,
       messages: convertToModelMessages(messages),
       temperature: 0.3,
@@ -127,7 +126,7 @@ ${context}`
 
     return result.toUIMessageStreamResponse()
   } catch (error) {
-    console.error("[AI Chat] Error:", error)
+    logError(error, { operation: "api/chat" })
     return new Response(
       JSON.stringify({
         error:

@@ -11,7 +11,39 @@ import {
   NewNoteChunk,
 } from "@/lib/db/schema"
 import { eq, desc, and, sql } from "drizzle-orm"
-import { PlanType } from "@/lib/billing/plan"
+import type { User as SupabaseUser } from "@supabase/supabase-js"
+
+/**
+ * Ensure an app user exists for the given Supabase auth user (create if missing).
+ * Used after sign-in so library and other features have a local user record.
+ */
+export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
+  const existing = await db.query.users.findFirst({
+    where: eq(users.googleSub, supabaseUser.id),
+  })
+  if (existing) {
+    return existing
+  }
+  const name =
+    (supabaseUser.user_metadata?.full_name as string) ||
+    (supabaseUser.user_metadata?.name as string) ||
+    null
+  const imageUrl =
+    (supabaseUser.user_metadata?.avatar_url as string) ||
+    (supabaseUser.user_metadata?.picture as string) ||
+    null
+  const [created] = await db
+    .insert(users)
+    .values({
+      googleSub: supabaseUser.id,
+      email: supabaseUser.email ?? "",
+      name,
+      imageUrl,
+    })
+    .returning()
+  if (!created) throw new Error("Failed to create app user")
+  return created
+}
 
 export async function getUser() {
   const supabaseUser = await getCurrentUser()
@@ -20,55 +52,15 @@ export async function getUser() {
     return null
   }
 
-  const user = await db.query.users.findFirst({
+  let user = await db.query.users.findFirst({
     where: eq(users.googleSub, supabaseUser.id),
-  })
-
-  return user ?? null
-}
-
-export async function getUserWithPlan(): Promise<
-  (User & { plan: PlanType; bookLimit: number }) | null
-> {
-  const supabaseUser = await getCurrentUser()
-
-  if (!supabaseUser) {
-    return null
-  }
-
-  const user = await db.query.users.findFirst({
-    where: eq(users.googleSub, supabaseUser.id),
-    with: {
-      subscriptions: true,
-      orders: true,
-    },
   })
 
   if (!user) {
-    return null
+    user = await ensureAppUser(supabaseUser)
   }
 
-  // Check for active subscription (monthly or yearly)
-  const activeSubscription = user.subscriptions.find(sub =>
-    ["active", "on_trial"].includes(sub.status)
-  )
-
-  if (activeSubscription) {
-    // Determine if it's monthly or yearly based on variant ID
-    const yearlyVariantId = process.env.LEMON_SQUEEZY_VARIANT_ID_YEARLY
-
-    const plan: PlanType =
-      activeSubscription.variantId === yearlyVariantId ? "yearly" : "monthly"
-
-    return {
-      ...user,
-      plan,
-      bookLimit: Number.POSITIVE_INFINITY,
-    }
-  }
-
-  // No active plan - return null to require subscription
-  return null
+  return user
 }
 
 export async function getUserByGoogleSub(googleSub: string) {
@@ -156,23 +148,6 @@ export async function updateBook(book: Book) {
     .where(eq(books.id, book.id))
     .returning()
 }
-
-// export async function getUserUsageAndPlan(userId: string) {
-//   const [{ total }] = await db
-//     .select({ total: count(userBooks.id) })
-//     .from(userBooks)
-//     .where(eq(userBooks.userId, userId))
-
-//   const plan = await getUserPlan(userId)
-
-//   return {
-//     current: Number(total ?? 0),
-//     limit: plan.bookLimit,
-//     plan: plan.plan,
-//     canAddMore:
-//       plan.bookLimit === Infinity || Number(total ?? 0) < plan.bookLimit,
-//   } as const
-// }
 
 // ========================================
 // Note Chunks Queries

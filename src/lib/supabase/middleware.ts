@@ -38,29 +38,26 @@ export async function updateSession(request: NextRequest) {
   } = await supabase.auth.getUser()
 
   const { pathname } = request.nextUrl
-  const isAuthRoute =
-    pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")
   const isAuthCallback = pathname.startsWith("/auth/callback")
   const isProtectedRoute =
     pathname.startsWith("/dashboard") || pathname.startsWith("/library")
 
-  // Don't redirect during auth callback
   if (isAuthCallback) {
     return supabaseResponse
   }
 
   if (isProtectedRoute && !user) {
-    // Redirect to landing page if not authenticated
     const url = request.nextUrl.clone()
     url.pathname = "/"
     return NextResponse.redirect(url)
   }
 
-  if (isAuthRoute && user) {
-    // Redirect to subscribe page if authenticated but no plan
-    // The subscribe page will handle the final redirect to library if they have a plan
+  if (
+    (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")) &&
+    user
+  ) {
     const url = request.nextUrl.clone()
-    url.pathname = "/subscribe"
+    url.pathname = "/library"
     return NextResponse.redirect(url)
   }
 

@@ -8,7 +8,7 @@ export default async function AskPage() {
 
   // If no usage data (not authenticated), redirect to login
   if (!usageResult?.data) {
-    redirect("/auth/callback")
+    redirect("/sign-in")
   }
 
   const initialUsage = {

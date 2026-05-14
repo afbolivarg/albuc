@@ -7,7 +7,7 @@ export default async function LibraryPage() {
   const user = await getUserWithBooks()
 
   if (!user) {
-    redirect("/subscribe")
+    redirect("/")
   }
 
   return (

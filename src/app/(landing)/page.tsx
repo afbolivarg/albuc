@@ -10,9 +10,7 @@ import {
   // Zap,
   SquareLibrary,
 } from "lucide-react"
-import { signInWithGoogle } from "./actions"
 import Link from "next/link"
-import { PricingSection } from "./pricing"
 import { getCurrentUser } from "@/lib/supabase/user"
 import { redirect } from "next/navigation"
 
@@ -20,15 +18,7 @@ export default async function Home() {
   const user = await getCurrentUser()
 
   if (user) {
-    // Check if user has a plan
-    const { getUserWithPlan } = await import("@/lib/db/queries")
-    const userWithPlan = await getUserWithPlan()
-
-    if (userWithPlan) {
-      redirect("/library")
-    } else {
-      redirect("/subscribe")
-    }
+    redirect("/library")
   }
 
   return (
@@ -56,11 +46,14 @@ export default async function Home() {
                 </span>
               </Link>
             </div>
-            <form action={signInWithGoogle}>
-              <Button type="submit" variant="outline">
-                Continue with Google
+            <div className="flex items-center gap-2">
+              <Button asChild variant="outline">
+                <Link href="/sign-in">Sign in</Link>
               </Button>
-            </form>
+              <Button asChild>
+                <Link href="/sign-up">Sign up</Link>
+              </Button>
+            </div>
           </nav>
 
           {/* Main Headline */}
@@ -76,13 +69,26 @@ export default async function Home() {
             </p>
 
             <Button asChild>
-              <Link href="#pricing">Get Started</Link>
+              <Link href="/sign-up">Get Started</Link>
             </Button>
           </div>
         </CardContent>
       </Card>
 
-      <PricingSection />
+      <Card className="bg-muted rounded-3xl border-none shadow-none">
+        <CardContent className="p-12 text-center">
+          <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif tracking-tight">
+            Free and open source
+          </h2>
+          <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
+            Albuc is free to use. Track your reading, capture notes, and chat
+            with your library using AI.
+          </p>
+          <Button asChild>
+            <Link href="/sign-up">Get Started</Link>
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Platform Cards */}
       {/* <div className="grid md:grid-cols-2 gap-6 mt-8" id="features">
@@ -409,7 +415,7 @@ export default async function Home() {
             clarity.
           </p>
           <Button asChild>
-            <Link href="#pricing">Get Started</Link>
+            <Link href="/sign-up">Get Started</Link>
           </Button>
         </CardContent>
       </Card>
