@@ -5,5 +5,5 @@ export default function BookLoading() {
       <div className="h-4 w-1/2 bg-muted rounded" />
       <div className="h-64 bg-muted rounded-lg" />
     </div>
-  )
+  );
 }

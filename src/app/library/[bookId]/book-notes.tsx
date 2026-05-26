@@ -1,64 +1,64 @@
-"use client"
+"use client";
 
+import { Edit3, Eye, Save, Signature, X } from "lucide-react";
 import {
-  useState,
-  useActionState,
-  useOptimistic,
   startTransition,
+  useActionState,
   useEffect,
-} from "react"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Card } from "@/components/ui/card"
-import { Edit3, Save, X, Eye, Signature } from "lucide-react"
-import { Book } from "@/lib/db/schema"
-import ReactMarkdown from "react-markdown"
-import remarkGfm from "remark-gfm"
-import rehypeSanitize from "rehype-sanitize"
-import { updateBookNotesAction } from "./actions"
+  useOptimistic,
+  useState,
+} from "react";
+import ReactMarkdown from "react-markdown";
+import rehypeSanitize from "rehype-sanitize";
+import remarkGfm from "remark-gfm";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import type { Book } from "@/lib/db/schema";
+import { updateBookNotesAction } from "./actions";
 
 interface BookNotesProps {
-  book: Book
+  book: Book;
 }
 
 export function BookNotes({ book }: BookNotesProps) {
-  const [state, formAction] = useActionState(updateBookNotesAction, null)
-  const [isEditing, setIsEditing] = useState(false)
-  const [noteContent, setNoteContent] = useState(book.noteMarkdown || "")
-  const [showPreview, setShowPreview] = useState(false)
+  const [state, formAction] = useActionState(updateBookNotesAction, null);
+  const [isEditing, setIsEditing] = useState(false);
+  const [noteContent, setNoteContent] = useState(book.noteMarkdown || "");
+  const [showPreview, setShowPreview] = useState(false);
 
   const [optimisticNotes, setOptimisticNotes] = useOptimistic(
     book.noteMarkdown || "",
-    (currentNotes, newNotes: string) => newNotes
-  )
+    (_currentNotes, newNotes: string) => newNotes,
+  );
 
   useEffect(() => {
     if (state?.error) {
-      setOptimisticNotes(book.noteMarkdown || "")
-      setIsEditing(true)
-      setNoteContent(book.noteMarkdown || "")
+      setOptimisticNotes(book.noteMarkdown || "");
+      setIsEditing(true);
+      setNoteContent(book.noteMarkdown || "");
     }
-  }, [state, book.noteMarkdown, setOptimisticNotes])
+  }, [state, book.noteMarkdown, setOptimisticNotes]);
 
   const handleSave = () => {
-    setIsEditing(false)
-    setShowPreview(false)
+    setIsEditing(false);
+    setShowPreview(false);
     startTransition(() => {
-      setOptimisticNotes(noteContent)
-      const formData = new FormData()
-      formData.append("bookId", book.id)
-      formData.append("noteMarkdown", noteContent)
-      formAction(formData)
-    })
-  }
+      setOptimisticNotes(noteContent);
+      const formData = new FormData();
+      formData.append("bookId", book.id);
+      formData.append("noteMarkdown", noteContent);
+      formAction(formData);
+    });
+  };
 
   const handleCancel = () => {
-    setNoteContent(book.noteMarkdown || "")
-    setIsEditing(false)
-    setShowPreview(false)
-  }
+    setNoteContent(book.noteMarkdown || "");
+    setIsEditing(false);
+    setShowPreview(false);
+  };
 
-  const hasNotes = optimisticNotes && optimisticNotes.trim().length > 0
+  const hasNotes = optimisticNotes && optimisticNotes.trim().length > 0;
 
   return (
     <Card className="backdrop-blur-sm shadow-none p-8">
@@ -247,5 +247,5 @@ export function BookNotes({ book }: BookNotesProps) {
         )}
       </div>
     </Card>
-  )
+  );
 }

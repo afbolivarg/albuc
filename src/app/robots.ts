@@ -1,12 +1,12 @@
-import { baseUrl } from "@/app/sitemap"
+import { baseUrl } from "@/app/sitemap";
 
-const excludedRoutes = ["/library"]
+const excludedRoutes = ["/library"];
 
 export default function robots() {
-  const fullDisallowList = excludedRoutes.flatMap(route => [
+  const fullDisallowList = excludedRoutes.flatMap((route) => [
     route,
     `${route}/*`,
-  ])
+  ]);
 
   return {
     rules: [
@@ -17,5 +17,5 @@ export default function robots() {
       },
     ],
     sitemap: `${baseUrl}sitemap.xml`,
-  }
+  };
 }

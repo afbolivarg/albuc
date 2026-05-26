@@ -1,25 +1,25 @@
-import { getUserWithBook } from "@/lib/db/queries"
-import { notFound } from "next/navigation"
-import { BookDetailHeader } from "./book-detail-header"
-import { BookNotes } from "./book-notes"
+import { notFound } from "next/navigation";
+import { getUserWithBook } from "@/lib/db/queries";
+import { BookDetailHeader } from "./book-detail-header";
+import { BookNotes } from "./book-notes";
 
 export default async function BookDetailPage({
   params,
 }: {
-  params: Promise<{ bookId: string }>
+  params: Promise<{ bookId: string }>;
 }) {
-  const { bookId } = await params
+  const { bookId } = await params;
 
-  const user = await getUserWithBook(bookId)
+  const user = await getUserWithBook(bookId);
 
   if (!user) {
-    notFound()
+    notFound();
   }
 
-  const book = user.books[0]
+  const book = user.books[0];
 
   if (!book) {
-    notFound()
+    notFound();
   }
 
   return (
@@ -27,5 +27,5 @@ export default async function BookDetailPage({
       <BookDetailHeader book={book} />
       <BookNotes book={book} />
     </div>
-  )
+  );
 }

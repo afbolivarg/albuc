@@ -5,11 +5,11 @@
  * Target: 200 tokens ≈ 800 characters per chunk
  */
 
-const TARGET_CHUNK_SIZE = 800 // ~200 tokens
+const TARGET_CHUNK_SIZE = 800; // ~200 tokens
 
 export interface NoteChunk {
-  text: string
-  index: number
+  text: string;
+  index: number;
 }
 
 /**
@@ -18,18 +18,18 @@ export interface NoteChunk {
  */
 export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
   if (!noteMarkdown || noteMarkdown.trim().length === 0) {
-    return []
+    return [];
   }
 
-  const chunks: NoteChunk[] = []
-  const paragraphs = noteMarkdown.split(/\n\n+/) // Split on double newlines
+  const chunks: NoteChunk[] = [];
+  const paragraphs = noteMarkdown.split(/\n\n+/); // Split on double newlines
 
-  let currentChunk = ""
-  let chunkIndex = 0
+  let currentChunk = "";
+  let chunkIndex = 0;
 
   for (const paragraph of paragraphs) {
-    const trimmedParagraph = paragraph.trim()
-    if (!trimmedParagraph) continue
+    const trimmedParagraph = paragraph.trim();
+    if (!trimmedParagraph) continue;
 
     // If adding this paragraph would exceed target size
     if (
@@ -41,12 +41,13 @@ export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
         chunks.push({
           text: currentChunk.trim(),
           index: chunkIndex++,
-        })
+        });
       }
-      currentChunk = trimmedParagraph
+      currentChunk = trimmedParagraph;
     } else {
       // Add to current chunk
-      currentChunk += (currentChunk.length > 0 ? "\n\n" : "") + trimmedParagraph
+      currentChunk +=
+        (currentChunk.length > 0 ? "\n\n" : "") + trimmedParagraph;
     }
   }
 
@@ -55,12 +56,12 @@ export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
     chunks.push({
       text: currentChunk.trim(),
       index: chunkIndex++,
-    })
+    });
   }
 
   // Handle case where we have very large paragraphs that need to be split further
-  const finalChunks: NoteChunk[] = []
-  let finalIndex = 0
+  const finalChunks: NoteChunk[] = [];
+  let finalIndex = 0;
 
   for (const chunk of chunks) {
     if (chunk.text.length <= TARGET_CHUNK_SIZE * 1.5) {
@@ -68,11 +69,11 @@ export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
       finalChunks.push({
         text: chunk.text,
         index: finalIndex++,
-      })
+      });
     } else {
       // Split large chunk by sentences
-      const sentences = chunk.text.split(/(?<=[.!?])\s+/)
-      let subChunk = ""
+      const sentences = chunk.text.split(/(?<=[.!?])\s+/);
+      let subChunk = "";
 
       for (const sentence of sentences) {
         if (
@@ -83,11 +84,11 @@ export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
             finalChunks.push({
               text: subChunk.trim(),
               index: finalIndex++,
-            })
+            });
           }
-          subChunk = sentence
+          subChunk = sentence;
         } else {
-          subChunk += (subChunk.length > 0 ? " " : "") + sentence
+          subChunk += (subChunk.length > 0 ? " " : "") + sentence;
         }
       }
 
@@ -95,12 +96,12 @@ export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
         finalChunks.push({
           text: subChunk.trim(),
           index: finalIndex++,
-        })
+        });
       }
     }
   }
 
-  return finalChunks
+  return finalChunks;
 }
 
 /**
@@ -108,5 +109,5 @@ export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
  * Uses simple heuristic: 1 token ≈ 4 characters
  */
 export function estimateTokenCount(text: string): number {
-  return Math.ceil(text.length / 4)
+  return Math.ceil(text.length / 4);
 }

@@ -1,19 +1,19 @@
-import { Book } from "@/lib/db/schema"
-import Image from "next/image"
-import Link from "next/link"
-import { Card, CardContent } from "@/components/ui/card"
-import { StatusPill } from "./status-pill"
-import { StarRating } from "@/components/star-rating"
-import { BookOpen } from "lucide-react"
+import { BookOpen } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { StarRating } from "@/components/star-rating";
+import { Card, CardContent } from "@/components/ui/card";
+import type { Book } from "@/lib/db/schema";
+import { StatusPill } from "./status-pill";
 
 interface BookCardProps {
-  book: Book
+  book: Book;
 }
 
 export function BookCard({ book }: BookCardProps) {
   const coverUrl = book.coverId
     ? `https://covers.openlibrary.org/b/id/${book.coverId}-M.jpg`
-    : null
+    : null;
 
   return (
     <Link href={`/library/${book.id}`}>
@@ -60,5 +60,5 @@ export function BookCard({ book }: BookCardProps) {
         </CardContent>
       </Card>
     </Link>
-  )
+  );
 }

@@ -1,16 +1,16 @@
-import Link from "next/link"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
-import { forgotPassword } from "../actions"
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { forgotPassword } from "../actions";
 
 export default async function ForgotPasswordPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string; error?: string }>
+  searchParams: Promise<{ message?: string; error?: string }>;
 }) {
-  const params = await searchParams
+  const params = await searchParams;
   return (
     <Card>
       <CardHeader>
@@ -52,5 +52,5 @@ export default async function ForgotPasswordPage({
         </p>
       </CardContent>
     </Card>
-  )
+  );
 }

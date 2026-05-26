@@ -1,24 +1,24 @@
-"use client"
+"use client";
 
 import {
-  useActionState,
-  useOptimistic,
   startTransition,
+  useActionState,
   useEffect,
-} from "react"
+  useOptimistic,
+} from "react";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { updateBookStatusAction } from "./actions"
-import { Book } from "@/lib/db/schema"
+} from "@/components/ui/select";
+import type { Book } from "@/lib/db/schema";
+import { updateBookStatusAction } from "./actions";
 
 interface StatusSelectorProps {
-  bookId: string
-  currentStatus: Book["status"]
+  bookId: string;
+  currentStatus: Book["status"];
 }
 
 const statusOptions = [
@@ -26,40 +26,40 @@ const statusOptions = [
   { value: "OWNED", label: "Owned", color: "bg-red-500" },
   { value: "READING", label: "Currently Reading", color: "bg-yellow-500" },
   { value: "READ", label: "Finished", color: "bg-green-500" },
-] as const
+] as const;
 
 export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
   const [state, formAction, isPending] = useActionState(
     updateBookStatusAction,
-    null
-  )
+    null,
+  );
 
   const [optimisticStatus, setOptimisticStatus] = useOptimistic(
     currentStatus,
-    (currentStatus, newStatus: Book["status"]) => newStatus
-  )
+    (_currentStatus, newStatus: Book["status"]) => newStatus,
+  );
 
   useEffect(() => {
     if (state?.error) {
-      setOptimisticStatus(currentStatus)
+      setOptimisticStatus(currentStatus);
     }
-  }, [state, currentStatus, setOptimisticStatus])
+  }, [state, currentStatus, setOptimisticStatus]);
 
   const handleStatusChange = (newStatus: string) => {
-    const status = newStatus as Book["status"]
+    const status = newStatus as Book["status"];
 
     startTransition(() => {
-      setOptimisticStatus(status)
-      const formData = new FormData()
-      formData.append("bookId", bookId)
-      formData.append("status", status)
-      formAction(formData)
-    })
-  }
+      setOptimisticStatus(status);
+      const formData = new FormData();
+      formData.append("bookId", bookId);
+      formData.append("status", status);
+      formAction(formData);
+    });
+  };
 
   const currentOption = statusOptions.find(
-    option => option.value === optimisticStatus
-  )
+    (option) => option.value === optimisticStatus,
+  );
 
   return (
     <div className="space-y-1">
@@ -79,7 +79,7 @@ export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
           </SelectValue>
         </SelectTrigger>
         <SelectContent>
-          {statusOptions.map(option => (
+          {statusOptions.map((option) => (
             <SelectItem key={option.value} value={option.value}>
               <div className="flex items-center gap-2">
                 <div className={`w-3 h-3 rounded-full ${option.color}`} />
@@ -93,5 +93,5 @@ export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
         <div className="text-xs text-destructive">Error: {state.error}</div>
       )}
     </div>
-  )
+  );
 }

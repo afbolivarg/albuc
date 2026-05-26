@@ -1,59 +1,59 @@
-"use client"
+"use client";
 
-import { useRef, useActionState, startTransition, useState } from "react"
+import { BookOpen, Loader, Plus, Search } from "lucide-react";
+import { startTransition, useActionState, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import { Input } from "@/components/ui/input"
-import { Button } from "@/components/ui/button"
-import { Search, Loader, BookOpen, Plus } from "lucide-react"
-import { searchBooksAction } from "./actions"
-import { SearchResultItem } from "./search-result-item"
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { searchBooksAction } from "./actions";
+import { SearchResultItem } from "./search-result-item";
 
 export function AddBook() {
-  const inputRef = useRef<HTMLInputElement>(null)
-  const [open, setOpen] = useState(false)
+  const inputRef = useRef<HTMLInputElement>(null);
+  const [open, setOpen] = useState(false);
   const [state, formAction, isPending] = useActionState(searchBooksAction, {
     results: [],
-  })
+  });
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
-    const query = formData.get("query") as string
-    if (!query?.trim()) return
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
+    const query = formData.get("query") as string;
+    if (!query?.trim()) return;
 
     startTransition(() => {
-      formAction(formData)
-    })
-  }
+      formAction(formData);
+    });
+  };
 
   const handleClose = () => {
     if (inputRef.current) {
-      inputRef.current.value = ""
+      inputRef.current.value = "";
     }
-    const formData = new FormData()
-    formData.append("query", "")
+    const formData = new FormData();
+    formData.append("query", "");
     startTransition(() => {
-      formAction(formData)
-    })
-  }
+      formAction(formData);
+    });
+  };
 
   const handleBookAdded = () => {
-    setOpen(false)
-    handleClose()
-  }
+    setOpen(false);
+    handleClose();
+  };
 
   const handleOpenChange = (openState: boolean) => {
-    setOpen(openState)
+    setOpen(openState);
     if (!openState) {
-      handleClose()
+      handleClose();
     }
-  }
+  };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -128,5 +128,5 @@ export function AddBook() {
         </div>
       </DialogContent>
     </Dialog>
-  )
+  );
 }

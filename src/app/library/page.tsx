@@ -1,13 +1,13 @@
-import { getUserWithBooks } from "@/lib/db/queries"
-import { BookGrid } from "./book-grid"
-import { AddBook } from "./add-book"
-import { redirect } from "next/navigation"
+import { redirect } from "next/navigation";
+import { getUserWithBooks } from "@/lib/db/queries";
+import { AddBook } from "./add-book";
+import { BookGrid } from "./book-grid";
 
 export default async function LibraryPage() {
-  const user = await getUserWithBooks()
+  const user = await getUserWithBooks();
 
   if (!user) {
-    redirect("/")
+    redirect("/");
   }
 
   return (
@@ -27,5 +27,5 @@ export default async function LibraryPage() {
 
       <BookGrid books={user.books} />
     </main>
-  )
+  );
 }

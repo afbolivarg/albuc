@@ -5,11 +5,11 @@ export default function LibraryLoading() {
         <div className="h-8 w-48 bg-muted rounded" />
         <div className="h-4 w-64 bg-muted rounded" />
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {[1, 2, 3].map(i => (
+          {[1, 2, 3].map((i) => (
             <div key={i} className="h-48 bg-muted rounded-lg" />
           ))}
         </div>
       </div>
     </main>
-  )
+  );
 }

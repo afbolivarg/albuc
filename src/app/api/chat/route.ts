@@ -1,86 +1,89 @@
-import { streamText, convertToModelMessages, type UIMessage } from "ai"
-import { generateEmbedding } from "@/lib/ai/embedding"
-import { getChatModel } from "@/lib/ai/provider"
-import { semanticSearchNotes } from "@/lib/db/queries"
-import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage"
-import { getUser } from "@/lib/db/queries"
-import { logError } from "@/lib/logger"
+import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { generateEmbedding } from "@/lib/ai/embedding";
+import { getChatModel } from "@/lib/ai/provider";
+import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage";
+import { getUser, semanticSearchNotes } from "@/lib/db/queries";
+import { logError } from "@/lib/logger";
 
 export async function POST(req: Request) {
   try {
     // 1. Authenticate user and get database user
-    const user = await getUser()
+    const user = await getUser();
     if (!user) {
-      return new Response("Unauthorized", { status: 401 })
+      return new Response("Unauthorized", { status: 401 });
     }
 
     // 2. Parse request body
-    const { messages }: { messages: UIMessage[] } = await req.json()
+    const { messages }: { messages: UIMessage[] } = await req.json();
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
       return new Response("Invalid request: messages array required", {
         status: 400,
-      })
+      });
     }
 
     // Get the last user message and extract text from parts
-    const lastMessage = messages[messages.length - 1]
+    const lastMessage = messages[messages.length - 1];
     const textParts = lastMessage.parts
-      .filter(part => part.type === "text")
-      .map(part => part.text)
-      .join(" ")
+      .filter((part) => part.type === "text")
+      .map((part) => part.text)
+      .join(" ");
 
     if (!textParts.trim()) {
       return new Response("Invalid request: no message content", {
         status: 400,
-      })
+      });
     }
 
-    const question = textParts
+    const question = textParts;
 
     // 3. Check AI usage (auth-based; always allowed for authenticated users)
-    const usageCheck = await checkAIUsageAllowed(user.id)
+    const usageCheck = await checkAIUsageAllowed(user.id);
 
     if (!usageCheck.allowed) {
       return new Response(
         JSON.stringify({
           error: usageCheck.reason || "AI feature access denied.",
         }),
-        { status: 402 }
-      )
+        { status: 402 },
+      );
     }
 
     // 4. Generate query embedding
-    const queryEmbedding = await generateEmbedding(question)
+    const queryEmbedding = await generateEmbedding(question);
 
     // 5. Perform semantic search
-    const relevantChunks = await semanticSearchNotes(user.id, queryEmbedding, 8)
+    const relevantChunks = await semanticSearchNotes(
+      user.id,
+      queryEmbedding,
+      8,
+    );
 
     // 6. Build context with citations
-    let systemPrompt: string
+    let systemPrompt: string;
 
     if (relevantChunks.length === 0) {
-      systemPrompt = `You are a reading copilot. The user has asked a question but you couldn't find any relevant information in their library. Politely let them know that you need relevant notes or books in their library to answer this question.`
+      systemPrompt = `You are a reading copilot. The user has asked a question but you couldn't find any relevant information in their library. Politely let them know that you need relevant notes or books in their library to answer this question.`;
     } else {
       const contextParts = relevantChunks.map((chunk, index) => {
         const citation = chunk.publish_year
           ? `"${chunk.title}" by ${chunk.authors?.join(", ") || "Unknown"}, ${chunk.publish_year}`
-          : `"${chunk.title}" by ${chunk.authors?.join(", ") || "Unknown"}`
+          : `"${chunk.title}" by ${chunk.authors?.join(", ") || "Unknown"}`;
 
-        return `[${index + 1}] From ${citation}:\n${chunk.chunk}`
-      })
+        return `[${index + 1}] From ${citation}:\n${chunk.chunk}`;
+      });
 
-      const context = contextParts.join("\n\n")
+      const context = contextParts.join("\n\n");
 
       // Extract unique books for sources metadata
       const uniqueBooks = new Map<
         string,
         {
-          bookId: string
-          title: string
-          authors: string[]
-          publishYear: number | null
+          bookId: string;
+          title: string;
+          authors: string[];
+          publishYear: number | null;
         }
-      >()
+      >();
 
       for (const chunk of relevantChunks) {
         if (!uniqueBooks.has(chunk.book_id)) {
@@ -89,7 +92,7 @@ export async function POST(req: Request) {
             title: chunk.title,
             authors: chunk.authors || [],
             publishYear: chunk.publish_year,
-          })
+          });
         }
       }
 
@@ -109,11 +112,11 @@ CRITICAL RULES:
 
 Context from the user's library:
 
-${context}`
+${context}`;
     }
 
     // 7. Increment usage counter
-    await incrementAIUsage(user.id)
+    await incrementAIUsage(user.id);
 
     // 8. Stream the response
     const result = streamText({
@@ -122,17 +125,17 @@ ${context}`
       messages: convertToModelMessages(messages),
       temperature: 0.3,
       maxRetries: 2,
-    })
+    });
 
-    return result.toUIMessageStreamResponse()
+    return result.toUIMessageStreamResponse();
   } catch (error) {
-    logError(error, { operation: "api/chat" })
+    logError(error, { operation: "api/chat" });
     return new Response(
       JSON.stringify({
         error:
           error instanceof Error ? error.message : "Failed to process request",
       }),
-      { status: 500 }
-    )
+      { status: 500 },
+    );
   }
 }

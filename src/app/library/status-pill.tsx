@@ -1,9 +1,9 @@
-import { bookStatusEnum } from "@/lib/db/schema"
+import type { bookStatusEnum } from "@/lib/db/schema";
 
 interface StatusPillProps {
-  status: (typeof bookStatusEnum.enumValues)[number]
-  onClick?: () => void
-  className?: string
+  status: (typeof bookStatusEnum.enumValues)[number];
+  onClick?: () => void;
+  className?: string;
 }
 
 const statusConfig = {
@@ -20,14 +20,14 @@ const statusConfig = {
     label: "Read",
     color: "bg-green-100 text-green-800 border-green-200",
   },
-}
+};
 
 export function StatusPill({ status, onClick, className }: StatusPillProps) {
-  const config = statusConfig[status]
+  const config = statusConfig[status];
 
   const baseClasses =
-    "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border transition-colors"
-  const clickableClasses = onClick ? "cursor-pointer hover:opacity-80" : ""
+    "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border transition-colors";
+  const clickableClasses = onClick ? "cursor-pointer hover:opacity-80" : "";
 
   return (
     <span
@@ -36,5 +36,5 @@ export function StatusPill({ status, onClick, className }: StatusPillProps) {
     >
       {config.label}
     </span>
-  )
+  );
 }

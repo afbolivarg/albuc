@@ -1,1 +1,1 @@
-export const protectedRoutes = "/dashboard"
+export const protectedRoutes = "/dashboard";

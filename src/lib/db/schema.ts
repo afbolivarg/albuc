@@ -1,35 +1,35 @@
-import { relations, sql } from "drizzle-orm"
+import { relations, sql } from "drizzle-orm";
 import {
+  customType,
+  index,
+  integer,
+  numeric,
+  pgEnum,
   pgTable,
   text,
   timestamp,
   uuid,
-  integer,
-  numeric,
-  index,
-  pgEnum,
-  customType,
-} from "drizzle-orm/pg-core"
+} from "drizzle-orm/pg-core";
 
 // Custom type for pgvector
 const vector = customType<{ data: number[]; driverData: string }>({
   dataType() {
-    return "vector(768)"
+    return "vector(768)";
   },
   toDriver(value: number[]): string {
-    return JSON.stringify(value)
+    return JSON.stringify(value);
   },
   fromDriver(value: string): number[] {
-    return JSON.parse(value)
+    return JSON.parse(value);
   },
-})
+});
 
 export const bookStatusEnum = pgEnum("book_status", [
   "WANT",
   "OWNED",
   "READING",
   "READ",
-])
+]);
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
@@ -38,7 +38,7 @@ export const users = pgTable("users", {
   name: text("name"),
   imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
-})
+});
 
 export const books = pgTable(
   "books",
@@ -62,12 +62,12 @@ export const books = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  table => [
+  (table) => [
     index("user_books_user_id_idx").on(table.userId),
     index("user_books_status_idx").on(table.status),
     index("user_books_updated_at_idx").on(table.updatedAt.desc()),
-  ]
-)
+  ],
+);
 
 export const usageCounters = pgTable(
   "usage_counters",
@@ -81,12 +81,12 @@ export const usageCounters = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  table => [
+  (table) => [
     index("usage_counters_user_id_idx").on(table.userId),
     index("usage_counters_month_idx").on(table.month),
     index("usage_counters_user_month_idx").on(table.userId, table.month),
-  ]
-)
+  ],
+);
 
 export const noteChunks = pgTable(
   "note_chunks",
@@ -101,15 +101,15 @@ export const noteChunks = pgTable(
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
-  table => [
+  (table) => [
     index("note_chunks_book_id_idx").on(table.bookId),
     // IVFFlat index for vector similarity search using cosine distance
     index("note_chunks_embedding_idx").using(
       "ivfflat",
-      sql`${table.embedding} vector_cosine_ops`
+      sql`${table.embedding} vector_cosine_ops`,
     ),
-  ]
-)
+  ],
+);
 
 export const booksRelations = relations(books, ({ one, many }) => ({
   user: one(users, {
@@ -117,46 +117,46 @@ export const booksRelations = relations(books, ({ one, many }) => ({
     references: [users.id],
   }),
   noteChunks: many(noteChunks),
-}))
+}));
 
 export const userRelations = relations(users, ({ many }) => ({
   books: many(books),
   usageCounters: many(usageCounters),
-}))
+}));
 
 export const usageCountersRelations = relations(usageCounters, ({ one }) => ({
   user: one(users, {
     fields: [usageCounters.userId],
     references: [users.id],
   }),
-}))
+}));
 
 export const noteChunksRelations = relations(noteChunks, ({ one }) => ({
   book: one(books, {
     fields: [noteChunks.bookId],
     references: [books.id],
   }),
-}))
+}));
 
-export type User = typeof users.$inferSelect
-export type NewUser = typeof users.$inferInsert
-export type Book = typeof books.$inferSelect
-export type NewBook = typeof books.$inferInsert
-export type UsageCounter = typeof usageCounters.$inferSelect
-export type NewUsageCounter = typeof usageCounters.$inferInsert
-export type NoteChunk = typeof noteChunks.$inferSelect
-export type NewNoteChunk = typeof noteChunks.$inferInsert
+export type User = typeof users.$inferSelect;
+export type NewUser = typeof users.$inferInsert;
+export type Book = typeof books.$inferSelect;
+export type NewBook = typeof books.$inferInsert;
+export type UsageCounter = typeof usageCounters.$inferSelect;
+export type NewUsageCounter = typeof usageCounters.$inferInsert;
+export type NoteChunk = typeof noteChunks.$inferSelect;
+export type NewNoteChunk = typeof noteChunks.$inferInsert;
 
 // Helper to create a new note chunk with current model version
 export function createNoteChunkData(
   bookId: string,
   chunk: string,
-  embedding: number[]
+  embedding: number[],
 ): NewNoteChunk {
   return {
     bookId,
     chunk,
     embedding,
     modelVersion: "text-embedding-004", // Always use current model
-  }
+  };
 }

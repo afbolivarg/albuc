@@ -1,64 +1,66 @@
-"use client"
+"use client";
 
-import { useRef, useActionState, startTransition, useState } from "react"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
-import { Card } from "@/components/ui/card"
+import { BookOpen, Check, Loader, Plus } from "lucide-react";
+import Image from "next/image";
+import { startTransition, useActionState, useRef, useState } from "react";
+import { StarRating } from "@/components/star-rating";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select"
-import { BookSearchResult, getCoverUrl } from "@/lib/open-library"
-import { addBookAction } from "./actions"
-import { StarRating } from "@/components/star-rating"
-import { Plus, Check, Loader, BookOpen } from "lucide-react"
-import { bookStatusEnum } from "@/lib/db/schema"
+} from "@/components/ui/select";
+import { bookStatusEnum } from "@/lib/db/schema";
+import { type BookSearchResult, getCoverUrl } from "@/lib/open-library";
+import { addBookAction } from "./actions";
 
-type BookStatus = (typeof bookStatusEnum.enumValues)[number]
+type BookStatus = (typeof bookStatusEnum.enumValues)[number];
 
 interface SearchResultItemProps {
-  book: BookSearchResult
-  onAdd: () => void
+  book: BookSearchResult;
+  onAdd: () => void;
 }
 
 export function SearchResultItem({ book, onAdd }: SearchResultItemProps) {
-  const statusRef = useRef<BookStatus>(bookStatusEnum.enumValues[0])
-  const [rating, setRating] = useState<number>(0)
+  const statusRef = useRef<BookStatus>(bookStatusEnum.enumValues[0]);
+  const [rating, setRating] = useState<number>(0);
   const [state, formAction, isPending] = useActionState(
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    async (prevState: any, formData: FormData) => {
-      const result = await addBookAction(prevState, formData)
+    async (
+      prevState: { success: boolean; error?: string },
+      formData: FormData,
+    ) => {
+      const result = await addBookAction(prevState, formData);
       if (result.success) {
-        onAdd()
+        onAdd();
       }
-      return result
+      return result;
     },
-    { success: false }
-  )
+    { success: false },
+  );
 
-  const coverUrl = getCoverUrl(book.coverId, "M")
+  const coverUrl = getCoverUrl(book.coverId, "M");
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault()
-    const formData = new FormData(e.currentTarget)
+    e.preventDefault();
+    const formData = new FormData(e.currentTarget);
 
-    formData.append("workKey", book.workKey)
-    formData.append("editionKey", book.editionKey || "")
-    formData.append("title", book.title)
-    formData.append("authors", JSON.stringify(book.authors))
-    formData.append("authorKeys", JSON.stringify(book.authorKeys || []))
-    formData.append("publishYear", book.publishYear?.toString() || "")
-    formData.append("coverId", book.coverId?.toString() || "")
-    formData.append("isbn10", JSON.stringify(book.isbn10 || []))
-    formData.append("isbn13", JSON.stringify(book.isbn13 || []))
+    formData.append("workKey", book.workKey);
+    formData.append("editionKey", book.editionKey || "");
+    formData.append("title", book.title);
+    formData.append("authors", JSON.stringify(book.authors));
+    formData.append("authorKeys", JSON.stringify(book.authorKeys || []));
+    formData.append("publishYear", book.publishYear?.toString() || "");
+    formData.append("coverId", book.coverId?.toString() || "");
+    formData.append("isbn10", JSON.stringify(book.isbn10 || []));
+    formData.append("isbn13", JSON.stringify(book.isbn13 || []));
 
     startTransition(() => {
-      formAction(formData)
-    })
-  }
+      formAction(formData);
+    });
+  };
 
   return (
     <Card className="p-4 bg-card backdrop-blur-sm hover:bg-accent/10 transition-colors shadow-none">
@@ -108,14 +110,14 @@ export function SearchResultItem({ book, onAdd }: SearchResultItemProps) {
                 name="status"
                 defaultValue={statusRef.current}
                 onValueChange={(value: BookStatus) => {
-                  statusRef.current = value
+                  statusRef.current = value;
                 }}
               >
                 <SelectTrigger className="w-24 h-8 text-xs">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {bookStatusEnum.enumValues.map(statusValue => (
+                  {bookStatusEnum.enumValues.map((statusValue) => (
                     <SelectItem key={statusValue} value={statusValue}>
                       {statusValue.charAt(0) +
                         statusValue.slice(1).toLowerCase()}
@@ -154,5 +156,5 @@ export function SearchResultItem({ book, onAdd }: SearchResultItemProps) {
         </div>
       </div>
     </Card>
-  )
+  );
 }

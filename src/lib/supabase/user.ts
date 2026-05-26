@@ -1,18 +1,18 @@
-import { createClient as createServerClient } from "@/lib/supabase/server"
+import { createClient as createServerClient } from "@/lib/supabase/server";
 
 export async function getCurrentUser() {
   try {
-    const supabase = await createServerClient()
+    const supabase = await createServerClient();
     const {
       data: { user },
       error,
-    } = await supabase.auth.getUser()
+    } = await supabase.auth.getUser();
 
     if (error || !user) {
-      return null
+      return null;
     }
-    return user
+    return user;
   } catch {
-    return null
+    return null;
   }
 }

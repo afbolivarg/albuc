@@ -1,17 +1,17 @@
-import { getCurrentUser } from "@/lib/supabase/user"
-import { db } from "@/lib/db"
+import type { User as SupabaseUser } from "@supabase/supabase-js";
+import { and, desc, eq, sql } from "drizzle-orm";
+import { db } from "@/lib/db";
 import {
-  Book,
-  NewBook,
-  NewUser,
-  User,
+  type Book,
   books,
-  users,
+  type NewBook,
+  type NewNoteChunk,
+  type NewUser,
   noteChunks,
-  NewNoteChunk,
-} from "@/lib/db/schema"
-import { eq, desc, and, sql } from "drizzle-orm"
-import type { User as SupabaseUser } from "@supabase/supabase-js"
+  type User,
+  users,
+} from "@/lib/db/schema";
+import { getCurrentUser } from "@/lib/supabase/user";
 
 /**
  * Ensure an app user exists for the given Supabase auth user (create if missing).
@@ -20,18 +20,18 @@ import type { User as SupabaseUser } from "@supabase/supabase-js"
 export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
   const existing = await db.query.users.findFirst({
     where: eq(users.googleSub, supabaseUser.id),
-  })
+  });
   if (existing) {
-    return existing
+    return existing;
   }
   const name =
     (supabaseUser.user_metadata?.full_name as string) ||
     (supabaseUser.user_metadata?.name as string) ||
-    null
+    null;
   const imageUrl =
     (supabaseUser.user_metadata?.avatar_url as string) ||
     (supabaseUser.user_metadata?.picture as string) ||
-    null
+    null;
   const [created] = await db
     .insert(users)
     .values({
@@ -40,35 +40,35 @@ export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
       name,
       imageUrl,
     })
-    .returning()
-  if (!created) throw new Error("Failed to create app user")
-  return created
+    .returning();
+  if (!created) throw new Error("Failed to create app user");
+  return created;
 }
 
 export async function getUser() {
-  const supabaseUser = await getCurrentUser()
+  const supabaseUser = await getCurrentUser();
 
   if (!supabaseUser) {
-    return null
+    return null;
   }
 
   let user = await db.query.users.findFirst({
     where: eq(users.googleSub, supabaseUser.id),
-  })
+  });
 
   if (!user) {
-    user = await ensureAppUser(supabaseUser)
+    user = await ensureAppUser(supabaseUser);
   }
 
-  return user
+  return user;
 }
 
 export async function getUserByGoogleSub(googleSub: string) {
   const user = await db.query.users.findFirst({
     where: eq(users.googleSub, googleSub),
-  })
+  });
 
-  return user ?? null
+  return user ?? null;
 }
 
 export async function updateUser(user: User) {
@@ -76,18 +76,18 @@ export async function updateUser(user: User) {
     .update(users)
     .set(user)
     .where(eq(users.googleSub, user.googleSub))
-    .returning()
+    .returning();
 }
 
 export async function createUser(user: NewUser) {
-  return await db.insert(users).values(user).returning()
+  return await db.insert(users).values(user).returning();
 }
 
 export async function getUserWithBooks() {
-  const supabaseUser = await getCurrentUser()
+  const supabaseUser = await getCurrentUser();
 
   if (!supabaseUser) {
-    return null
+    return null;
   }
 
   const user = await db.query.users.findFirst({
@@ -97,16 +97,16 @@ export async function getUserWithBooks() {
         orderBy: desc(books.updatedAt),
       },
     },
-  })
+  });
 
-  return user ?? null
+  return user ?? null;
 }
 
 export async function getUserWithBook(bookId: string) {
-  const supabaseUser = await getCurrentUser()
+  const supabaseUser = await getCurrentUser();
 
   if (!supabaseUser) {
-    return null
+    return null;
   }
 
   const user = await db.query.users.findFirst({
@@ -116,15 +116,15 @@ export async function getUserWithBook(bookId: string) {
         where: eq(books.id, bookId),
       },
     },
-  })
-  return user ?? null
+  });
+  return user ?? null;
 }
 
 export async function getUserBookByWorkKey(userId: string, workKey: string) {
   const result = await db.query.books.findFirst({
     where: and(eq(books.userId, userId), eq(books.workKey, workKey)),
-  })
-  return result ?? null
+  });
+  return result ?? null;
 }
 
 export async function getUserBook(userId: string, bookId: string) {
@@ -132,13 +132,13 @@ export async function getUserBook(userId: string, bookId: string) {
     .select()
     .from(books)
     .where(and(eq(books.userId, userId), eq(books.id, bookId)))
-    .limit(1)
+    .limit(1);
 
-  return result.length > 0 ? result[0] : null
+  return result.length > 0 ? result[0] : null;
 }
 
 export async function createBook(book: NewBook) {
-  return await db.insert(books).values(book).returning()
+  return await db.insert(books).values(book).returning();
 }
 
 export async function updateBook(book: Book) {
@@ -146,7 +146,7 @@ export async function updateBook(book: Book) {
     .update(books)
     .set(book)
     .where(eq(books.id, book.id))
-    .returning()
+    .returning();
 }
 
 // ========================================
@@ -158,23 +158,26 @@ export async function updateBook(book: Book) {
  */
 export async function createNoteChunks(chunks: NewNoteChunk[]) {
   if (chunks.length === 0) {
-    return []
+    return [];
   }
-  return await db.insert(noteChunks).values(chunks).returning()
+  return await db.insert(noteChunks).values(chunks).returning();
 }
 
 /**
  * Delete all note chunks for a specific book
  */
 export async function deleteNoteChunksByBookId(bookId: string) {
-  return await db.delete(noteChunks).where(eq(noteChunks.bookId, bookId))
+  return await db.delete(noteChunks).where(eq(noteChunks.bookId, bookId));
 }
 
 /**
  * Get all note chunks for a specific book
  */
 export async function getNoteChunksByBookId(bookId: string) {
-  return await db.select().from(noteChunks).where(eq(noteChunks.bookId, bookId))
+  return await db
+    .select()
+    .from(noteChunks)
+    .where(eq(noteChunks.bookId, bookId));
 }
 
 /**
@@ -190,15 +193,15 @@ export async function semanticSearchNotes(
   userId: string,
   queryEmbedding: number[],
   limit: number = 8,
-  modelVersion?: string
+  modelVersion?: string,
 ) {
   // Convert the embedding array to the pgvector format string
-  const embeddingString = `[${queryEmbedding.join(",")}]`
+  const embeddingString = `[${queryEmbedding.join(",")}]`;
 
   // Build WHERE clause with optional model version filter
   const modelFilter = modelVersion
     ? sql`AND nc.model_version = ${modelVersion}`
-    : sql``
+    : sql``;
 
   const results = await db.execute(sql`
     SELECT 
@@ -216,16 +219,16 @@ export async function semanticSearchNotes(
     ${modelFilter}
     ORDER BY nc.embedding <-> ${embeddingString}::vector
     LIMIT ${limit}
-  `)
+  `);
 
   return results as unknown as Array<{
-    id: string
-    chunk: string
-    book_id: string
-    model_version: string
-    title: string
-    authors: string[]
-    publish_year: number
-    distance: number
-  }>
+    id: string;
+    chunk: string;
+    book_id: string;
+    model_version: string;
+    title: string;
+    authors: string[];
+    publish_year: number;
+    distance: number;
+  }>;
 }

@@ -1,19 +1,19 @@
-import Image from "next/image"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ArrowLeft, BookOpen } from "lucide-react"
-import { Book } from "@/lib/db/schema"
-import { getCoverUrl } from "@/lib/open-library"
-import { StatusSelector } from "./status-selector"
-import { RatingSelector } from "./rating-selector"
-import { Label } from "@/components/ui/label"
+import { ArrowLeft, BookOpen } from "lucide-react";
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Label } from "@/components/ui/label";
+import type { Book } from "@/lib/db/schema";
+import { getCoverUrl } from "@/lib/open-library";
+import { RatingSelector } from "./rating-selector";
+import { StatusSelector } from "./status-selector";
 
 interface BookDetailHeaderProps {
-  book: Book
+  book: Book;
 }
 
 export function BookDetailHeader({ book }: BookDetailHeaderProps) {
-  const coverUrl = getCoverUrl(book.coverId || undefined, "L")
+  const coverUrl = getCoverUrl(book.coverId || undefined, "L");
 
   return (
     <div className="space-y-4">
@@ -55,10 +55,10 @@ export function BookDetailHeader({ book }: BookDetailHeaderProps) {
                 {book.authors && book.authors.length > 0 ? (
                   <div className="flex flex-wrap gap-1">
                     by{" "}
-                    {book.authors.map((author, index) => (
-                      <span key={index}>
+                    {book.authors.map((author, index, authors) => (
+                      <span key={author}>
                         {author}
-                        {index < book.authors!.length - 1 && ", "}
+                        {index < authors.length - 1 && ", "}
                       </span>
                     ))}
                   </div>
@@ -90,5 +90,5 @@ export function BookDetailHeader({ book }: BookDetailHeaderProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }

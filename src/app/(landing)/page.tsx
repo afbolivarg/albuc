@@ -1,62 +1,27 @@
-import { Button } from "@/components/ui/button"
-import { Card, CardContent } from "@/components/ui/card"
-// import { Badge } from "@/components/ui/badge"
-import {
-  // Smartphone,
-  // Monitor,
-  // Globe,
-  // Brain,
-  // Layers,
-  // Zap,
-  SquareLibrary,
-} from "lucide-react"
-import Link from "next/link"
-import { getCurrentUser } from "@/lib/supabase/user"
-import { redirect } from "next/navigation"
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { LandingFooter } from "@/components/landing-footer";
+import { LandingNav } from "@/components/landing-nav";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { getCurrentUser } from "@/lib/supabase/user";
 
 export default async function Home() {
-  const user = await getCurrentUser()
+  const user = await getCurrentUser();
 
   if (user) {
-    redirect("/library")
+    redirect("/library");
   }
 
   return (
     <div className="min-h-screen max-w-6xl mx-auto p-4 md:p-6 space-y-16 md:space-y-32">
-      {/* Hero Section */}
       <Card className="bg-muted rounded-xl shadow-none overflow-hidden p-0 border-none">
         <CardContent
           className="p-4 md:p-6 space-y-8 md:space-y-12 bg-cover bg-center bg-no-repeat relative min-h-[700px]"
-          style={{
-            backgroundImage: "url('/hero-bg.webp')",
-          }}
+          style={{ backgroundImage: "url('/hero-bg.webp')" }}
         >
-          {/* Header */}
-          <nav className="flex items-center justify-between">
-            <div className="flex items-center justify-between">
-              <Link
-                href="/"
-                className="flex items-center space-x-2 cursor-pointer select-auto mr-4"
-                tabIndex={0}
-                aria-label="Go to Library"
-              >
-                <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-text">
-                  <SquareLibrary className="w-6 h-6" />
-                  Albuc
-                </span>
-              </Link>
-            </div>
-            <div className="flex items-center gap-2">
-              <Button asChild variant="outline">
-                <Link href="/sign-in">Sign in</Link>
-              </Button>
-              <Button asChild>
-                <Link href="/sign-up">Sign up</Link>
-              </Button>
-            </div>
-          </nav>
+          <LandingNav />
 
-          {/* Main Headline */}
           <div className="text-center mb-16">
             <h1 className="text-4xl md:text-5xl font-bold mb-6 leading-none tracking-tight font-serif">
               Don&apos;t just read.
@@ -67,10 +32,14 @@ export default async function Home() {
               Track your reading. Capture your thinking. Albuc blends
               Goodreads&apos; structure with Notion&apos;s writing flow.
             </p>
-
-            <Button asChild>
-              <Link href="/sign-up">Get Started</Link>
-            </Button>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+              <Button asChild>
+                <Link href="/sign-up">Get started — it&apos;s free</Link>
+              </Button>
+              <Button asChild variant="ghost">
+                <Link href="/why">Why I built this</Link>
+              </Button>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -78,333 +47,18 @@ export default async function Home() {
       <Card className="bg-muted rounded-3xl border-none shadow-none">
         <CardContent className="p-12 text-center">
           <h2 className="text-2xl md:text-3xl font-bold text-foreground mb-4 font-serif tracking-tight">
-            Free and open source
+            Your library, your notes, your questions
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Albuc is free to use. Track your reading, capture notes, and chat
-            with your library using AI.
+            Add books, write notes in markdown, and ask AI questions grounded in
+            what you&apos;ve actually read and written. Free to use.
           </p>
           <Button asChild>
-            <Link href="/sign-up">Get Started</Link>
+            <Link href="/sign-up">Create your library</Link>
           </Button>
         </CardContent>
       </Card>
 
-      {/* Platform Cards */}
-      {/* <div className="grid md:grid-cols-2 gap-6 mt-8" id="features">
-        <Card className="bg-white rounded-2xl shadow-lg">
-          <CardContent className="p-8">
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <div className="w-32 h-20 bg-gray-200 rounded-lg flex items-center justify-center">
-                  <Monitor className="w-8 h-8 text-gray-600" />
-                </div>
-                <div className="absolute -top-2 -left-2 w-6 h-6 bg-gray-400 rounded-full"></div>
-                <div className="absolute -top-2 left-6 w-6 h-6 bg-gray-500 rounded-full"></div>
-                <div className="absolute -top-2 left-14 w-6 h-6 bg-gray-600 rounded-full"></div>
-                <div className="absolute -top-2 left-22 w-6 h-6 bg-gray-700 rounded-full"></div>
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">
-              Notely for Windows / Linux
-            </h3>
-            <p className="text-gray-600 text-sm">
-              Work smarter on desktop. Fully customizable, syncing, keyboard
-              shortcuts, and integrated with everything.
-            </p>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-white rounded-2xl shadow-lg">
-          <CardContent className="p-8">
-            <div className="flex justify-center mb-6">
-              <div className="relative">
-                <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-                  <Globe className="w-8 h-8 text-gray-600" />
-                </div>
-                <div className="absolute top-2 right-2">
-                  <Badge className="bg-black text-white text-xs px-2 py-1">
-                    Noteworthy
-                  </Badge>
-                </div>
-                <div className="absolute bottom-2 left-2">
-                  <Badge className="bg-black text-white text-xs px-2 py-1">
-                    Daily 3 minutes
-                  </Badge>
-                </div>
-              </div>
-            </div>
-            <h3 className="text-xl font-semibold mb-2">Notely for Web</h3>
-            <p className="text-gray-600 text-sm">
-              Access your notes anywhere with a responsive web app that works in
-              every browser.
-            </p>
-          </CardContent>
-        </Card>
-      </div> */}
-
-      {/* Notes Demo Section */}
-      {/* <Card className="bg-white rounded-3xl shadow-lg mt-16">
-        <CardContent className="p-12">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-gray-900 mb-4">
-              Notes that work the way you think.
-            </h2>
-            <p className="text-gray-600 max-w-2xl mx-auto">
-              Notes shouldn't feel messy or scattered. With fully flexible
-              entry, thought flows into an organized system that adapts to your
-              style and keeps you focused.
-            </p>
-          </div>
-
-          <div className="bg-gray-50 rounded-2xl p-8 mb-8">
-            <div className="flex items-center gap-4 mb-6">
-              <div className="flex items-center gap-2 bg-white rounded-lg px-3 py-2 shadow-sm">
-                <span className="text-sm">Style 01</span>
-              </div>
-              <div className="flex gap-1">
-                <div className="w-8 h-8 bg-white rounded flex items-center justify-center shadow-sm">
-                  B
-                </div>
-                <div className="w-8 h-8 bg-white rounded flex items-center justify-center shadow-sm">
-                  I
-                </div>
-                <div className="w-8 h-8 bg-white rounded flex items-center justify-center shadow-sm">
-                  U
-                </div>
-              </div>
-            </div>
-
-            <div className="space-y-4">
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  Dapibus lorem dolor sit amet, consectetur adipiscing elit.
-                  Etiam non ligula molestie, dignissim a, mattis tellus. Sed
-                  dignissim, velit non molestie accumsan, risus ante
-                  sollicitudin lorem, ut consectetur tellus est non mauris.
-                  Mauris quis consequat elit, sit amet rhoncus elit. Cras sapien
-                  felis consequat quis lorem tempor consequat, ut consectetur
-                  tellus est non mauris. Mauris quis consequat elit, sit amet
-                  rhoncus elit.
-                </p>
-              </div>
-              <div className="bg-white rounded-lg p-4 shadow-sm">
-                <p className="text-sm text-gray-700 leading-relaxed">
-                  Dapibus lorem dolor sit amet, consectetur adipiscing elit.
-                  Etiam non ligula molestie, dignissim a, mattis tellus. Sed
-                  dignissim, velit non molestie accumsan, risus ante
-                  sollicitudin lorem, ut consectetur tellus est non mauris.
-                  Mauris quis consequat elit, sit amet rhoncus elit. Cras sapien
-                  felis consequat quis lorem tempor consequat, ut consectetur
-                  tellus est non mauris. Mauris quis consequat elit, sit amet
-                  rhoncus elit.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between mt-6">
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 bg-gray-300 rounded-full"></div>
-                <span className="text-sm text-gray-600">AI summary</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="text-sm text-gray-600">Save</span>
-                <div className="w-6 h-6 bg-gray-900 rounded-full"></div>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card> */}
-
-      {/* Platform Showcase */}
-      {/* <div className="mt-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Ideas. Notes. Clarity.
-            <br />
-            Wherever your mind goes.
-          </h2>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="grid grid-cols-2 gap-6">
-            <Card className="bg-white rounded-2xl shadow-lg">
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="relative">
-                    <Smartphone className="w-12 h-12 text-gray-600" />
-                    <div className="absolute -top-1 -right-1 w-4 h-4 bg-black rounded-full"></div>
-                  </div>
-                </div>
-                <h3 className="font-semibold mb-2">Notely for Android</h3>
-                <p className="text-xs text-gray-600">
-                  Take notes on the go with full sync across all your devices
-                  through the Android mobile app.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white rounded-2xl shadow-lg">
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="relative">
-                    <div className="w-12 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <span className="text-gray-600 font-bold">iOS</span>
-                    </div>
-                  </div>
-                </div>
-                <h3 className="font-semibold mb-2">Notely for iOS</h3>
-                <p className="text-xs text-gray-600">
-                  Get down notes, organize with folders, and collaborate on
-                  shared projects. All from your iPhone or iPad.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            <Card className="bg-white rounded-2xl shadow-lg">
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="relative">
-                    <div className="w-20 h-12 bg-gray-200 rounded-lg flex items-center justify-center">
-                      <Monitor className="w-6 h-6 text-gray-600" />
-                    </div>
-                    <div className="absolute -top-1 -left-1 w-4 h-4 bg-gray-400 rounded-full"></div>
-                    <div className="absolute -top-1 left-3 w-4 h-4 bg-gray-500 rounded-full"></div>
-                    <div className="absolute -top-1 left-7 w-4 h-4 bg-gray-600 rounded-full"></div>
-                  </div>
-                </div>
-                <h3 className="font-semibold mb-2">
-                  Notely for Windows / Linux
-                </h3>
-                <p className="text-xs text-gray-600">
-                  Access your notebook from desktop with syncing, keyboard
-                  shortcuts, and integrated with everything.
-                </p>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-white rounded-2xl shadow-lg">
-              <CardContent className="p-6 text-center">
-                <div className="flex justify-center mb-4">
-                  <div className="relative">
-                    <div className="w-16 h-16 bg-gray-200 rounded-full flex items-center justify-center">
-                      <Globe className="w-6 h-6 text-gray-600" />
-                    </div>
-                    <div className="absolute top-1 right-1">
-                      <Badge className="bg-black text-white text-xs px-1 py-0.5">
-                        Noteworthy
-                      </Badge>
-                    </div>
-                    <div className="absolute bottom-1 left-1">
-                      <Badge className="bg-black text-white text-xs px-1 py-0.5">
-                        Daily 3 minutes
-                      </Badge>
-                    </div>
-                  </div>
-                </div>
-                <h3 className="font-semibold mb-2">Notely for Web</h3>
-                <p className="text-xs text-gray-600">
-                  Access your notes anywhere with a responsive web app that
-                  works in every browser.
-                </p>
-              </CardContent>
-            </Card>
-          </div>
-        </div>
-      </div> */}
-
-      {/* Features Section */}
-      {/* <div className="mt-16">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl font-bold text-gray-900 mb-4">
-            Smarter Notes. One Simple Space to
-            <br />
-            Capture, Organize & Remember
-          </h2>
-          <p className="text-gray-600 max-w-3xl mx-auto">
-            Simplify the way you take notes. Write down your thoughts naturally,
-            organize them into clear categories, and find everything in seconds.
-            Declutter ideas to find flow, stay focused with smart organization,
-            and never lose track of what matters most.
-          </p>
-        </div>
-
-        <div className="grid md:grid-cols-2 gap-8">
-          <div className="flex justify-center">
-            <div className="relative">
-              <div className="w-48 h-32 bg-gray-200 rounded-2xl flex items-center justify-center">
-                <div className="grid grid-cols-3 gap-2">
-                  <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">N</span>
-                  </div>
-                  <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">@</span>
-                  </div>
-                  <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">A</span>
-                  </div>
-                  <div className="w-8 h-8 bg-gray-500 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">S</span>
-                  </div>
-                  <div className="w-8 h-8 bg-gray-400 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">A</span>
-                  </div>
-                  <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center">
-                    <span className="text-white text-xs">D</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-6">
-            <div className="flex gap-4">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Brain className="w-4 h-4 text-gray-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Smart Note Capture</h3>
-                <p className="text-sm text-gray-600">
-                  Get bright ideas down fast. Smart text recognition without
-                  losing flow. Capture thoughts as they come, then organize them
-                  later.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Layers className="w-4 h-4 text-gray-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Adaptive Organization</h3>
-                <p className="text-sm text-gray-600">
-                  Your notes grow with you. Use smart search, categories, and
-                  tags to connect ideas and find what you need instantly.
-                </p>
-              </div>
-            </div>
-
-            <div className="flex gap-4">
-              <div className="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center flex-shrink-0">
-                <Zap className="w-4 h-4 text-gray-600" />
-              </div>
-              <div>
-                <h3 className="font-semibold mb-2">Simple & Flexible</h3>
-                <p className="text-sm text-gray-600">
-                  A tool that fits your style—whether for study, work, or
-                  personal projects. Write how you think. And access from
-                  anywhere, any time.
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div> */}
-
-      {/* CTA Section */}
       <Card className="bg-muted rounded-3xl border-none shadow-none">
         <CardContent className="p-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-serif tracking-tight">
@@ -415,48 +69,12 @@ export default async function Home() {
             clarity.
           </p>
           <Button asChild>
-            <Link href="/sign-up">Get Started</Link>
+            <Link href="/sign-up">Get started</Link>
           </Button>
         </CardContent>
       </Card>
 
-      {/* Footer */}
-      <footer className="py-4 md:py-8">
-        <div className="flex justify-between items-start">
-          <div className="flex flex-col gap-2">
-            <Link
-              href="/"
-              className="flex items-center space-x-2 cursor-pointer select-auto mr-4"
-              tabIndex={0}
-              aria-label="Go to Library"
-            >
-              <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-text">
-                <SquareLibrary className="w-6 h-6" />
-                Albuc
-              </span>
-            </Link>
-            <p className="text-sm text-gray-600">
-              © {new Date().getFullYear()} Albuc. All rights reserved.
-            </p>
-          </div>
-
-          <div className="grid grid-cols-2 gap-12 text-sm">
-            <div>
-              <h4 className="font-semibold mb-3">Resources</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>Privacy Policy</li>
-                <li>Terms of Service</li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold mb-3">Contact</h4>
-              <ul className="space-y-2 text-gray-600">
-                <li>Email</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <LandingFooter />
     </div>
-  )
+  );
 }

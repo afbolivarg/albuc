@@ -1,11 +1,11 @@
-"use client"
+"use client";
 
-import { Card } from "@/components/ui/card"
-import { Badge } from "@/components/ui/badge"
+import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
 
 interface UsageBadgeProps {
-  queriesUsed: number
-  queryLimit: number
+  queriesUsed: number;
+  queryLimit: number;
 }
 
 export function UsageBadge({ queriesUsed, queryLimit }: UsageBadgeProps) {
@@ -27,5 +27,5 @@ export function UsageBadge({ queriesUsed, queryLimit }: UsageBadgeProps) {
         </Badge>
       </div>
     </Card>
-  )
+  );
 }

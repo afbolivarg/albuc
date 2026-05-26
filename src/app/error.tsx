@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
-import Link from "next/link"
-import Image from "next/image"
-import { Button } from "@/components/ui/button"
+import Image from "next/image";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default function ErrorPage() {
   return (
@@ -37,5 +37,5 @@ export default function ErrorPage() {
         </div>
       </div>
     </div>
-  )
+  );
 }

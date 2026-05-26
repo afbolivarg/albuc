@@ -1,15 +1,15 @@
-import { UserMenu } from "./user-menu"
-import { SquareLibrary, MessageSquare } from "lucide-react"
-import { getUser } from "@/lib/db/queries"
-import Link from "next/link"
-import { redirect } from "next/navigation"
-import { Button } from "@/components/ui/button"
+import { MessageSquare, SquareLibrary } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { getUser } from "@/lib/db/queries";
+import { UserMenu } from "./user-menu";
 
 export async function LibraryHeader() {
-  const user = await getUser()
+  const user = await getUser();
 
   if (!user) {
-    redirect("/")
+    redirect("/");
   }
 
   return (
@@ -37,5 +37,5 @@ export async function LibraryHeader() {
         </div>
       </div>
     </header>
-  )
+  );
 }

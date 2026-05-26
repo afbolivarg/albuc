@@ -1,8 +1,7 @@
-"use client"
+"use client";
 
-import { User } from "@/lib/db/schema"
-import Image from "next/image"
-import { LogOut } from "lucide-react"
+import { LogOut } from "lucide-react";
+import Image from "next/image";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,14 +9,18 @@ import {
   DropdownMenuLabel,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
-import { signOut } from "./actions"
+} from "@/components/ui/dropdown-menu";
+import type { User } from "@/lib/db/schema";
+import { signOut } from "./actions";
 
 export function UserMenu({ user }: { user: User }) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <button className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer focus:outline-none focus-visible:outline-none">
+        <button
+          type="button"
+          className="flex items-center space-x-3 hover:opacity-80 transition-opacity cursor-pointer focus:outline-none focus-visible:outline-none"
+        >
           {user.imageUrl ? (
             <Image
               src={user.imageUrl}
@@ -88,5 +91,5 @@ export function UserMenu({ user }: { user: User }) {
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
-  )
+  );
 }

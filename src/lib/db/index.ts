@@ -1,25 +1,25 @@
-import { drizzle } from "drizzle-orm/postgres-js"
-import postgres from "postgres"
-import type { Sql } from "postgres"
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js"
-import * as schema from "./schema"
-import dotenv from "dotenv"
+import dotenv from "dotenv";
+import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
+import { drizzle } from "drizzle-orm/postgres-js";
+import type { Sql } from "postgres";
+import postgres from "postgres";
+import * as schema from "./schema";
 
-dotenv.config()
+dotenv.config();
 
-type Db = PostgresJsDatabase<typeof schema>
+type Db = PostgresJsDatabase<typeof schema>;
 
-let pool: { client: Sql; db: Db } | undefined
+let pool: { client: Sql; db: Db } | undefined;
 
 function getPool(): { client: Sql; db: Db } {
   if (!pool) {
     if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL environment variable is not set")
+      throw new Error("DATABASE_URL environment variable is not set");
     }
-    const client = postgres(process.env.DATABASE_URL)
-    pool = { client, db: drizzle(client, { schema }) }
+    const client = postgres(process.env.DATABASE_URL);
+    pool = { client, db: drizzle(client, { schema }) };
   }
-  return pool
+  return pool;
 }
 
 /**
@@ -28,20 +28,20 @@ function getPool(): { client: Sql; db: Db } {
  */
 export const db = new Proxy({} as Db, {
   get(_, prop) {
-    const { db: d } = getPool()
-    const value = Reflect.get(d, prop, d)
+    const { db: d } = getPool();
+    const value = Reflect.get(d, prop, d);
     return typeof value === "function"
       ? (value as () => unknown).bind(d)
-      : value
+      : value;
   },
-})
+});
 
 export const client = new Proxy({} as Sql, {
   get(_, prop) {
-    const { client: c } = getPool()
-    const value = Reflect.get(c, prop, c)
+    const { client: c } = getPool();
+    const value = Reflect.get(c, prop, c);
     return typeof value === "function"
       ? (value as () => unknown).bind(c)
-      : value
+      : value;
   },
-})
+});

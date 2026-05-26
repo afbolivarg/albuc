@@ -1,49 +1,49 @@
-"use client"
+"use client";
 
-import { useChat } from "@ai-sdk/react"
-import { useState, useRef, useEffect } from "react"
-import { Loader2, Send } from "lucide-react"
-import { Card } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { Textarea } from "@/components/ui/textarea"
-import { Response } from "@/components/ai-elements/response"
+import { useChat } from "@ai-sdk/react";
+import { Loader2, Send } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { Response } from "@/components/ai-elements/response";
+import { Button } from "@/components/ui/button";
+import { Card } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
 
 interface ChatInterfaceProps {
   initialUsage: {
-    queriesUsed: number
-    queryLimit: number
-    allowed: boolean
-  }
-  onQueryComplete?: () => void
+    queriesUsed: number;
+    queryLimit: number;
+    allowed: boolean;
+  };
+  onQueryComplete?: () => void;
 }
 
 export function ChatInterface({
   initialUsage,
   onQueryComplete,
 }: ChatInterfaceProps) {
-  const { messages, sendMessage, status, error } = useChat()
-  const [input, setInput] = useState("")
-  const [usage, setUsage] = useState(initialUsage) // used for display and increment
-  const textareaRef = useRef<HTMLTextAreaElement>(null)
+  const { messages, sendMessage, status, error } = useChat();
+  const [input, setInput] = useState("");
+  const [usage, setUsage] = useState(initialUsage); // used for display and increment
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   // Track the last completed assistant message to avoid multiple increments
-  const lastAssistantMessageIdRef = useRef<string | null>(null)
+  const lastAssistantMessageIdRef = useRef<string | null>(null);
 
   // Auto-resize textarea on input change
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value)
-    const textarea = e.target
-    textarea.style.height = "auto"
-    const maxHeight = 200
-    const newHeight = Math.min(textarea.scrollHeight, maxHeight)
-    textarea.style.height = `${newHeight}px`
-  }
+    setInput(e.target.value);
+    const textarea = e.target;
+    textarea.style.height = "auto";
+    const maxHeight = 200;
+    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
+    textarea.style.height = `${newHeight}px`;
+  };
 
   // Update usage when a new assistant message is completed (not during streaming)
   useEffect(() => {
-    if (messages.length === 0) return
+    if (messages.length === 0) return;
 
-    const lastMessage = messages[messages.length - 1]
+    const lastMessage = messages[messages.length - 1];
 
     // Only increment when:
     // 1. Last message is from assistant
@@ -55,30 +55,30 @@ export function ChatInterface({
       status !== "submitted" &&
       lastMessage.id !== lastAssistantMessageIdRef.current
     ) {
-      lastAssistantMessageIdRef.current = lastMessage.id
-      setUsage(prev => ({
+      lastAssistantMessageIdRef.current = lastMessage.id;
+      setUsage((prev) => ({
         ...prev,
         queriesUsed: prev.queriesUsed + 1,
-      }))
-      onQueryComplete?.()
+      }));
+      onQueryComplete?.();
     }
-  }, [messages, status, onQueryComplete])
+  }, [messages, status, onQueryComplete]);
 
-  const hasMessages = messages.length > 0
-  const isLoading = status === "streaming" || status === "submitted"
+  const hasMessages = messages.length > 0;
+  const isLoading = status === "streaming" || status === "submitted";
 
   const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!input.trim() || isLoading) return
+    e.preventDefault();
+    if (!input.trim() || isLoading) return;
 
-    sendMessage({ text: input })
-    setInput("")
+    sendMessage({ text: input });
+    setInput("");
 
     // Reset textarea height after submit
     if (textareaRef.current) {
-      textareaRef.current.style.height = "auto"
+      textareaRef.current.style.height = "auto";
     }
-  }
+  };
 
   return (
     <div className="relative h-full flex flex-col">
@@ -96,7 +96,7 @@ export function ChatInterface({
           {/* Messages Display */}
           {hasMessages ? (
             <div className="space-y-6 px-4 md:px-0">
-              {messages.map(message => {
+              {messages.map((message) => {
                 // For user messages, show chat-like bubble (constrained)
                 if (message.role === "user") {
                   return (
@@ -106,15 +106,15 @@ export function ChatInterface({
                           <div className="flex-1">
                             {message.parts.map((part, idx) => {
                               if (part.type === "text") {
-                                return <div key={idx}>{part.text}</div>
+                                return <div key={idx}>{part.text}</div>;
                               }
-                              return null
+                              return null;
                             })}
                           </div>
                         </div>
                       </div>
                     </div>
-                  )
+                  );
                 }
 
                 // For assistant messages, show full-width without box (unconstrained)
@@ -133,13 +133,13 @@ export function ChatInterface({
                             >
                               {part.text}
                             </Response>
-                          )
+                          );
                         }
-                        return null
+                        return null;
                       })}
                     </div>
                   </div>
-                )
+                );
               })}
 
               {/* Loading State - only show when submitted but no assistant message yet */}
@@ -179,10 +179,10 @@ export function ChatInterface({
                   ref={textareaRef}
                   value={input}
                   onChange={handleInputChange}
-                  onKeyDown={e => {
+                  onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault()
-                      handleSubmit(e)
+                      e.preventDefault();
+                      handleSubmit(e);
                     }
                   }}
                   placeholder="Ask a question about your library..."
@@ -203,5 +203,5 @@ export function ChatInterface({
         </div>
       </div>
     </div>
-  )
+  );
 }

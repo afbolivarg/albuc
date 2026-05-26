@@ -1,10 +1,10 @@
-import Link from "next/link"
-import { SquareLibrary } from "lucide-react"
+import { SquareLibrary } from "lucide-react";
+import Link from "next/link";
 
 export default function AuthLayout({
   children,
 }: {
-  children: React.ReactNode
+  children: React.ReactNode;
 }) {
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-muted/30 p-4">
@@ -17,5 +17,5 @@ export default function AuthLayout({
       </Link>
       <div className="w-full max-w-sm">{children}</div>
     </div>
-  )
+  );
 }
