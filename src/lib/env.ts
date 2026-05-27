@@ -1,45 +1,95 @@
-import "dotenv/config";
-import type { z } from "zod";
-import { z as zod } from "zod";
+import { z } from "zod";
 
 /**
- * Validates process.env against a Zod schema at startup.
- * Exits the process immediately with a descriptive error if any variable is missing or invalid.
+ * Centralized environment validation.
+ *
+ * - Public vars (NEXT_PUBLIC_*) are validated and exposed everywhere.
+ * - Server-only vars are validated only on the server. Accessing them from
+ *   client code throws at runtime instead of silently returning undefined.
+ *
+ * Drizzle config and other Node entrypoints must load `dotenv/config` before
+ * importing from this file.
  */
-function createEnv<T extends z.ZodTypeAny>(schema: T): z.infer<T> {
-  const result = schema.safeParse(process.env);
-  if (!result.success) {
-    console.error("❌ Invalid environment variables:");
-    console.error(JSON.stringify(result.error.flatten().fieldErrors, null, 2));
-    process.exit(1);
-  }
 
-  return result.data;
-}
-
-const publicSchema = zod.object({
-  NEXT_PUBLIC_SITE_URL: zod
+const publicSchema = z.object({
+  NEXT_PUBLIC_SITE_URL: z
     .string()
     .url()
     .default("http://localhost:3000")
     .transform((url) => url.replace(/\/$/, "")),
-  NEXT_PUBLIC_SUPABASE_URL: zod.string().url(),
-  NEXT_PUBLIC_SUPABASE_ANON_KEY: zod.string().min(1),
+  NEXT_PUBLIC_SUPABASE_URL: z.string().url(),
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
 });
 
-const serverSchema = publicSchema.extend({
-  NODE_ENV: zod
+const serverSchema = z.object({
+  NODE_ENV: z
     .enum(["development", "production", "test"])
     .default("development"),
-  DATABASE_URL: zod.string().min(1),
-  GOOGLE_GENERATIVE_AI_API_KEY: zod.string().min(1),
-  LOG_LEVEL: zod.enum(["debug", "info", "warn", "error"]).default("info"),
-  LOG_PRETTY: zod.preprocess((value) => {
+  DATABASE_URL: z.string().min(1),
+  GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+  LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
+  LOG_PRETTY: z.preprocess((value) => {
     if (value === undefined || value === "") {
       return process.env.NODE_ENV === "development";
     }
     return value === "true" || value === "1";
-  }, zod.boolean()),
+  }, z.boolean()),
 });
 
-export const env = createEnv(serverSchema);
+type PublicEnv = z.infer<typeof publicSchema>;
+type ServerEnv = z.infer<typeof serverSchema>;
+export type Env = PublicEnv & ServerEnv;
+
+const isServer = typeof window === "undefined";
+
+/**
+ * Explicit runtime values so Next.js can statically replace
+ * `process.env.NEXT_PUBLIC_*` in client bundles.
+ */
+const publicRuntime = {
+  NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
+  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
+  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+};
+
+function reportInvalid(
+  scope: string,
+  fieldErrors: Record<string, string[] | undefined>,
+): never {
+  console.error(`❌ Invalid ${scope} environment variables:`);
+  console.error(JSON.stringify(fieldErrors, null, 2));
+  if (isServer && typeof process !== "undefined" && process.exit) {
+    process.exit(1);
+  }
+  throw new Error(`Invalid ${scope} environment variables`);
+}
+
+const publicResult = publicSchema.safeParse(publicRuntime);
+if (!publicResult.success) {
+  reportInvalid("public", publicResult.error.flatten().fieldErrors);
+}
+
+let merged: Env;
+const serverKeys = new Set(Object.keys(serverSchema.shape));
+
+if (isServer) {
+  const serverResult = serverSchema.safeParse(process.env);
+  if (!serverResult.success) {
+    reportInvalid("server", serverResult.error.flatten().fieldErrors);
+  }
+  merged = { ...publicResult.data, ...serverResult.data } as Env;
+} else {
+  merged = publicResult.data as Env;
+}
+
+export const env = new Proxy(merged, {
+  get(target, prop) {
+    if (typeof prop === "string" && !isServer && serverKeys.has(prop)) {
+      throw new Error(
+        `env.${prop} is server-only and cannot be accessed from the client.`,
+      );
+    }
+    return Reflect.get(target, prop);
+  },
+});

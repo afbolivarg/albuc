@@ -1,27 +1,22 @@
-import { type CookieOptions, createServerClient } from "@supabase/ssr";
+import { createServerClient } from "@supabase/ssr";
 import { type NextRequest, NextResponse } from "next/server";
-import { env } from "@/lib/env";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   });
 
+  // With Fluid compute, don't put this client in a global environment
+  // variable. Always create a new one on each request.
   const supabase = createServerClient(
-    env.NEXT_PUBLIC_SUPABASE_URL,
-    env.NEXT_PUBLIC_SUPABASE_ANON_KEY,
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
           return request.cookies.getAll();
         },
-        setAll(
-          cookiesToSet: {
-            name: string;
-            value: string;
-            options: CookieOptions;
-          }[],
-        ) {
+        setAll(cookiesToSet, headers) {
           for (const { name, value } of cookiesToSet) {
             request.cookies.set(name, value);
           }
@@ -31,39 +26,27 @@ export async function updateSession(request: NextRequest) {
           for (const { name, value, options } of cookiesToSet) {
             supabaseResponse.cookies.set(name, value, options);
           }
+          for (const [key, value] of Object.entries(headers)) {
+            supabaseResponse.headers.set(key, value);
+          }
         },
       },
     },
   );
 
-  // IMPORTANT: Avoid writing any logic between createServerClient and
-  // supabase.auth.getUser(). A simple mistake could make it very hard to debug
+  // Do not run code between createServerClient and
+  // supabase.auth.getClaims(). A simple mistake could make it very hard to debug
   // issues with users being randomly logged out.
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+  // IMPORTANT: If you remove getClaims() and you use server-side rendering
+  // with the Supabase client, your users may be randomly logged out.
+  const { data } = await supabase.auth.getClaims();
 
-  const { pathname } = request.nextUrl;
-  const isAuthCallback = pathname.startsWith("/auth/callback");
-  const isProtectedRoute = pathname.startsWith("/library");
+  const user = data?.claims;
 
-  if (isAuthCallback) {
-    return supabaseResponse;
-  }
-
-  if (isProtectedRoute && !user) {
+  if (!user && request.nextUrl.pathname.startsWith("/library")) {
     const url = request.nextUrl.clone();
-    url.pathname = "/";
-    return NextResponse.redirect(url);
-  }
-
-  if (
-    (pathname.startsWith("/sign-in") || pathname.startsWith("/sign-up")) &&
-    user
-  ) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/library";
+    url.pathname = "/sign-in";
     return NextResponse.redirect(url);
   }
 

@@ -1,6 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
@@ -14,7 +15,7 @@ import { getCurrentUser } from "@/lib/supabase/user";
 const log = createLogger("library.actions");
 
 export async function signOut() {
-  const supabase = await createServerClient();
+  const supabase = createServerClient(await cookies());
 
   const { error } = await supabase.auth.signOut();
 

@@ -33,7 +33,7 @@ export const bookStatusEnum = pgEnum("book_status", [
 
 export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
-  googleSub: text("google_sub").notNull().unique(), // Google OIDC sub
+  supabaseUserId: text("supabase_user_id").notNull().unique(),
   email: text("email").notNull(),
   name: text("name"),
   imageUrl: text("image_url"),

@@ -22,7 +22,7 @@ export default async function Home() {
             </p>
             <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
               <Button asChild>
-                <Link href="/sign-up">Get started — it&apos;s free</Link>
+                <Link href="/sign-in">Get started — it&apos;s free</Link>
               </Button>
               <Button asChild variant="ghost">
                 <Link href="/why">Why I built this</Link>
@@ -42,7 +42,7 @@ export default async function Home() {
             clarity.
           </p>
           <Button asChild>
-            <Link href="/sign-up">Get started</Link>
+            <Link href="/sign-in">Get started</Link>
           </Button>
         </CardContent>
       </Card>

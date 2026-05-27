@@ -40,12 +40,12 @@ CREATE TABLE "usage_counters" (
 --> statement-breakpoint
 CREATE TABLE "users" (
 	"id" uuid PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
-	"google_sub" text NOT NULL,
+	"supabase_user_id" text NOT NULL,
 	"email" text NOT NULL,
 	"name" text,
 	"image_url" text,
 	"created_at" timestamp DEFAULT now() NOT NULL,
-	CONSTRAINT "users_google_sub_unique" UNIQUE("google_sub")
+	CONSTRAINT "users_supabase_user_id_unique" UNIQUE("supabase_user_id")
 );
 --> statement-breakpoint
 ALTER TABLE "books" ADD CONSTRAINT "books_user_id_users_id_fk" FOREIGN KEY ("user_id") REFERENCES "public"."users"("id") ON DELETE cascade ON UPDATE no action;--> statement-breakpoint

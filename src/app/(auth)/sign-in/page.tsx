@@ -1,34 +1,21 @@
-import Link from "next/link";
+import { redirect } from "next/navigation";
+import { getCurrentUser } from "@/lib/supabase/user";
 import { signIn } from "../actions";
-import {
-  AuthField,
-  AuthFooter,
-  AuthForm,
-  type AuthSearchParams,
-} from "../auth-form";
+import { AuthField, AuthForm } from "../auth-form";
 
-export default async function SignInPage({
-  searchParams,
-}: {
-  searchParams: Promise<AuthSearchParams>;
-}) {
-  const params = await searchParams;
+export default async function SignInPage() {
+  const user = await getCurrentUser();
+
+  if (user) {
+    redirect("/library");
+  }
 
   return (
     <AuthForm
       title="Sign in"
-      message={params.message}
-      error={params.error}
+      description="Enter your email and we'll send you a magic link."
       action={signIn}
-      submitLabel="Sign in"
-      footer={
-        <AuthFooter>
-          Don&apos;t have an account?{" "}
-          <Link href="/sign-up" className="text-primary hover:underline">
-            Sign up
-          </Link>
-        </AuthFooter>
-      }
+      submitLabel="Send magic link"
     >
       <AuthField
         id="email"
@@ -38,22 +25,7 @@ export default async function SignInPage({
         placeholder="you@example.com"
         autoComplete="email"
         required
-      />
-      <AuthField
-        id="password"
-        name="password"
-        label="Password"
-        type="password"
-        autoComplete="current-password"
-        required
-        labelExtra={
-          <Link
-            href="/forgot-password"
-            className="text-sm text-primary hover:underline"
-          >
-            Forgot password?
-          </Link>
-        }
+        validateEmailOnBlur
       />
     </AuthForm>
   );

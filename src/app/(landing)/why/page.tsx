@@ -64,7 +64,7 @@ export default function WhyPage() {
       <p className="text-muted-foreground leading-relaxed">— Andrés Bolívar</p>
 
       <Button asChild>
-        <Link href="/sign-up">Start your library</Link>
+        <Link href="/sign-in">Start your library</Link>
       </Button>
     </article>
   );

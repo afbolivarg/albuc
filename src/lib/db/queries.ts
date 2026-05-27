@@ -17,7 +17,7 @@ import { getCurrentUser } from "@/lib/supabase/user";
  */
 export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
   const existing = await db.query.users.findFirst({
-    where: eq(users.googleSub, supabaseUser.id),
+    where: eq(users.supabaseUserId, supabaseUser.id),
   });
   if (existing) {
     return existing;
@@ -33,7 +33,7 @@ export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
   const [created] = await db
     .insert(users)
     .values({
-      googleSub: supabaseUser.id,
+      supabaseUserId: supabaseUser.id,
       email: supabaseUser.email ?? "",
       name,
       imageUrl,
@@ -51,7 +51,7 @@ export async function getUser() {
   }
 
   let user = await db.query.users.findFirst({
-    where: eq(users.googleSub, supabaseUser.id),
+    where: eq(users.supabaseUserId, supabaseUser.id),
   });
 
   if (!user) {
@@ -69,7 +69,7 @@ export async function getUserWithBooks() {
   }
 
   const user = await db.query.users.findFirst({
-    where: eq(users.googleSub, supabaseUser.id),
+    where: eq(users.supabaseUserId, supabaseUser.id),
     with: {
       books: {
         orderBy: desc(books.updatedAt),
@@ -88,7 +88,7 @@ export async function getUserWithBook(bookId: string) {
   }
 
   const user = await db.query.users.findFirst({
-    where: eq(users.googleSub, supabaseUser.id),
+    where: eq(users.supabaseUserId, supabaseUser.id),
     with: {
       books: {
         where: eq(books.id, bookId),

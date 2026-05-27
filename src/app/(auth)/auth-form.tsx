@@ -1,7 +1,17 @@
+"use client";
+
 import Link from "next/link";
-import type { ReactNode } from "react";
+import {
+  type FocusEvent,
+  type ReactNode,
+  useActionState,
+  useState,
+} from "react";
+import { useFormStatus } from "react-dom";
+import { z } from "zod";
+import type { SignInState } from "@/app/(auth)/actions";
 import { AlbucLogo } from "@/components/albuc-logo";
-import { Button } from "@/components/ui/button";
+import { LoaderButton } from "@/components/loader-button";
 import {
   Card,
   CardContent,
@@ -13,18 +23,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
-export type AuthSearchParams = {
-  message?: string;
-  error?: string;
-};
-
 type AuthFormProps = {
   title: string;
   description?: string;
-  message?: string;
-  messageVariant?: "muted" | "success";
-  error?: string;
-  action: (formData: FormData) => Promise<void>;
+  action: (prevState: SignInState, formData: FormData) => Promise<SignInState>;
   submitLabel: string;
   children: ReactNode;
   footer?: ReactNode;
@@ -33,18 +35,15 @@ type AuthFormProps = {
 export function AuthForm({
   title,
   description,
-  message,
-  messageVariant = "muted",
-  error,
   action,
   submitLabel,
   children,
   footer,
 }: AuthFormProps) {
-  const messageClassName =
-    messageVariant === "success"
-      ? "text-sm text-green-600 dark:text-green-400"
-      : "text-sm text-muted-foreground";
+  const [state, formAction] = useActionState(action, {});
+  const messageClassName = state.message
+    ? "text-sm text-green-600 dark:text-green-400"
+    : "text-sm text-muted-foreground";
 
   return (
     <Card className="w-full max-w-sm">
@@ -54,19 +53,29 @@ export function AuthForm({
         </Link>
         <CardTitle>{title}</CardTitle>
         {description && <CardDescription>{description}</CardDescription>}
-        {message && <p className={messageClassName}>{message}</p>}
-        {error && <p className="text-sm text-destructive">{error}</p>}
       </CardHeader>
       <CardContent className="space-y-4">
-        <form action={action} className="space-y-4">
+        <form action={formAction} className="space-y-4">
           {children}
-          <Button type="submit" className="w-full">
-            {submitLabel}
-          </Button>
+          <AuthSubmitButton>{submitLabel}</AuthSubmitButton>
+          {state.message && <p className={messageClassName}>{state.message}</p>}
+          {state.error && (
+            <p className="text-sm text-destructive">{state.error}</p>
+          )}
         </form>
       </CardContent>
       {footer}
     </Card>
+  );
+}
+
+function AuthSubmitButton({ children }: { children: ReactNode }) {
+  const { pending } = useFormStatus();
+
+  return (
+    <LoaderButton type="submit" loading={pending} className="w-full">
+      {children}
+    </LoaderButton>
   );
 }
 
@@ -81,6 +90,7 @@ type AuthFieldProps = {
   minLength?: number;
   hint?: string;
   labelExtra?: ReactNode;
+  validateEmailOnBlur?: boolean;
 };
 
 export function AuthField({
@@ -94,7 +104,26 @@ export function AuthField({
   minLength,
   hint,
   labelExtra,
+  validateEmailOnBlur,
 }: AuthFieldProps) {
+  const [fieldError, setFieldError] = useState<string | null>(null);
+  const errorId = `${id}-error`;
+
+  function handleBlur(event: FocusEvent<HTMLInputElement>) {
+    if (!validateEmailOnBlur) {
+      return;
+    }
+
+    const value = event.target.value.trim();
+    if (!value) {
+      setFieldError(null);
+      return;
+    }
+
+    const isValid = z.string().email().safeParse(value).success;
+    setFieldError(isValid ? null : "Enter a valid email address.");
+  }
+
   return (
     <div className="space-y-2">
       {labelExtra ? (
@@ -113,7 +142,15 @@ export function AuthField({
         autoComplete={autoComplete}
         required={required}
         minLength={minLength}
+        onBlur={handleBlur}
+        aria-invalid={fieldError ? true : undefined}
+        aria-describedby={fieldError ? errorId : undefined}
       />
+      {fieldError && (
+        <p id={errorId} className="text-sm text-destructive">
+          {fieldError}
+        </p>
+      )}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
   );

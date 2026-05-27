@@ -1,8 +1,4 @@
-import { env } from "./env";
-
 type LogLevel = "debug" | "info" | "warn" | "error";
-
-const { LOG_LEVEL: minLevel, LOG_PRETTY: isPretty } = env;
 
 const levelRank: Record<LogLevel, number> = {
   debug: 0,
@@ -18,6 +14,26 @@ const colors: Record<LogLevel, string> = {
   error: "\x1b[31m",
 };
 
+function getMinLevel(): LogLevel {
+  const level = process.env.LOG_LEVEL;
+  if (
+    level === "debug" ||
+    level === "info" ||
+    level === "warn" ||
+    level === "error"
+  ) {
+    return level;
+  }
+  return "info";
+}
+
+function isPrettyLogs(): boolean {
+  const value = process.env.LOG_PRETTY;
+  if (value === "true" || value === "1") return true;
+  if (value === "false" || value === "0") return false;
+  return process.env.NODE_ENV === "development";
+}
+
 function format(
   level: LogLevel,
   service: string,
@@ -32,7 +48,7 @@ function format(
     ...attrs,
   };
 
-  if (!isPretty) return JSON.stringify(entry);
+  if (!isPrettyLogs()) return JSON.stringify(entry);
 
   const extras = attrs ? JSON.stringify(attrs) : "";
   return `${colors[level]}[${level.toUpperCase()}]\x1b[0m ${entry.timestamp} [${service}] ${message} ${extras}`;
@@ -45,7 +61,7 @@ function write(
   message: string,
   attrs?: Record<string, unknown>,
 ) {
-  if (levelRank[level] < levelRank[minLevel]) return;
+  if (levelRank[level] < levelRank[getMinLevel()]) return;
   output(format(level, service, message, attrs));
 }
 

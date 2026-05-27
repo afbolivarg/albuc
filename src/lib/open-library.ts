@@ -1,12 +1,15 @@
 import { createLogger, toError } from "@/lib/logger";
+import type { BookSearchResult } from "@/lib/open-library.shared";
+
+export type { BookSearchResult } from "@/lib/open-library.shared";
+export { getCoverUrl } from "@/lib/open-library.shared";
 
 const log = createLogger("open-library");
 
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org";
-const COVERS_BASE_URL = "https://covers.openlibrary.org";
 
 interface OpenLibrarySearchResult {
-  key: string; // work key like "/works/OL166894W"
+  key: string;
   title: string;
   author_name?: string[];
   author_key?: string[];
@@ -23,18 +26,6 @@ interface OpenLibrarySearchResponse {
   start: number;
   numFoundExact: boolean;
   docs: OpenLibrarySearchResult[];
-}
-
-export interface BookSearchResult {
-  workKey: string;
-  editionKey?: string;
-  title: string;
-  authors: string[];
-  authorKeys: string[];
-  publishYear?: number;
-  coverId?: number;
-  isbn10?: string[];
-  isbn13?: string[];
 }
 
 export async function searchBooks(
@@ -68,7 +59,6 @@ export async function searchBooks(
     const data: OpenLibrarySearchResponse = await response.json();
 
     const results: BookSearchResult[] = data.docs.map((doc) => {
-      // Extract ISBN-10 and ISBN-13 from the isbn array
       const isbn10: string[] = [];
       const isbn13: string[] = [];
 
@@ -104,12 +94,4 @@ export async function searchBooks(
     log.error("searchBooks failed", toError(error));
     throw new Error("Failed to search books");
   }
-}
-
-export function getCoverUrl(
-  coverId: number | undefined,
-  size: "S" | "M" | "L" = "M",
-): string | null {
-  if (!coverId) return null;
-  return `${COVERS_BASE_URL}/b/id/${coverId}-${size}.jpg`;
 }

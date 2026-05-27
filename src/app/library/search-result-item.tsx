@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { bookStatusEnum } from "@/lib/db/schema";
-import { type BookSearchResult, getCoverUrl } from "@/lib/open-library";
+import { type BookSearchResult, getCoverUrl } from "@/lib/open-library.shared";
 import { addBookAction } from "./actions";
 
 type BookStatus = (typeof bookStatusEnum.enumValues)[number];

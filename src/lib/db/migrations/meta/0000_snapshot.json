@@ -399,8 +399,8 @@
 					"notNull": true,
 					"default": "gen_random_uuid()"
 				},
-				"google_sub": {
-					"name": "google_sub",
+				"supabase_user_id": {
+					"name": "supabase_user_id",
 					"type": "text",
 					"primaryKey": false,
 					"notNull": true
@@ -435,10 +435,10 @@
 			"foreignKeys": {},
 			"compositePrimaryKeys": {},
 			"uniqueConstraints": {
-				"users_google_sub_unique": {
-					"name": "users_google_sub_unique",
+				"users_supabase_user_id_unique": {
+					"name": "users_supabase_user_id_unique",
 					"nullsNotDistinct": false,
-					"columns": ["google_sub"]
+					"columns": ["supabase_user_id"]
 				}
 			},
 			"policies": {},

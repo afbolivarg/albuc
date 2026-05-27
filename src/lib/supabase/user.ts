@@ -1,8 +1,9 @@
+import { cookies } from "next/headers";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 
 export async function getCurrentUser() {
   try {
-    const supabase = await createServerClient();
+    const supabase = createServerClient(await cookies());
     const {
       data: { user },
       error,
