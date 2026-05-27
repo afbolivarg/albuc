@@ -5,8 +5,8 @@
 import { createGoogleGenerativeAI } from "@ai-sdk/google";
 import { env } from "@/lib/env";
 
-export const CHAT_MODEL = "gemini-2.0-flash-exp";
-export const EMBEDDING_MODEL = "text-embedding-004";
+export const CHAT_MODEL = "gemini-3.1-flash-lite";
+export const EMBEDDING_MODEL = "gemini-embedding-001";
 export const EMBEDDING_DIMENSIONS = 768;
 
 const google = createGoogleGenerativeAI({
@@ -19,7 +19,7 @@ export function getChatModel() {
 
 export function getEmbeddingModel() {
   return {
-    model: google.textEmbeddingModel(EMBEDDING_MODEL),
+    model: google.embedding(EMBEDDING_MODEL),
     modelId: EMBEDDING_MODEL,
     dimensions: EMBEDDING_DIMENSIONS,
   };

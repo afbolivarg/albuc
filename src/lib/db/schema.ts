@@ -95,7 +95,9 @@ export const noteChunks = pgTable(
       .references(() => books.id, { onDelete: "cascade" }),
     chunk: text("chunk").notNull(),
     embedding: vector("embedding").notNull(),
-    modelVersion: text("model_version").notNull().default("text-embedding-004"),
+    modelVersion: text("model_version")
+      .notNull()
+      .default("gemini-embedding-001"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
