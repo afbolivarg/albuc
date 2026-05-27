@@ -1,10 +1,11 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { LandingFeatures } from "./landing-features";
 
 export default async function Home() {
   return (
-    <div className="flex flex-col gap-16 md:gap-32 pb-12 md:pb-20">
+    <div className="flex flex-col gap-16 md:gap-40 pb-12 md:pb-20">
       <Card className="bg-muted rounded-xl shadow-none overflow-hidden p-0 border-none">
         <CardContent
           className="p-4 md:p-6 bg-cover bg-center bg-no-repeat relative min-h-[700px]"
@@ -24,7 +25,11 @@ export default async function Home() {
               <Button asChild>
                 <Link href="/sign-in">Get started — it&apos;s free</Link>
               </Button>
-              <Button asChild variant="ghost">
+              <Button
+                asChild
+                variant="ghost"
+                className="hover:bg-foreground/10 hover:text-foreground"
+              >
                 <Link href="/why">Why I built this</Link>
               </Button>
             </div>
@@ -32,17 +37,19 @@ export default async function Home() {
         </CardContent>
       </Card>
 
+      <LandingFeatures />
+
       <Card className="bg-muted rounded-3xl border-none shadow-none">
         <CardContent className="p-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-serif tracking-tight">
-            From book to brain — effortlessly
+            From book to brain — effortlessly.
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Albuc helps you turn highlights into insights, and reading into
-            clarity.
+            Turn your reading into a personal knowledge base. Start free, stay
+            free.
           </p>
           <Button asChild>
-            <Link href="/sign-in">Get started</Link>
+            <Link href="/sign-in">Get started — it&apos;s free</Link>
           </Button>
         </CardContent>
       </Card>

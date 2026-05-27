@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 export function LandingHeader() {
   return (
-    <header className="mb-12 md:mb-20">
+    <header className="mb-4 md:mb-6">
       <nav className="flex items-center justify-between">
         <Link
           href="/"
