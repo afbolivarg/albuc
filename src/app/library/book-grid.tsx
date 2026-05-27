@@ -1,4 +1,4 @@
-import { SquareLibrary } from "lucide-react";
+import { AlbucLogo } from "@/components/albuc-logo";
 import type { Book } from "@/lib/db/schema";
 import { BookCard } from "./book-card";
 
@@ -10,7 +10,11 @@ export function BookGrid({ books }: BookGridProps) {
   if (books.length === 0) {
     return (
       <div className="text-center py-20 flex flex-col items-center justify-center">
-        <SquareLibrary className="w-10 h-10 mb-4" />
+        <AlbucLogo
+          showText={false}
+          iconClassName="w-10 h-10 mb-4"
+          className="text-muted-foreground"
+        />
         <h3 className="text-xl font-serif font-semibold text-foreground mb-2">
           Your Albuc is empty
         </h3>

@@ -1,6 +1,7 @@
-import { MessageSquare, SquareLibrary } from "lucide-react";
+import { MessageSquare } from "lucide-react";
 import Link from "next/link";
 import { redirect } from "next/navigation";
+import { AlbucLogo } from "@/components/albuc-logo";
 import { Button } from "@/components/ui/button";
 import { getUser } from "@/lib/db/queries";
 import { UserMenu } from "./user-menu";
@@ -21,10 +22,7 @@ export async function LibraryHeader() {
           tabIndex={0}
           aria-label="Go to Library"
         >
-          <span className="text-2xl font-serif font-bold text-foreground flex items-center gap-2 select-none">
-            <SquareLibrary className="w-6 h-6" />
-            Albuc
-          </span>
+          <AlbucLogo className="select-none" />
         </Link>
         <div className="flex items-center gap-4">
           <Button asChild variant="outline" size="sm">

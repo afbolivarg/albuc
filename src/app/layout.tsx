@@ -24,9 +24,6 @@ export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: "Albuc",
   description: "Your Personal Library and Notes, Beautifully Organized",
-  openGraph: {
-    images: "/og.png",
-  },
 };
 
 export default function RootLayout({

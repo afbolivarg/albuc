@@ -111,6 +111,9 @@ export async function forgotPassword(formData: FormData): Promise<void> {
 
     redirect("/forgot-password?message=Check your email for the reset link.");
   } catch (e) {
+    if (e instanceof Error && "digest" in e && e.message === "NEXT_REDIRECT") {
+      throw e;
+    }
     log.error("forgotPassword failed", toError(e), { email });
     redirect(
       `/forgot-password?error=${encodeURIComponent("Something went wrong. Please try again.")}`,

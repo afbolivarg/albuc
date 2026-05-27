@@ -28,7 +28,7 @@ export function BookDetailHeader({ book }: BookDetailHeaderProps) {
 
       <div className="bg-card rounded-2xl border p-8">
         <div className="flex flex-col md:flex-row gap-8">
-          <div className="w-48 h-72 mx-auto md:mx-0 flex-shrink-0 rounded-xl overflow-hidden bg-muted flex items-center justify-center shadow-lg">
+          <div className="w-48 h-72 mx-auto md:mx-0 flex-shrink-0 rounded-xl overflow-hidden bg-muted flex items-center justify-center">
             {coverUrl ? (
               <Image
                 src={coverUrl}

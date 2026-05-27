@@ -1,65 +1,54 @@
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { signUp } from "../actions";
+import {
+  AuthField,
+  AuthFooter,
+  AuthForm,
+  type AuthSearchParams,
+} from "../auth-form";
 
 export default async function SignUpPage({
   searchParams,
 }: {
-  searchParams: Promise<{ message?: string; error?: string }>;
+  searchParams: Promise<AuthSearchParams>;
 }) {
   const params = await searchParams;
+
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Create an account</CardTitle>
-        {params.message && (
-          <p className="text-sm text-muted-foreground">{params.message}</p>
-        )}
-        {params.error && (
-          <p className="text-sm text-destructive">{params.error}</p>
-        )}
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <form action={signUp} className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
-            <Input
-              id="email"
-              name="email"
-              type="email"
-              placeholder="you@example.com"
-              autoComplete="email"
-              required
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              minLength={6}
-              required
-            />
-            <p className="text-xs text-muted-foreground">
-              At least 6 characters
-            </p>
-          </div>
-          <Button type="submit" className="w-full">
-            Sign up
-          </Button>
-        </form>
-        <p className="text-center text-sm text-muted-foreground">
+    <AuthForm
+      title="Create an account"
+      message={params.message}
+      error={params.error}
+      action={signUp}
+      submitLabel="Sign up"
+      footer={
+        <AuthFooter>
           Already have an account?{" "}
           <Link href="/sign-in" className="text-primary hover:underline">
             Sign in
           </Link>
-        </p>
-      </CardContent>
-    </Card>
+        </AuthFooter>
+      }
+    >
+      <AuthField
+        id="email"
+        name="email"
+        label="Email"
+        type="email"
+        placeholder="you@example.com"
+        autoComplete="email"
+        required
+      />
+      <AuthField
+        id="password"
+        name="password"
+        label="Password"
+        type="password"
+        autoComplete="new-password"
+        minLength={6}
+        required
+        hint="At least 6 characters"
+      />
+    </AuthForm>
   );
 }
