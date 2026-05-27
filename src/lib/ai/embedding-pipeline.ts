@@ -6,11 +6,13 @@
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { type NewNoteChunk, noteChunks } from "@/lib/db/schema";
-import { logError } from "@/lib/logger";
+import { createLogger, toError } from "@/lib/logger";
 import { generateEmbeddings, getEmbeddingModelId } from "./embedding";
 import { splitNoteIntoChunks } from "./note-splitter";
 
-export interface EmbeddingJobResult {
+const log = createLogger("embedding-pipeline");
+
+interface EmbeddingJobResult {
   success: boolean;
   chunksProcessed: number;
   error?: string;
@@ -30,23 +32,23 @@ export interface EmbeddingJobResult {
  * @param noteMarkdown - The markdown content of the note
  * @returns Result indicating success and number of chunks processed
  */
-export async function processBookEmbeddings(
+async function processBookEmbeddings(
   bookId: string,
   noteMarkdown: string | null,
 ): Promise<EmbeddingJobResult> {
   const startTime = Date.now();
-  console.log(`[Embedding Pipeline] Starting for book ${bookId}`);
+  log.debug("Starting", { bookId });
 
   try {
     // If note is empty or null, delete existing chunks and return
     if (!noteMarkdown || noteMarkdown.trim().length === 0) {
-      console.log(
-        `[Embedding Pipeline] Note is empty, deleting existing chunks for book ${bookId}`,
-      );
+      log.debug("Note is empty, deleting existing chunks", { bookId });
       await db.delete(noteChunks).where(eq(noteChunks.bookId, bookId));
-      console.log(
-        `[Embedding Pipeline] Completed for book ${bookId} (0 chunks) in ${Date.now() - startTime}ms`,
-      );
+      log.debug("Completed with empty note", {
+        bookId,
+        chunksProcessed: 0,
+        durationMs: Date.now() - startTime,
+      });
       return {
         success: true,
         chunksProcessed: 0,
@@ -55,19 +57,17 @@ export async function processBookEmbeddings(
 
     // Step 1: Split the note into chunks (outside transaction)
     const chunks = splitNoteIntoChunks(noteMarkdown);
-    console.log(
-      `[Embedding Pipeline] Split note into ${chunks.length} chunks for book ${bookId}`,
-    );
+    log.debug("Split note into chunks", { bookId, chunkCount: chunks.length });
 
     if (chunks.length === 0) {
       // No chunks to process, delete existing ones
-      console.log(
-        `[Embedding Pipeline] No chunks generated, deleting existing ones for book ${bookId}`,
-      );
+      log.debug("No chunks generated, deleting existing ones", { bookId });
       await db.delete(noteChunks).where(eq(noteChunks.bookId, bookId));
-      console.log(
-        `[Embedding Pipeline] Completed for book ${bookId} (0 chunks) in ${Date.now() - startTime}ms`,
-      );
+      log.debug("Completed with empty note", {
+        bookId,
+        chunksProcessed: 0,
+        durationMs: Date.now() - startTime,
+      });
       return {
         success: true,
         chunksProcessed: 0,
@@ -75,14 +75,13 @@ export async function processBookEmbeddings(
     }
 
     // Step 2: Generate embeddings for all chunks (outside transaction)
-    console.log(
-      `[Embedding Pipeline] Generating embeddings for ${chunks.length} chunks (book ${bookId})`,
-    );
+    log.debug("Generating embeddings", { bookId, chunkCount: chunks.length });
     const chunkTexts = chunks.map((c) => c.text);
     const embeddings = await generateEmbeddings(chunkTexts);
-    console.log(
-      `[Embedding Pipeline] Generated ${embeddings.length} embeddings for book ${bookId}`,
-    );
+    log.debug("Generated embeddings", {
+      bookId,
+      embeddingCount: embeddings.length,
+    });
 
     // Step 3: Prepare chunks for insertion with current model version
     const modelVersion = getEmbeddingModelId();
@@ -95,9 +94,7 @@ export async function processBookEmbeddings(
 
     // Step 4: Delete old chunks and insert new ones in a transaction
     // This ensures atomicity - if insert fails, delete is rolled back
-    console.log(
-      `[Embedding Pipeline] Starting database transaction for book ${bookId}`,
-    );
+    log.debug("Starting database transaction", { bookId });
     await db.transaction(async (tx) => {
       // Delete existing chunks for this book
       await tx.delete(noteChunks).where(eq(noteChunks.bookId, bookId));
@@ -107,14 +104,14 @@ export async function processBookEmbeddings(
         await tx.insert(noteChunks).values(noteChunksToInsert);
       }
     });
-    console.log(
-      `[Embedding Pipeline] Transaction completed for book ${bookId}`,
-    );
+    log.debug("Transaction completed", { bookId });
 
     const duration = Date.now() - startTime;
-    console.log(
-      `[Embedding Pipeline] Successfully processed book ${bookId}: ${chunks.length} chunks in ${duration}ms`,
-    );
+    log.info("Successfully processed book", {
+      bookId,
+      chunksProcessed: chunks.length,
+      durationMs: duration,
+    });
 
     return {
       success: true,
@@ -122,8 +119,7 @@ export async function processBookEmbeddings(
     };
   } catch (error) {
     const duration = Date.now() - startTime;
-    logError(error, {
-      operation: "processBookEmbeddings",
+    log.error("processBookEmbeddings failed", toError(error), {
       bookId,
       durationMs: duration,
     });
@@ -146,27 +142,26 @@ export async function processBookEmbeddingsAsync(
   bookId: string,
   noteMarkdown: string | null,
 ): Promise<void> {
-  console.log(
-    `[Embedding Pipeline] Queued async processing for book ${bookId}`,
-  );
+  log.debug("Queued async processing", { bookId });
 
   // Fire and forget - process in background
   processBookEmbeddings(bookId, noteMarkdown)
     .then((result) => {
       if (result.success) {
-        console.log(
-          `[Embedding Pipeline] ✓ Async processing complete for book ${bookId}: ${result.chunksProcessed} chunks`,
-        );
-      } else {
-        logError(new Error(result.error ?? "Embedding failed"), {
-          operation: "processBookEmbeddingsAsync",
+        log.info("Async processing complete", {
           bookId,
+          chunksProcessed: result.chunksProcessed,
         });
+      } else {
+        log.error(
+          "processBookEmbeddingsAsync failed",
+          new Error(result.error ?? "Embedding failed"),
+          { bookId },
+        );
       }
     })
     .catch((error) => {
-      logError(error, {
-        operation: "processBookEmbeddingsAsync",
+      log.error("processBookEmbeddingsAsync failed", toError(error), {
         bookId,
       });
     });

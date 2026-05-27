@@ -103,11 +103,3 @@ export function splitNoteIntoChunks(noteMarkdown: string): NoteChunk[] {
 
   return finalChunks;
 }
-
-/**
- * Estimates the token count for a given text.
- * Uses simple heuristic: 1 token ≈ 4 characters
- */
-export function estimateTokenCount(text: string): number {
-  return Math.ceil(text.length / 4);
-}

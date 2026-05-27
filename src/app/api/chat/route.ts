@@ -3,7 +3,9 @@ import { generateEmbedding } from "@/lib/ai/embedding";
 import { getChatModel } from "@/lib/ai/provider";
 import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage";
 import { getUser, semanticSearchNotes } from "@/lib/db/queries";
-import { logError } from "@/lib/logger";
+import { createLogger, toError } from "@/lib/logger";
+
+const log = createLogger("api.chat");
 
 export async function POST(req: Request) {
   try {
@@ -129,7 +131,7 @@ ${context}`;
 
     return result.toUIMessageStreamResponse();
   } catch (error) {
-    logError(error, { operation: "api/chat" });
+    log.error("request failed", toError(error));
     return new Response(
       JSON.stringify({
         error:

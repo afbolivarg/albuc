@@ -3,13 +3,15 @@
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries";
-import { logError } from "@/lib/logger";
+import { createLogger, toError } from "@/lib/logger";
 import {
   type BookSearchResult,
   searchBooks as searchOpenLibrary,
 } from "@/lib/open-library";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/user";
+
+const log = createLogger("library.actions");
 
 export async function signOut() {
   const supabase = await createServerClient();
@@ -51,7 +53,7 @@ export async function searchBooksAction(
       results: result.results || [],
     };
   } catch (error) {
-    logError(error, { operation: "searchBooksAction" });
+    log.error("searchBooksAction failed", toError(error));
     return {
       results: [],
       error: "Failed to search books",
@@ -111,7 +113,7 @@ export async function addBookAction(
     revalidatePath("/library");
     return { success: true };
   } catch (error) {
-    logError(error, { operation: "addBookAction" });
+    log.error("addBookAction failed", toError(error));
     return {
       success: false,
       error: error instanceof Error ? error.message : "Failed to add book",

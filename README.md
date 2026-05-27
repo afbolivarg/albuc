@@ -23,6 +23,6 @@ bun run db:migrate
 bun dev
 ```
 
-Schema changes: `bun run db:generate` → review SQL in `drizzle/` → `bun run db:migrate`
+Schema changes: `bun run db:generate` → review SQL in `src/lib/db/migrations/` → `bun run db:migrate`
 
 Lint and format: `bun run lint` · `bun run format` · `bun run check` (lint + format + fix)

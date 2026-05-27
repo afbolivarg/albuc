@@ -3,7 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { processBookEmbeddingsAsync } from "@/lib/ai/embedding-pipeline";
 import { getUser, getUserBook, updateBook } from "@/lib/db/queries";
-import { logError } from "@/lib/logger";
+import { createLogger, toError } from "@/lib/logger";
+
+const log = createLogger("library.book-actions");
 
 export async function updateBookStatusAction(
   _prevState: { error?: string; success?: boolean } | null,
@@ -45,7 +47,7 @@ export async function updateBookStatusAction(
     revalidatePath(`/library/${bookId}`);
     return { success: true };
   } catch (error) {
-    logError(error, { operation: "updateBookStatusAction", bookId });
+    log.error("updateBookStatusAction failed", toError(error), { bookId });
     return { error: "Failed to update status" };
   }
 }
@@ -93,7 +95,7 @@ export async function updateBookRatingAction(
     revalidatePath(`/library/${bookId}`);
     return { success: true };
   } catch (error) {
-    logError(error, { operation: "updateBookRatingAction", bookId });
+    log.error("updateBookRatingAction failed", toError(error), { bookId });
     return { error: "Failed to update rating" };
   }
 }
@@ -140,7 +142,7 @@ export async function updateBookNotesAction(
     revalidatePath(`/library/${bookId}`);
     return { success: true };
   } catch (error) {
-    logError(error, { operation: "updateBookNotesAction", bookId });
+    log.error("updateBookNotesAction failed", toError(error), { bookId });
     return { error: "Failed to update notes" };
   }
 }

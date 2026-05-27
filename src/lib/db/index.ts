@@ -1,47 +1,17 @@
-import dotenv from "dotenv";
-import type { PostgresJsDatabase } from "drizzle-orm/postgres-js";
 import { drizzle } from "drizzle-orm/postgres-js";
-import type { Sql } from "postgres";
 import postgres from "postgres";
+
+import { env } from "@/lib/env";
 import * as schema from "./schema";
 
-dotenv.config();
-
-type Db = PostgresJsDatabase<typeof schema>;
-
-let pool: { client: Sql; db: Db } | undefined;
-
-function getPool(): { client: Sql; db: Db } {
-  if (!pool) {
-    if (!process.env.DATABASE_URL) {
-      throw new Error("DATABASE_URL environment variable is not set");
-    }
-    const client = postgres(process.env.DATABASE_URL);
-    pool = { client, db: drizzle(client, { schema }) };
-  }
-  return pool;
-}
-
-/**
- * Lazy DB so `next build` can load route modules without DATABASE_URL;
- * runtime still throws on first query if the variable is missing.
- */
-export const db = new Proxy({} as Db, {
-  get(_, prop) {
-    const { db: d } = getPool();
-    const value = Reflect.get(d, prop, d);
-    return typeof value === "function"
-      ? (value as () => unknown).bind(d)
-      : value;
-  },
+const queryClient = postgres(env.DATABASE_URL, {
+  max: 1,
+  idle_timeout: 20,
+  connect_timeout: 10,
+  prepare: false,
 });
 
-export const client = new Proxy({} as Sql, {
-  get(_, prop) {
-    const { client: c } = getPool();
-    const value = Reflect.get(c, prop, c);
-    return typeof value === "function"
-      ? (value as () => unknown).bind(c)
-      : value;
-  },
+/** Requires `DATABASE_URL` at module load time. */
+export const db = drizzle(queryClient, {
+  schema,
 });

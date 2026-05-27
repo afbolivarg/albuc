@@ -25,16 +25,22 @@ const statusConfig = {
 export function StatusPill({ status, onClick, className }: StatusPillProps) {
   const config = statusConfig[status];
 
-  const baseClasses =
-    "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border transition-colors";
-  const clickableClasses = onClick ? "cursor-pointer hover:opacity-80" : "";
+  const classes = [
+    "inline-flex items-center px-2 py-1 rounded-full text-xs font-medium border transition-colors",
+    config.color,
+    onClick ? "cursor-pointer hover:opacity-80" : "",
+    className,
+  ]
+    .filter(Boolean)
+    .join(" ");
 
-  return (
-    <span
-      className={`${baseClasses} ${config.color} ${clickableClasses} ${className || ""}`}
-      onClick={onClick}
-    >
-      {config.label}
-    </span>
-  );
+  if (onClick) {
+    return (
+      <button type="button" className={classes} onClick={onClick}>
+        {config.label}
+      </button>
+    );
+  }
+
+  return <span className={classes}>{config.label}</span>;
 }

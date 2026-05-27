@@ -1,9 +1,11 @@
-import { logError } from "@/lib/logger";
+import { createLogger, toError } from "@/lib/logger";
+
+const log = createLogger("open-library");
 
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org";
 const COVERS_BASE_URL = "https://covers.openlibrary.org";
 
-export interface OpenLibrarySearchResult {
+interface OpenLibrarySearchResult {
   key: string; // work key like "/works/OL166894W"
   title: string;
   author_name?: string[];
@@ -16,7 +18,7 @@ export interface OpenLibrarySearchResult {
   lccn?: string[];
 }
 
-export interface OpenLibrarySearchResponse {
+interface OpenLibrarySearchResponse {
   numFound: number;
   start: number;
   numFoundExact: boolean;
@@ -99,7 +101,7 @@ export async function searchBooks(
       page,
     };
   } catch (error) {
-    logError(error, { operation: "searchBooks" });
+    log.error("searchBooks failed", toError(error));
     throw new Error("Failed to search books");
   }
 }
@@ -110,14 +112,4 @@ export function getCoverUrl(
 ): string | null {
   if (!coverId) return null;
   return `${COVERS_BASE_URL}/b/id/${coverId}-${size}.jpg`;
-}
-
-export function getAuthorPhotoUrl(
-  authorKey: string,
-  size: "S" | "M" | "L" = "M",
-): string | null {
-  if (!authorKey) return null;
-  // Remove the /authors/ prefix if present
-  const cleanKey = authorKey.replace("/authors/", "");
-  return `${COVERS_BASE_URL}/a/olid/${cleanKey}-${size}.jpg`;
 }

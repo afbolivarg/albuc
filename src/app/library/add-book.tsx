@@ -97,9 +97,9 @@ export function AddBook() {
               </div>
             ) : state.results.length > 0 ? (
               <div className="space-y-3">
-                {state.results.map((book, index) => (
+                {state.results.map((book) => (
                   <SearchResultItem
-                    key={`${book.workKey}-${index}`}
+                    key={book.workKey}
                     book={book}
                     onAdd={handleBookAdded}
                   />

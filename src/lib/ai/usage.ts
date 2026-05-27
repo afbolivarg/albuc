@@ -64,17 +64,3 @@ export async function incrementAIUsage(userId: string): Promise<void> {
     })
     .where(eq(usageCounters.id, counter.id));
 }
-
-export async function getUsageStats(userId: string): Promise<{
-  queriesUsed: number;
-  queryLimit: number;
-  month: string;
-}> {
-  const currentMonth = getCurrentMonth();
-  const counter = await getOrCreateUsageCounter(userId, currentMonth);
-  return {
-    queriesUsed: counter.queriesUsed,
-    queryLimit: Number.POSITIVE_INFINITY,
-    month: currentMonth,
-  };
-}

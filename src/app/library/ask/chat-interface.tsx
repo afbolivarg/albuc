@@ -104,9 +104,13 @@ export function ChatInterface({
                       <div className="rounded-lg p-3 max-w-[80%] bg-secondary">
                         <div className="flex items-start gap-3">
                           <div className="flex-1">
-                            {message.parts.map((part, idx) => {
+                            {message.parts.map((part) => {
                               if (part.type === "text") {
-                                return <div key={idx}>{part.text}</div>;
+                                return (
+                                  <div key={`${message.id}-${part.text}`}>
+                                    {part.text}
+                                  </div>
+                                );
                               }
                               return null;
                             })}
@@ -124,11 +128,11 @@ export function ChatInterface({
                     className="w-full flex items-start gap-3 py-2"
                   >
                     <div className="flex-1 min-w-0">
-                      {message.parts.map((part, idx) => {
+                      {message.parts.map((part) => {
                         if (part.type === "text") {
                           return (
                             <Response
-                              key={idx}
+                              key={`${message.id}-${part.text}`}
                               className="prose prose-sm prose-invert max-w-none"
                             >
                               {part.text}

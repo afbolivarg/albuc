@@ -1,6 +1,7 @@
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata } from "next";
 import { EB_Garamond, Geist, Geist_Mono } from "next/font/google";
+import { env } from "@/lib/env";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -20,9 +21,7 @@ const ebGaramond = EB_Garamond({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL(
-    process.env.NEXT_PUBLIC_SITE_URL || "https://albuc.com",
-  ),
+  metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
   title: "Albuc",
   description: "Your Personal Library and Notes, Beautifully Organized",
   openGraph: {

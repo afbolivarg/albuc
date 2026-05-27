@@ -76,26 +76,18 @@ export function StarRating({
         const halfFilled = displayRating >= star - 0.5 && displayRating < star;
 
         return (
-          <div
+          <StarButton
             key={star}
-            className={`relative ${readonly ? "" : "cursor-pointer"}`}
-            onClick={(e) => handleClick(e, star)}
-            onMouseEnter={(e) => handleMouseEnter(e, star)}
-            onMouseMove={(e) => handleMouseMove(e, star)}
+            star={star}
+            readonly={readonly}
+            sizeClass={sizeClasses[size]}
+            filled={filled}
+            halfFilled={halfFilled}
+            onClick={handleClick}
+            onMouseEnter={handleMouseEnter}
+            onMouseMove={handleMouseMove}
             onMouseLeave={handleMouseLeave}
-          >
-            <Star
-              className={`${sizeClasses[size]} text-gray-300 fill-gray-300`}
-            />
-            {(filled || halfFilled) && (
-              <Star
-                className={`${sizeClasses[size]} absolute top-0 left-0 text-yellow-400 fill-yellow-400 ${
-                  halfFilled ? "clip-path-half" : ""
-                }`}
-                style={halfFilled ? { clipPath: "inset(0 50% 0 0)" } : {}}
-              />
-            )}
-          </div>
+          />
         );
       })}
       {!readonly && (
@@ -104,5 +96,59 @@ export function StarRating({
         </span>
       )}
     </div>
+  );
+}
+
+function StarButton({
+  star,
+  readonly,
+  sizeClass,
+  filled,
+  halfFilled,
+  onClick,
+  onMouseEnter,
+  onMouseMove,
+  onMouseLeave,
+}: {
+  star: number;
+  readonly: boolean;
+  sizeClass: string;
+  filled: boolean;
+  halfFilled: boolean;
+  onClick: (event: React.MouseEvent, starIndex: number) => void;
+  onMouseEnter: (event: React.MouseEvent, starIndex: number) => void;
+  onMouseMove: (event: React.MouseEvent, starIndex: number) => void;
+  onMouseLeave: () => void;
+}) {
+  const stars = (
+    <>
+      <Star className={`${sizeClass} text-gray-300 fill-gray-300`} />
+      {(filled || halfFilled) && (
+        <Star
+          className={`${sizeClass} absolute top-0 left-0 text-yellow-400 fill-yellow-400 ${
+            halfFilled ? "clip-path-half" : ""
+          }`}
+          style={halfFilled ? { clipPath: "inset(0 50% 0 0)" } : {}}
+        />
+      )}
+    </>
+  );
+
+  if (readonly) {
+    return <div className="relative">{stars}</div>;
+  }
+
+  return (
+    <button
+      type="button"
+      aria-label={`Rate ${star} stars`}
+      className="relative cursor-pointer"
+      onClick={(e) => onClick(e, star)}
+      onMouseEnter={(e) => onMouseEnter(e, star)}
+      onMouseMove={(e) => onMouseMove(e, star)}
+      onMouseLeave={onMouseLeave}
+    >
+      {stars}
+    </button>
   );
 }

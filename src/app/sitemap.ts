@@ -1,4 +1,6 @@
-export const baseUrl = process.env.NEXT_PUBLIC_SITE_URL;
+import { env } from "@/lib/env";
+
+export const baseUrl = env.NEXT_PUBLIC_SITE_URL;
 
 const sitemapRoutes = ["/", "/why", "/privacy", "/terms", "/llms.txt"];
 

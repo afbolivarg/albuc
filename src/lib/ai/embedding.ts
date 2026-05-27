@@ -1,11 +1,13 @@
 /**
  * Embeddings via Google text-embedding-004 (768 dimensions).
- * Changing AI_EMBEDDING_MODEL invalidates existing note embeddings.
+ * Embeddings use text-embedding-004 (768 dimensions).
  */
 
 import { embed } from "ai";
-import { logError } from "@/lib/logger";
+import { createLogger, toError } from "@/lib/logger";
 import { getEmbeddingModel } from "./provider";
+
+const log = createLogger("embedding");
 
 export function getEmbeddingModelId(): string {
   return getEmbeddingModel().modelId;
@@ -26,7 +28,7 @@ export async function generateEmbedding(text: string): Promise<number[]> {
 
     return embedding;
   } catch (error) {
-    logError(error, { operation: "generateEmbedding" });
+    log.error("generateEmbedding failed", toError(error));
     throw new Error(
       `Embedding generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
     );

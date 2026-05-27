@@ -146,17 +146,3 @@ export type UsageCounter = typeof usageCounters.$inferSelect;
 export type NewUsageCounter = typeof usageCounters.$inferInsert;
 export type NoteChunk = typeof noteChunks.$inferSelect;
 export type NewNoteChunk = typeof noteChunks.$inferInsert;
-
-// Helper to create a new note chunk with current model version
-export function createNoteChunkData(
-  bookId: string,
-  chunk: string,
-  embedding: number[],
-): NewNoteChunk {
-  return {
-    bookId,
-    chunk,
-    embedding,
-    modelVersion: "text-embedding-004", // Always use current model
-  };
-}

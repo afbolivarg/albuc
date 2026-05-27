@@ -1,15 +1,11 @@
 "use server";
 
 import { redirect } from "next/navigation";
-import { logError } from "@/lib/logger";
+import { env } from "@/lib/env";
+import { createLogger, toError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
-function getSiteUrl(): string {
-  if (process.env.NEXT_PUBLIC_SITE_URL) {
-    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, "");
-  }
-  return "http://localhost:3000";
-}
+const log = createLogger("auth.actions");
 
 export async function signIn(formData: FormData): Promise<void> {
   const email = (formData.get("email") as string)?.trim();
@@ -43,7 +39,7 @@ export async function signIn(formData: FormData): Promise<void> {
     if (e instanceof Error && "digest" in e && e.message === "NEXT_REDIRECT") {
       throw e;
     }
-    logError(e, { operation: "signIn", email });
+    log.error("signIn failed", toError(e), { email });
     redirect(
       `/sign-in?error=${encodeURIComponent("Something went wrong. Please try again.")}`,
     );
@@ -70,7 +66,7 @@ export async function signUp(formData: FormData): Promise<void> {
 
   try {
     const supabase = await createClient();
-    const redirectTo = `${getSiteUrl()}/auth/callback?next=/library`;
+    const redirectTo = `${env.NEXT_PUBLIC_SITE_URL}/auth/callback?next=/library`;
     const { error } = await supabase.auth.signUp({
       email,
       password,
@@ -86,7 +82,7 @@ export async function signUp(formData: FormData): Promise<void> {
     if (e instanceof Error && "digest" in e && e.message === "NEXT_REDIRECT") {
       throw e;
     }
-    logError(e, { operation: "signUp", email });
+    log.error("signUp failed", toError(e), { email });
     redirect(
       `/sign-up?error=${encodeURIComponent("Something went wrong. Please try again.")}`,
     );
@@ -104,7 +100,7 @@ export async function forgotPassword(formData: FormData): Promise<void> {
 
   try {
     const supabase = await createClient();
-    const redirectTo = `${getSiteUrl()}/update-password`;
+    const redirectTo = `${env.NEXT_PUBLIC_SITE_URL}/update-password`;
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo,
     });
@@ -115,7 +111,7 @@ export async function forgotPassword(formData: FormData): Promise<void> {
 
     redirect("/forgot-password?message=Check your email for the reset link.");
   } catch (e) {
-    logError(e, { operation: "forgotPassword", email });
+    log.error("forgotPassword failed", toError(e), { email });
     redirect(
       `/forgot-password?error=${encodeURIComponent("Something went wrong. Please try again.")}`,
     );
@@ -145,7 +141,7 @@ export async function updatePassword(formData: FormData): Promise<void> {
     if (e instanceof Error && "digest" in e && e.message === "NEXT_REDIRECT") {
       throw e;
     }
-    logError(e, { operation: "updatePassword" });
+    log.error("updatePassword failed", toError(e));
     redirect(
       `/update-password?error=${encodeURIComponent("Something went wrong. Please try again.")}`,
     );

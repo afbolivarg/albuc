@@ -5,8 +5,6 @@ import {
   type Book,
   books,
   type NewBook,
-  type NewNoteChunk,
-  type NewUser,
   noteChunks,
   type User,
   users,
@@ -61,26 +59,6 @@ export async function getUser() {
   }
 
   return user;
-}
-
-export async function getUserByGoogleSub(googleSub: string) {
-  const user = await db.query.users.findFirst({
-    where: eq(users.googleSub, googleSub),
-  });
-
-  return user ?? null;
-}
-
-export async function updateUser(user: User) {
-  return await db
-    .update(users)
-    .set(user)
-    .where(eq(users.googleSub, user.googleSub))
-    .returning();
-}
-
-export async function createUser(user: NewUser) {
-  return await db.insert(users).values(user).returning();
 }
 
 export async function getUserWithBooks() {
@@ -149,45 +127,9 @@ export async function updateBook(book: Book) {
     .returning();
 }
 
-// ========================================
-// Note Chunks Queries
-// ========================================
-
-/**
- * Create multiple note chunks for a book (used during embedding pipeline)
- */
-export async function createNoteChunks(chunks: NewNoteChunk[]) {
-  if (chunks.length === 0) {
-    return [];
-  }
-  return await db.insert(noteChunks).values(chunks).returning();
-}
-
-/**
- * Delete all note chunks for a specific book
- */
-export async function deleteNoteChunksByBookId(bookId: string) {
-  return await db.delete(noteChunks).where(eq(noteChunks.bookId, bookId));
-}
-
-/**
- * Get all note chunks for a specific book
- */
-export async function getNoteChunksByBookId(bookId: string) {
-  return await db
-    .select()
-    .from(noteChunks)
-    .where(eq(noteChunks.bookId, bookId));
-}
-
 /**
  * Perform semantic search across a user's note chunks
  * Returns the top K most similar chunks with their book metadata
- *
- * @param userId - User ID to search within
- * @param queryEmbedding - The embedding vector of the search query
- * @param limit - Maximum number of results to return
- * @param modelVersion - Optional: only search chunks from specific model version
  */
 export async function semanticSearchNotes(
   userId: string,
@@ -195,10 +137,8 @@ export async function semanticSearchNotes(
   limit: number = 8,
   modelVersion?: string,
 ) {
-  // Convert the embedding array to the pgvector format string
   const embeddingString = `[${queryEmbedding.join(",")}]`;
 
-  // Build WHERE clause with optional model version filter
   const modelFilter = modelVersion
     ? sql`AND nc.model_version = ${modelVersion}`
     : sql``;

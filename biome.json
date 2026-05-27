@@ -14,7 +14,7 @@
       "!**/dist",
       "!**/build",
       "!**/coverage",
-      "!**/drizzle/meta",
+      "!**/src/lib/db/migrations/meta",
       "!**/bun.lock"
     ]
   },
