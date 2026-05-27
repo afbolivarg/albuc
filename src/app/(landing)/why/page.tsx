@@ -5,12 +5,12 @@ import { Button } from "@/components/ui/button";
 export const metadata: Metadata = {
   title: "Why Albuc",
   description:
-    "The story behind Albuc — a personal library and notes app for readers.",
+    "The story behind Albuc, a personal library and notes app for readers.",
 };
 
 export default function WhyPage() {
   return (
-    <article className="mx-auto max-w-prose space-y-6 pb-12 md:pb-20 text-foreground">
+    <article className="mx-auto max-w-prose space-y-6 pt-10 pb-12 md:pt-0 md:pb-20 text-foreground">
       <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-center mb-8 md:mb-12">
         Why Albuc exists
       </h1>
@@ -24,7 +24,7 @@ export default function WhyPage() {
       </p>
 
       <p className="text-muted-foreground leading-relaxed">
-        I wanted one place — a library that felt like mine. Not a social feed,
+        I wanted one place: a library that felt like mine. Not a social feed,
         not a generic note app. Something where each book had a shelf, a status,
         a rating, and room for my own words. Something where I could later ask
         &ldquo;what did I think about X?&rdquo; and get an answer from my notes,
@@ -41,7 +41,7 @@ export default function WhyPage() {
 
       <p className="text-muted-foreground leading-relaxed">
         I built this because I needed it. I&apos;m a developer, and this is the
-        tool I wished existed. Hosting it costs me a little, but not much — and
+        tool I wished existed. Hosting it costs me a little, but not much, and
         the joy of other readers using something I made is worth more than
         charging for it. No paywall, no premium tier. Just sign up and use it.
       </p>
@@ -57,7 +57,7 @@ export default function WhyPage() {
           GitHub
         </a>{" "}
         if you&apos;re curious how it works. But you don&apos;t need to run
-        anything yourself — just come read, take notes, and build on what you
+        anything yourself. Just come read, take notes, and build on what you
         learn.
       </p>
 
