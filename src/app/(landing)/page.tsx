@@ -8,7 +8,7 @@ export default async function Home() {
     <div className="flex flex-col gap-16 md:gap-40 pb-12 md:pb-20">
       <Card className="bg-muted rounded-xl shadow-none overflow-hidden p-0 border-none">
         <CardContent
-          className="p-4 md:p-6 bg-cover bg-center bg-no-repeat relative min-h-[700px]"
+          className="p-4 md:p-6 bg-cover bg-center bg-no-repeat relative min-h-[600px] md:min-h-[700px]"
           style={{ backgroundImage: "url('/hero-bg.webp')" }}
         >
           <div className="text-center pt-8 md:pt-16">
@@ -42,7 +42,7 @@ export default async function Home() {
       <Card className="bg-muted rounded-3xl border-none shadow-none">
         <CardContent className="p-12 text-center">
           <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4 font-serif tracking-tight">
-            From book to brain — effortlessly.
+            From book to brain. Effortlessly.
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
             Turn your reading into a personal knowledge base. Start free, stay

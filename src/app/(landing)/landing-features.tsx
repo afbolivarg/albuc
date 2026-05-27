@@ -123,14 +123,14 @@ function Positioning() {
 
 function LibrarySection() {
   return (
-    <div className="overflow-hidden rounded-3xl bg-muted pt-10 px-10 pb-0">
-      <div className="mb-9 grid grid-cols-1 items-end gap-10 md:grid-cols-[1fr_auto]">
+    <div className="overflow-hidden rounded-3xl bg-muted pt-8 pb-0 md:px-10 md:pt-10">
+      <div className="mb-9 grid grid-cols-1 items-end gap-10 px-8 md:px-0 md:grid-cols-[1fr_auto]">
         <div>
           <p className={eyebrowClass}>Library</p>
           <h2 className={featureTitleClass}>
             Every book you&apos;ve
             <br />
-            ever picked up
+            ever picked up.
           </h2>
           <p className={featureLedeClass}>
             Add any book from Open Library — covers, authors, year, page count,
@@ -254,7 +254,7 @@ function NotesSection() {
 function AskSection() {
   return (
     <div className="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
-      <div className={cn("order-1 lg:order-none", showcaseClass)}>
+      <div className={cn("order-2 lg:order-none", showcaseClass)}>
         <div className="flex flex-col gap-4 rounded-xl bg-muted p-6">
           <div className="max-w-3/4 self-end rounded-xl bg-primary px-4 py-2 text-sm leading-snug text-primary-foreground">
             What did I think about <em>Zero to One</em>?
@@ -306,7 +306,7 @@ function AskSection() {
           </div>
         </div>
       </div>
-      <div className="order-2 lg:order-none">
+      <div className="order-1 lg:order-none">
         <p className={eyebrowClass}>Ask</p>
         <h2 className={featureTitleClass}>
           Talk to your
