@@ -35,8 +35,6 @@ export const users = pgTable("users", {
   id: uuid("id").primaryKey().defaultRandom(),
   supabaseUserId: text("supabase_user_id").notNull().unique(),
   email: text("email").notNull(),
-  name: text("name"),
-  imageUrl: text("image_url"),
   createdAt: timestamp("created_at").notNull().defaultNow(),
 });
 

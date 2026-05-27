@@ -32,6 +32,29 @@ type AuthFormProps = {
   footer?: ReactNode;
 };
 
+function AuthFormMessage({
+  variant,
+  children,
+  id,
+}: {
+  variant: "success" | "error";
+  children: ReactNode;
+  id?: string;
+}) {
+  const dotClassName =
+    variant === "success" ? "bg-green-600 dark:bg-green-400" : "bg-destructive";
+
+  return (
+    <p id={id} className="flex items-center gap-2 text-sm">
+      <span
+        aria-hidden
+        className={`size-2 shrink-0 rounded-full ${dotClassName}`}
+      />
+      {children}
+    </p>
+  );
+}
+
 export function AuthForm({
   title,
   description,
@@ -41,9 +64,6 @@ export function AuthForm({
   footer,
 }: AuthFormProps) {
   const [state, formAction] = useActionState(action, {});
-  const messageClassName = state.message
-    ? "text-sm text-green-600 dark:text-green-400"
-    : "text-sm text-muted-foreground";
 
   return (
     <Card className="w-full max-w-sm">
@@ -58,9 +78,11 @@ export function AuthForm({
         <form action={formAction} className="space-y-4">
           {children}
           <AuthSubmitButton>{submitLabel}</AuthSubmitButton>
-          {state.message && <p className={messageClassName}>{state.message}</p>}
+          {state.message && (
+            <AuthFormMessage variant="success">{state.message}</AuthFormMessage>
+          )}
           {state.error && (
-            <p className="text-sm text-destructive">{state.error}</p>
+            <AuthFormMessage variant="error">{state.error}</AuthFormMessage>
           )}
         </form>
       </CardContent>
@@ -147,9 +169,9 @@ export function AuthField({
         aria-describedby={fieldError ? errorId : undefined}
       />
       {fieldError && (
-        <p id={errorId} className="text-sm text-destructive">
+        <AuthFormMessage variant="error" id={errorId}>
           {fieldError}
-        </p>
+        </AuthFormMessage>
       )}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>

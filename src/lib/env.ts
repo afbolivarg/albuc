@@ -7,8 +7,7 @@ import { z } from "zod";
  * - Server-only vars are validated only on the server. Accessing them from
  *   client code throws at runtime instead of silently returning undefined.
  *
- * Drizzle config and other Node entrypoints must load `dotenv/config` before
- * importing from this file.
+ * Run db scripts with `bun run` so Bun loads `.env` / `.env.local` automatically.
  */
 
 const publicSchema = z.object({

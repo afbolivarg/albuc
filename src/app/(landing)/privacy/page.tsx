@@ -18,7 +18,7 @@ export default function PrivacyPage() {
       <section className="space-y-3">
         <h2 className="text-lg font-semibold">What we store</h2>
         <ul className="list-disc pl-5 space-y-2 text-muted-foreground">
-          <li>Your account email and name</li>
+          <li>Your account email</li>
           <li>Books you add and their metadata (title, author, cover)</li>
           <li>Notes you write for each book</li>
           <li>How often you use the Ask feature (for basic usage stats)</li>

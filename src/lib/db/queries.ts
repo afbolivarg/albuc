@@ -22,21 +22,11 @@ export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
   if (existing) {
     return existing;
   }
-  const name =
-    (supabaseUser.user_metadata?.full_name as string) ||
-    (supabaseUser.user_metadata?.name as string) ||
-    null;
-  const imageUrl =
-    (supabaseUser.user_metadata?.avatar_url as string) ||
-    (supabaseUser.user_metadata?.picture as string) ||
-    null;
   const [created] = await db
     .insert(users)
     .values({
       supabaseUserId: supabaseUser.id,
       email: supabaseUser.email ?? "",
-      name,
-      imageUrl,
     })
     .returning();
   if (!created) throw new Error("Failed to create app user");
