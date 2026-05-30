@@ -3,12 +3,20 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries";
+import {
+  createBook,
+  getUser,
+  getUserBookByWorkKey,
+  updateBookCoverPath,
+} from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 import {
   type BookSearchResult,
+  MIN_SEARCH_QUERY_LENGTH,
   searchBooks as searchOpenLibrary,
+  SEARCH_RESULT_LIMIT,
 } from "@/lib/open-library";
+import { uploadBookCoverFromOpenLibrary } from "@/lib/supabase/book-covers";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/user";
 
@@ -44,11 +52,15 @@ export async function searchBooksAction(
     return { results: [] };
   }
 
+  if (query.trim().length < MIN_SEARCH_QUERY_LENGTH) {
+    return {
+      results: [],
+      error: `Enter at least ${MIN_SEARCH_QUERY_LENGTH} characters to search.`,
+    };
+  }
+
   try {
-    if (!query.trim()) {
-      return { results: [], total: 0, page: 1 };
-    }
-    const result = await searchOpenLibrary(query, 1, 10);
+    const result = await searchOpenLibrary(query, 1, SEARCH_RESULT_LIMIT);
 
     return {
       results: result.results || [],
@@ -97,7 +109,7 @@ export async function addBookAction(
       };
     }
 
-    await createBook({
+    const [createdBook] = await createBook({
       userId: user.id,
       workKey: bookData.workKey,
       title: bookData.title,
@@ -111,7 +123,28 @@ export async function addBookAction(
       rating: bookData.rating?.toString() || undefined,
     });
 
+    if (!createdBook) {
+      throw new Error("Failed to add book");
+    }
+
+    if (createdBook && bookData.coverId) {
+      const supabaseUser = await getCurrentUser();
+      if (supabaseUser) {
+        const supabase = createServerClient(await cookies());
+        const coverPath = await uploadBookCoverFromOpenLibrary(supabase, {
+          supabaseUserId: supabaseUser.id,
+          bookId: createdBook.id,
+          coverId: bookData.coverId,
+        });
+
+        if (coverPath) {
+          await updateBookCoverPath(createdBook.id, coverPath);
+        }
+      }
+    }
+
     revalidatePath("/library");
+    revalidatePath(`/library/${createdBook.id}`);
     return { success: true };
   } catch (error) {
     log.error("addBookAction failed", toError(error));

@@ -52,6 +52,7 @@ export const books = pgTable(
     authorKeys: text("author_keys").array(), // e.g. ["OL26320A"]
     publishYear: integer("publish_year"),
     coverId: integer("cover_id"), // from search "cover_i" (optional)
+    coverPath: text("cover_path"), // Supabase Storage path after upload (optional)
     isbn10: text("isbn_10").array(),
     isbn13: text("isbn_13").array(),
     status: bookStatusEnum("status").notNull(),

@@ -11,12 +11,14 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
+import { MIN_SEARCH_QUERY_LENGTH } from "@/lib/open-library";
 import { searchBooksAction } from "./actions";
 import { SearchResultItem } from "./search-result-item";
 
 export function AddBook() {
   const inputRef = useRef<HTMLInputElement>(null);
   const [open, setOpen] = useState(false);
+  const [query, setQuery] = useState("");
   const [state, formAction, isPending] = useActionState(searchBooksAction, {
     results: [],
   });
@@ -33,6 +35,7 @@ export function AddBook() {
   };
 
   const handleClose = () => {
+    setQuery("");
     if (inputRef.current) {
       inputRef.current.value = "";
     }
@@ -54,6 +57,8 @@ export function AddBook() {
       handleClose();
     }
   };
+
+  const canSearch = query.trim().length >= MIN_SEARCH_QUERY_LENGTH;
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
@@ -77,15 +82,23 @@ export function AddBook() {
               <Input
                 ref={inputRef}
                 name="query"
+                value={query}
+                onChange={(e) => setQuery(e.target.value)}
                 placeholder="Search by title, author, or ISBN..."
                 className="pl-10 focus-visible:ring-0"
                 disabled={isPending}
               />
             </div>
-            <Button type="submit" disabled={isPending}>
+            <Button type="submit" disabled={isPending || !canSearch}>
               Search
             </Button>
           </form>
+
+          {!canSearch && query.trim().length > 0 && (
+            <p className="text-xs text-muted-foreground">
+              Enter at least {MIN_SEARCH_QUERY_LENGTH} characters to search.
+            </p>
+          )}
 
           <div className="flex-1 overflow-y-auto">
             {isPending ? (

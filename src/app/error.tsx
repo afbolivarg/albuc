@@ -16,7 +16,7 @@ export default function ErrorPage() {
         </div>
 
         <div className="space-y-4">
-          <h1 className="text-4xl md:text-5xl font-bold text-destructive font-serif">
+          <h1 className="text-4xl md:text-5xl font-bold text-primary font-serif">
             Oops!
           </h1>
           <h2 className="text-2xl md:text-3xl font-semibold text-foreground">

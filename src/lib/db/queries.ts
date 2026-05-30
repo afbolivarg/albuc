@@ -117,6 +117,16 @@ export async function updateBook(book: Book) {
     .returning();
 }
 
+export async function updateBookCoverPath(bookId: string, coverPath: string) {
+  const [updated] = await db
+    .update(books)
+    .set({ coverPath, updatedAt: new Date() })
+    .where(eq(books.id, bookId))
+    .returning();
+
+  return updated ?? null;
+}
+
 /**
  * Perform semantic search across a user's note chunks
  * Returns the top K most similar chunks with their book metadata

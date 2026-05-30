@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function WhyPage() {
   return (
-    <article className="mx-auto max-w-prose space-y-6 pt-10 pb-12 md:pt-0 md:pb-20 text-foreground">
+    <article className="mx-auto max-w-prose space-y-6 pt-10 pb-12 md:pt-12 md:pb-20 text-foreground">
       <h1 className="text-4xl md:text-5xl font-serif font-bold tracking-tight text-center mb-8 md:mb-12">
         Why Albuc exists
       </h1>

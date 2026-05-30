@@ -7,6 +7,7 @@ import { Response } from "@/components/ai-elements/response";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
+import { getChatErrorMessage } from "@/lib/ai/chat-errors";
 
 interface ChatInterfaceProps {
   initialUsage: {
@@ -66,6 +67,8 @@ export function ChatInterface({
 
   const hasMessages = messages.length > 0;
   const isLoading = status === "streaming" || status === "submitted";
+  const displayError = error ? getChatErrorMessage(error) : undefined;
+  const showChat = hasMessages || Boolean(displayError);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -85,16 +88,7 @@ export function ChatInterface({
       {/* Main Canvas Area - scrollable messages */}
       <div className="flex-1 overflow-y-auto px-4 py-8">
         <div className="max-w-4xl mx-auto h-full">
-          {/* Error Display */}
-          {error && (
-            <div className="bg-red-900/20 border border-red-500 text-red-300 px-4 py-3 rounded-lg mb-6">
-              <p className="font-medium">Error</p>
-              <p className="text-sm">{error.message}</p>
-            </div>
-          )}
-
-          {/* Messages Display */}
-          {hasMessages ? (
+          {showChat ? (
             <div className="space-y-6 px-4 md:px-0">
               {messages.map((message) => {
                 // For user messages, show chat-like bubble (constrained)
@@ -157,6 +151,14 @@ export function ChatInterface({
                     </div>
                   </div>
                 )}
+
+              {displayError && (
+                <div className="w-full flex items-start gap-3 py-2">
+                  <div className="rounded-lg p-3 max-w-[80%] bg-destructive/10 border border-destructive/30 text-destructive">
+                    <p className="text-sm">{displayError}</p>
+                  </div>
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center justify-center h-full">

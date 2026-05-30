@@ -1,4 +1,5 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { createChatErrorResponse } from "@/lib/ai/chat-errors";
 import { generateEmbedding } from "@/lib/ai/embedding";
 import { getChatModel } from "@/lib/ai/provider";
 import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage";
@@ -12,15 +13,13 @@ export async function POST(req: Request) {
     // 1. Authenticate user and get database user
     const user = await getUser();
     if (!user) {
-      return new Response("Unauthorized", { status: 401 });
+      return createChatErrorResponse(401);
     }
 
     // 2. Parse request body
     const { messages }: { messages: UIMessage[] } = await req.json();
     if (!messages || !Array.isArray(messages) || messages.length === 0) {
-      return new Response("Invalid request: messages array required", {
-        status: 400,
-      });
+      return createChatErrorResponse(400);
     }
 
     // Get the last user message and extract text from parts
@@ -31,9 +30,7 @@ export async function POST(req: Request) {
       .join(" ");
 
     if (!textParts.trim()) {
-      return new Response("Invalid request: no message content", {
-        status: 400,
-      });
+      return createChatErrorResponse(400);
     }
 
     const question = textParts;
@@ -42,12 +39,7 @@ export async function POST(req: Request) {
     const usageCheck = await checkAIUsageAllowed(user.id);
 
     if (!usageCheck.allowed) {
-      return new Response(
-        JSON.stringify({
-          error: usageCheck.reason || "AI feature access denied.",
-        }),
-        { status: 402 },
-      );
+      return createChatErrorResponse(402);
     }
 
     // 4. Generate query embedding
@@ -132,12 +124,6 @@ ${context}`;
     return result.toUIMessageStreamResponse();
   } catch (error) {
     log.error("request failed", toError(error));
-    return new Response(
-      JSON.stringify({
-        error:
-          error instanceof Error ? error.message : "Failed to process request",
-      }),
-      { status: 500 },
-    );
+    return createChatErrorResponse(500);
   }
 }

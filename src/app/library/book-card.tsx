@@ -4,16 +4,16 @@ import Link from "next/link";
 import { StarRating } from "@/components/star-rating";
 import { Card, CardContent } from "@/components/ui/card";
 import type { Book } from "@/lib/db/schema";
+import { getBookCoverUrl } from "@/lib/supabase/book-covers";
 import { StatusPill } from "./status-pill";
 
 interface BookCardProps {
   book: Book;
+  priority?: boolean;
 }
 
-export function BookCard({ book }: BookCardProps) {
-  const coverUrl = book.coverId
-    ? `https://covers.openlibrary.org/b/id/${book.coverId}-M.jpg`
-    : null;
+export function BookCard({ book, priority = false }: BookCardProps) {
+  const coverUrl = getBookCoverUrl(book.coverPath);
 
   return (
     <Link href={`/library/${book.id}`}>
@@ -31,6 +31,8 @@ export function BookCard({ book }: BookCardProps) {
                 alt={book.title}
                 width={120}
                 height={180}
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                priority={priority}
                 className="w-full h-full object-cover"
               />
             ) : (
