@@ -53,6 +53,7 @@ export const books = pgTable(
     publishYear: integer("publish_year"),
     coverId: integer("cover_id"), // from search "cover_i" (optional)
     coverPath: text("cover_path"), // Supabase Storage path after upload (optional)
+    spineColors: text("spine_colors").array(), // [bg-light, bg-dark, ink] from cover extraction
     isbn10: text("isbn_10").array(),
     isbn13: text("isbn_13").array(),
     status: bookStatusEnum("status").notNull(),

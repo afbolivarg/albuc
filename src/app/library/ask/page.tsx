@@ -18,7 +18,7 @@ export default async function AskPage() {
   };
 
   return (
-    <div className="fixed inset-0 top-[65px] flex flex-col">
+    <div className="fixed inset-0 flex flex-col">
       <AskContainer initialUsage={initialUsage} />
     </div>
   );

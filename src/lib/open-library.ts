@@ -2,7 +2,6 @@ import { createLogger, toError } from "@/lib/logger";
 import type { BookSearchResult } from "@/lib/open-library.shared";
 
 export type { BookSearchResult } from "@/lib/open-library.shared";
-export { getCoverUrl } from "@/lib/open-library.shared";
 
 const log = createLogger("open-library");
 

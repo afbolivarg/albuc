@@ -1,19 +1,21 @@
+import "server-only";
+
 import type { SupabaseClient } from "@supabase/supabase-js";
-import { env } from "@/lib/env";
-import { getCoverUrl } from "@/lib/open-library.shared";
 import { createLogger, toError } from "@/lib/logger";
+import { getCoverUrl } from "@/lib/open-library.shared";
+import { extractSpineColorsFromImage } from "@/lib/spine-colors.server";
+import type { SpinePalette } from "@/lib/spine-colors.shared";
+import {
+  BOOK_COVER_CACHE_CONTROL,
+  BOOK_COVERS_BUCKET,
+} from "./book-covers.shared";
 
 const log = createLogger("supabase.book-covers");
 
-export const BOOK_COVERS_BUCKET = "book-covers";
-export const BOOK_COVER_CACHE_CONTROL = "31536000";
-
-export function getBookCoverUrl(
-  coverPath: string | null | undefined,
-): string | null {
-  if (!coverPath) return null;
-  return `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BOOK_COVERS_BUCKET}/${coverPath}`;
-}
+export type UploadedBookCover = {
+  coverPath: string;
+  spineColors: SpinePalette | null;
+};
 
 export async function uploadBookCoverFromOpenLibrary(
   supabase: SupabaseClient,
@@ -22,7 +24,7 @@ export async function uploadBookCoverFromOpenLibrary(
     bookId: string;
     coverId: number;
   },
-): Promise<string | null> {
+): Promise<UploadedBookCover | null> {
   const sourceUrl = getCoverUrl(options.coverId, "M");
   if (!sourceUrl) {
     return null;
@@ -46,6 +48,7 @@ export async function uploadBookCoverFromOpenLibrary(
 
     const coverPath = `${options.supabaseUserId}/${options.bookId}.jpg`;
     const imageBuffer = await response.arrayBuffer();
+    const spineColors = await extractSpineColorsFromImage(imageBuffer);
 
     const { error } = await supabase.storage
       .from(BOOK_COVERS_BUCKET)
@@ -63,7 +66,7 @@ export async function uploadBookCoverFromOpenLibrary(
       return null;
     }
 
-    return coverPath;
+    return { coverPath, spineColors };
   } catch (error) {
     log.error("cover upload failed", toError(error), {
       bookId: options.bookId,

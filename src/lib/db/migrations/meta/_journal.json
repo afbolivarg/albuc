@@ -15,6 +15,13 @@
       "when": 1780111718373,
       "tag": "0001_add_cover_path",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1780500000000,
+      "tag": "0002_add_spine_colors",
+      "breakpoints": true
     }
   ]
 }

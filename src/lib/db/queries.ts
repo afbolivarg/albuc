@@ -117,14 +117,23 @@ export async function updateBook(book: Book) {
     .returning();
 }
 
-export async function updateBookCoverPath(bookId: string, coverPath: string) {
+export async function updateBookCover(
+  bookId: string,
+  coverPath: string,
+  spineColors: string[] | null,
+) {
   const [updated] = await db
     .update(books)
-    .set({ coverPath, updatedAt: new Date() })
+    .set({ coverPath, spineColors, updatedAt: new Date() })
     .where(eq(books.id, bookId))
     .returning();
 
   return updated ?? null;
+}
+
+/** @deprecated Use updateBookCover */
+export async function updateBookCoverPath(bookId: string, coverPath: string) {
+  return updateBookCover(bookId, coverPath, null);
 }
 
 /**

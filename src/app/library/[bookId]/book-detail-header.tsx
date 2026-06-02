@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { Book } from "@/lib/db/schema";
-import { getBookCoverUrl } from "@/lib/supabase/book-covers";
+import { getBookCoverUrl } from "@/lib/supabase/book-covers.shared";
 import { RatingSelector } from "./rating-selector";
 import { StatusSelector } from "./status-selector";
 

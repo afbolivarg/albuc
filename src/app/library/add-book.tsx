@@ -1,6 +1,7 @@
 "use client";
 
 import { BookOpen, Loader, Plus, Search } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { startTransition, useActionState, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
@@ -8,16 +9,64 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { MIN_SEARCH_QUERY_LENGTH } from "@/lib/open-library";
+import { cn } from "@/lib/utils";
 import { searchBooksAction } from "./actions";
 import { SearchResultItem } from "./search-result-item";
 
-export function AddBook() {
+export type AddBookTrigger = "dock" | "empty-cta";
+
+export function AddBookTriggerButton({
+  trigger,
+  className,
+  onClick,
+}: {
+  trigger: AddBookTrigger;
+  className?: string;
+  onClick: () => void;
+}) {
+  if (trigger === "empty-cta") {
+    return (
+      <Button
+        type="button"
+        onClick={onClick}
+        className={cn(
+          "mt-1 h-10 rounded-full px-6 font-serif text-[15px]",
+          className,
+        )}
+      >
+        <Plus className="size-4" />
+        Add your first book
+      </Button>
+    );
+  }
+
+  return (
+    <Button
+      type="button"
+      variant="outline"
+      onClick={onClick}
+      className={cn(
+        "inline-flex h-9 items-center gap-[7px] rounded-full border-border bg-background px-3.5 text-[13.5px] font-medium text-foreground hover:bg-accent",
+        className,
+      )}
+    >
+      <Plus className="size-[15px]" />
+      Add
+    </Button>
+  );
+}
+
+type AddBookDialogProps = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+};
+
+export function AddBookDialog({ open, onOpenChange }: AddBookDialogProps) {
+  const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
-  const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [state, formAction, isPending] = useActionState(searchBooksAction, {
     results: [],
@@ -34,7 +83,7 @@ export function AddBook() {
     });
   };
 
-  const handleClose = () => {
+  const resetSearch = () => {
     setQuery("");
     if (inputRef.current) {
       inputRef.current.value = "";
@@ -47,14 +96,15 @@ export function AddBook() {
   };
 
   const handleBookAdded = () => {
-    setOpen(false);
-    handleClose();
+    onOpenChange(false);
+    resetSearch();
+    router.refresh();
   };
 
   const handleOpenChange = (openState: boolean) => {
-    setOpen(openState);
+    onOpenChange(openState);
     if (!openState) {
-      handleClose();
+      resetSearch();
     }
   };
 
@@ -62,23 +112,17 @@ export function AddBook() {
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        <Button>
-          <Plus className="h-4 w-4" />
-          Add Book
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-hidden flex flex-col focus-visible:ring-0">
+      <DialogContent className="flex max-h-[80vh] max-w-4xl flex-col overflow-hidden focus-visible:ring-0">
         <DialogHeader>
-          <DialogTitle className="text-2xl font-serif text-foreground">
+          <DialogTitle className="font-serif text-2xl text-foreground">
             Add Book to Albuc
           </DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 flex-1 overflow-hidden flex flex-col">
+        <div className="flex flex-1 flex-col space-y-4 overflow-hidden">
           <form onSubmit={handleSubmit} className="flex gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 ref={inputRef}
                 name="query"
@@ -119,19 +163,19 @@ export function AddBook() {
                 ))}
               </div>
             ) : state.error ? (
-              <div className="text-center py-12 flex flex-col items-center justify-center gap-2">
-                <BookOpen className="w-10 h-10 text-muted-foreground" />
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <BookOpen className="h-10 w-10 text-muted-foreground" />
                 <p className="text-foreground">
                   No books found for your search
                 </p>
-                <p className="text-sm text-muted-foreground mt-2">
+                <p className="mt-2 text-sm text-muted-foreground">
                   Try different keywords or check the spelling
                 </p>
-                <p className="text-sm text-destructive mt-1">{state.error}</p>
+                <p className="mt-1 text-sm text-destructive">{state.error}</p>
               </div>
             ) : (
-              <div className="text-center py-12 flex flex-col items-center justify-center gap-2">
-                <Search className="w-10 h-10 text-muted-foreground" />
+              <div className="flex flex-col items-center justify-center gap-2 py-12 text-center">
+                <Search className="h-10 w-10 text-muted-foreground" />
                 <p className="text-muted-foreground">
                   Search for books to add to your library
                 </p>

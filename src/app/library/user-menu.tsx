@@ -12,17 +12,29 @@ import {
 import type { User } from "@/lib/db/schema";
 import { signOut } from "./actions";
 
-function UserAvatar({ email }: { email: string }) {
+function UserAvatar({ email, size = 32 }: { email: string; size?: number }) {
   return (
-    <div className="flex size-8 shrink-0 items-center justify-center rounded-full bg-muted">
-      <span className="text-sm font-semibold text-muted-foreground">
+    <div
+      className="flex shrink-0 items-center justify-center rounded-full bg-muted"
+      style={{ width: size, height: size }}
+    >
+      <span
+        className="font-semibold text-muted-foreground"
+        style={{ fontSize: size * 0.375 }}
+      >
         {email.charAt(0).toUpperCase() || "?"}
       </span>
     </div>
   );
 }
 
-export function UserMenu({ user }: { user: User }) {
+export function UserMenu({
+  user,
+  avatarSize = 32,
+}: {
+  user: User;
+  avatarSize?: number;
+}) {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -30,7 +42,7 @@ export function UserMenu({ user }: { user: User }) {
           type="button"
           className="flex cursor-pointer items-center transition-opacity hover:opacity-80 focus:outline-none focus-visible:outline-none"
         >
-          <UserAvatar email={user.email} />
+          <UserAvatar email={user.email} size={avatarSize} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -41,7 +53,7 @@ export function UserMenu({ user }: { user: User }) {
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-3 px-2 py-2 text-left text-sm">
-            <UserAvatar email={user.email} />
+            <UserAvatar email={user.email} size={avatarSize} />
             <span className="truncate font-medium">{user.email}</span>
           </div>
         </DropdownMenuLabel>

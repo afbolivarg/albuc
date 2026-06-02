@@ -7,16 +7,17 @@ import {
   createBook,
   getUser,
   getUserBookByWorkKey,
-  updateBookCoverPath,
+  updateBookCover,
 } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 import {
   type BookSearchResult,
   MIN_SEARCH_QUERY_LENGTH,
-  searchBooks as searchOpenLibrary,
   SEARCH_RESULT_LIMIT,
+  searchBooks as searchOpenLibrary,
 } from "@/lib/open-library";
-import { uploadBookCoverFromOpenLibrary } from "@/lib/supabase/book-covers";
+import { serializeSpineColors } from "@/lib/spine-colors.shared";
+import { uploadBookCoverFromOpenLibrary } from "@/lib/supabase/book-covers.server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/user";
 
@@ -131,14 +132,20 @@ export async function addBookAction(
       const supabaseUser = await getCurrentUser();
       if (supabaseUser) {
         const supabase = createServerClient(await cookies());
-        const coverPath = await uploadBookCoverFromOpenLibrary(supabase, {
+        const uploaded = await uploadBookCoverFromOpenLibrary(supabase, {
           supabaseUserId: supabaseUser.id,
           bookId: createdBook.id,
           coverId: bookData.coverId,
         });
 
-        if (coverPath) {
-          await updateBookCoverPath(createdBook.id, coverPath);
+        if (uploaded) {
+          await updateBookCover(
+            createdBook.id,
+            uploaded.coverPath,
+            uploaded.spineColors
+              ? serializeSpineColors(uploaded.spineColors)
+              : null,
+          );
         }
       }
     }
