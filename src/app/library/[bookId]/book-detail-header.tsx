@@ -4,7 +4,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import type { Book } from "@/lib/db/schema";
-import { getBookCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
 import { RatingSelector } from "./rating-selector";
 import { StatusSelector } from "./status-selector";
 
@@ -13,7 +13,7 @@ interface BookDetailHeaderProps {
 }
 
 export function BookDetailHeader({ book }: BookDetailHeaderProps) {
-  const coverUrl = getBookCoverUrl(book.coverPath);
+  const coverUrl = getBookDisplayCoverUrl(book, "L");
 
   return (
     <div className="space-y-4">

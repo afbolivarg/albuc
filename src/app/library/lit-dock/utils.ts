@@ -1,6 +1,6 @@
 import type { Book } from "@/lib/db/schema";
 import { parseSpineColors } from "@/lib/spine-colors.shared";
-import { getBookCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
 import { PALETTES, type PaletteKey } from "./constants";
 import type { ShelfBook, SortDir, SortKey } from "./types";
 
@@ -55,7 +55,7 @@ export function adaptBook(book: Book): ShelfBook {
   const palette =
     parseSpineColors(book.spineColors) ?? PALETTES[paletteForBook(book.id)];
   const author = book.authors?.[0] ?? "Unknown";
-  const coverUrl = getBookCoverUrl(book.coverPath);
+  const coverUrl = getBookDisplayCoverUrl(book, "M");
 
   return {
     id: book.id,

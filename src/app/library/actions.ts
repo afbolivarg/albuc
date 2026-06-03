@@ -3,12 +3,8 @@
 import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
-import {
-  createBook,
-  getUser,
-  getUserBookByWorkKey,
-  updateBookCover,
-} from "@/lib/db/queries";
+import { after } from "next/server";
+import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 import {
   type BookSearchResult,
@@ -16,8 +12,7 @@ import {
   SEARCH_RESULT_LIMIT,
   searchBooks as searchOpenLibrary,
 } from "@/lib/open-library";
-import { serializeSpineColors } from "@/lib/spine-colors.shared";
-import { uploadBookCoverFromOpenLibrary } from "@/lib/supabase/book-covers.server";
+import { persistBookCoverFromOpenLibrary } from "@/lib/supabase/book-covers.server";
 import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/user";
 
@@ -128,30 +123,19 @@ export async function addBookAction(
       throw new Error("Failed to add book");
     }
 
-    if (createdBook && bookData.coverId) {
-      const supabaseUser = await getCurrentUser();
-      if (supabaseUser) {
-        const supabase = createServerClient(await cookies());
-        const uploaded = await uploadBookCoverFromOpenLibrary(supabase, {
-          supabaseUserId: supabaseUser.id,
-          bookId: createdBook.id,
-          coverId: bookData.coverId,
-        });
+    if (bookData.coverId) {
+      const coverJob = {
+        supabaseUserId: user.supabaseUserId,
+        bookId: createdBook.id,
+        coverId: bookData.coverId,
+      };
 
-        if (uploaded) {
-          await updateBookCover(
-            createdBook.id,
-            uploaded.coverPath,
-            uploaded.spineColors
-              ? serializeSpineColors(uploaded.spineColors)
-              : null,
-          );
-        }
-      }
+      after(async () => {
+        await persistBookCoverFromOpenLibrary(coverJob);
+      });
     }
 
     revalidatePath("/library");
-    revalidatePath(`/library/${createdBook.id}`);
     return { success: true };
   } catch (error) {
     log.error("addBookAction failed", toError(error));

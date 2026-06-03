@@ -1,10 +1,13 @@
 import "server-only";
 
-import type { SupabaseClient } from "@supabase/supabase-js";
+import { revalidatePath } from "next/cache";
+import { updateBookCover } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 import { getCoverUrl } from "@/lib/open-library.shared";
 import { extractSpineColorsFromImage } from "@/lib/spine-colors.server";
 import type { SpinePalette } from "@/lib/spine-colors.shared";
+import { serializeSpineColors } from "@/lib/spine-colors.shared";
+import { createAdminClient } from "@/lib/supabase/admin";
 import {
   BOOK_COVER_CACHE_CONTROL,
   BOOK_COVERS_BUCKET,
@@ -12,19 +15,16 @@ import {
 
 const log = createLogger("supabase.book-covers");
 
-export type UploadedBookCover = {
+type UploadedBookCover = {
   coverPath: string;
   spineColors: SpinePalette | null;
 };
 
-export async function uploadBookCoverFromOpenLibrary(
-  supabase: SupabaseClient,
-  options: {
-    supabaseUserId: string;
-    bookId: string;
-    coverId: number;
-  },
-): Promise<UploadedBookCover | null> {
+async function uploadBookCoverFromOpenLibrary(options: {
+  supabaseUserId: string;
+  bookId: string;
+  coverId: number;
+}): Promise<UploadedBookCover | null> {
   const sourceUrl = getCoverUrl(options.coverId, "M");
   if (!sourceUrl) {
     return null;
@@ -50,6 +50,7 @@ export async function uploadBookCoverFromOpenLibrary(
     const imageBuffer = await response.arrayBuffer();
     const spineColors = await extractSpineColorsFromImage(imageBuffer);
 
+    const supabase = createAdminClient();
     const { error } = await supabase.storage
       .from(BOOK_COVERS_BUCKET)
       .upload(coverPath, imageBuffer, {
@@ -73,5 +74,30 @@ export async function uploadBookCoverFromOpenLibrary(
       coverId: options.coverId,
     });
     return null;
+  }
+}
+
+export async function persistBookCoverFromOpenLibrary(options: {
+  supabaseUserId: string;
+  bookId: string;
+  coverId: number;
+}): Promise<void> {
+  try {
+    const uploaded = await uploadBookCoverFromOpenLibrary(options);
+    if (!uploaded) return;
+
+    await updateBookCover(
+      options.bookId,
+      uploaded.coverPath,
+      uploaded.spineColors ? serializeSpineColors(uploaded.spineColors) : null,
+    );
+
+    revalidatePath("/library");
+    revalidatePath(`/library/${options.bookId}`);
+  } catch (error) {
+    log.error("persistBookCoverFromOpenLibrary failed", toError(error), {
+      bookId: options.bookId,
+      coverId: options.coverId,
+    });
   }
 }

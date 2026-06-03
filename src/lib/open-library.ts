@@ -7,7 +7,7 @@ const log = createLogger("open-library");
 
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org";
 
-export const SEARCH_RESULT_LIMIT = 5;
+export const SEARCH_RESULT_LIMIT = 10;
 export const MIN_SEARCH_QUERY_LENGTH = 3;
 
 interface OpenLibrarySearchResult {

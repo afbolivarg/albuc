@@ -99,6 +99,8 @@ export function AddBookDialog({ open, onOpenChange }: AddBookDialogProps) {
     onOpenChange(false);
     resetSearch();
     router.refresh();
+    // Background cover upload finishes after the action returns.
+    window.setTimeout(() => router.refresh(), 7000);
   };
 
   const handleOpenChange = (openState: boolean) => {
