@@ -1,4 +1,5 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import { after } from "next/server";
 import { createChatErrorResponse } from "@/lib/ai/chat-errors";
 import { generateEmbedding } from "@/lib/ai/embedding";
 import { getChatModel } from "@/lib/ai/provider";
@@ -7,6 +8,11 @@ import { getUser, semanticSearchNotes } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 
 const log = createLogger("api.chat");
+
+const STREAM_HEADERS = {
+  "X-Accel-Buffering": "no",
+  "Cache-Control": "no-cache, no-transform",
+} as const;
 
 export async function POST(req: Request) {
   try {
@@ -35,24 +41,24 @@ export async function POST(req: Request) {
 
     const question = textParts;
 
-    // 3. Check AI usage (auth-based; always allowed for authenticated users)
-    const usageCheck = await checkAIUsageAllowed(user.id);
+    // 3. Usage check + embedding in parallel (both independent after auth)
+    const [usageCheck, queryEmbedding] = await Promise.all([
+      checkAIUsageAllowed(user.id),
+      generateEmbedding(question),
+    ]);
 
     if (!usageCheck.allowed) {
       return createChatErrorResponse(402);
     }
 
-    // 4. Generate query embedding
-    const queryEmbedding = await generateEmbedding(question);
-
-    // 5. Perform semantic search
+    // 4. Perform semantic search
     const relevantChunks = await semanticSearchNotes(
       user.id,
       queryEmbedding,
       8,
     );
 
-    // 6. Build context with citations
+    // 5. Build context with citations
     let systemPrompt: string;
 
     if (relevantChunks.length === 0) {
@@ -67,28 +73,6 @@ export async function POST(req: Request) {
       });
 
       const context = contextParts.join("\n\n");
-
-      // Extract unique books for sources metadata
-      const uniqueBooks = new Map<
-        string,
-        {
-          bookId: string;
-          title: string;
-          authors: string[];
-          publishYear: number | null;
-        }
-      >();
-
-      for (const chunk of relevantChunks) {
-        if (!uniqueBooks.has(chunk.book_id)) {
-          uniqueBooks.set(chunk.book_id, {
-            bookId: chunk.book_id,
-            title: chunk.title,
-            authors: chunk.authors || [],
-            publishYear: chunk.publish_year,
-          });
-        }
-      }
 
       systemPrompt = `You are a reading copilot from the app Albuc helping the user understand and recall information from their personal library.
 
@@ -109,10 +93,10 @@ Context from the user's library:
 ${context}`;
     }
 
-    // 7. Increment usage counter
-    await incrementAIUsage(user.id);
+    // 6. Increment usage off the critical path (reuse counter from usage check)
+    after(() => incrementAIUsage(user.id, usageCheck.counterId));
 
-    // 8. Stream the response
+    // 7. Stream the response
     const result = streamText({
       model: getChatModel() as Parameters<typeof streamText>[0]["model"],
       system: systemPrompt,
@@ -121,7 +105,7 @@ ${context}`;
       maxRetries: 2,
     });
 
-    return result.toUIMessageStreamResponse();
+    return result.toUIMessageStreamResponse({ headers: STREAM_HEADERS });
   } catch (error) {
     log.error("request failed", toError(error));
     return createChatErrorResponse(500);

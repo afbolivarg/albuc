@@ -35,6 +35,7 @@ export default function RootLayout({
     <html lang="en">
       <head>
         <link rel="preconnect" href={env.NEXT_PUBLIC_SUPABASE_URL} />
+        <link rel="preconnect" href="https://covers.openlibrary.org" />
       </head>
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased`}

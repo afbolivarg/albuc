@@ -1,3 +1,4 @@
+import { unstable_cache } from "next/cache";
 import { createLogger, toError } from "@/lib/logger";
 import type { BookSearchResult } from "@/lib/open-library.shared";
 
@@ -6,6 +7,7 @@ export type { BookSearchResult } from "@/lib/open-library.shared";
 const log = createLogger("open-library");
 
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org";
+const SEARCH_CACHE_SECONDS = 3600;
 
 export const SEARCH_RESULT_LIMIT = 10;
 export const MIN_SEARCH_QUERY_LENGTH = 3;
@@ -30,10 +32,10 @@ interface OpenLibrarySearchResponse {
   docs: OpenLibrarySearchResult[];
 }
 
-export async function searchBooks(
+async function searchBooksUncached(
   query: string,
-  page: number = 1,
-  limit: number = 20,
+  page: number,
+  limit: number,
 ): Promise<{ results: BookSearchResult[]; total: number; page: number }> {
   try {
     const offset = (page - 1) * limit;
@@ -96,4 +98,23 @@ export async function searchBooks(
     log.error("searchBooks failed", toError(error));
     throw new Error("Failed to search books");
   }
+}
+
+export async function searchBooks(
+  query: string,
+  page: number = 1,
+  limit: number = 20,
+): Promise<{ results: BookSearchResult[]; total: number; page: number }> {
+  const normalizedQuery = query.trim().toLowerCase();
+  if (normalizedQuery.length < MIN_SEARCH_QUERY_LENGTH) {
+    return { results: [], total: 0, page };
+  }
+
+  const cachedSearch = unstable_cache(
+    () => searchBooksUncached(normalizedQuery, page, limit),
+    ["open-library-search", normalizedQuery, String(page), String(limit)],
+    { revalidate: SEARCH_CACHE_SECONDS, tags: ["open-library-search"] },
+  );
+
+  return cachedSearch();
 }

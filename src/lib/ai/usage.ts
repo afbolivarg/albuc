@@ -41,6 +41,7 @@ export async function checkAIUsageAllowed(userId: string): Promise<{
   allowed: boolean;
   queriesUsed: number;
   queryLimit: number;
+  counterId: string;
   reason?: string;
 }> {
   const currentMonth = getCurrentMonth();
@@ -49,13 +50,36 @@ export async function checkAIUsageAllowed(userId: string): Promise<{
     allowed: true,
     queriesUsed: counter.queriesUsed,
     queryLimit: Number.POSITIVE_INFINITY,
+    counterId: counter.id,
   };
 }
 
-export async function incrementAIUsage(userId: string): Promise<void> {
+export async function incrementAIUsage(
+  userId: string,
+  counterId?: string,
+): Promise<void> {
   const currentMonth = getCurrentMonth();
-  const counter = await getOrCreateUsageCounter(userId, currentMonth);
 
+  if (counterId) {
+    const counter = await db
+      .select()
+      .from(usageCounters)
+      .where(eq(usageCounters.id, counterId))
+      .limit(1);
+
+    if (counter.length > 0) {
+      await db
+        .update(usageCounters)
+        .set({
+          queriesUsed: counter[0].queriesUsed + 1,
+          updatedAt: new Date(),
+        })
+        .where(eq(usageCounters.id, counterId));
+      return;
+    }
+  }
+
+  const counter = await getOrCreateUsageCounter(userId, currentMonth);
   await db
     .update(usageCounters)
     .set({

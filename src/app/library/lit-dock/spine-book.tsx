@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { memo } from "react";
 import { STATUS_META } from "./constants";
 import type { ShelfBook } from "./types";
 import { hashJitter, spineWidth } from "./utils";
@@ -12,7 +13,7 @@ type SpineBookProps = {
   hHi?: number;
 };
 
-export function SpineBook({ book, hLo = 188, hHi = 226 }: SpineBookProps) {
+function SpineBookComponent({ book, hLo = 188, hHi = 226 }: SpineBookProps) {
   const [b1, b2, ink] = book.spine;
   const w = spineWidth(book);
   const h = hashJitter(book.id, hLo, hHi);
@@ -85,3 +86,5 @@ export function SpineBook({ book, hLo = 188, hHi = 226 }: SpineBookProps) {
     </Link>
   );
 }
+
+export const SpineBook = memo(SpineBookComponent);

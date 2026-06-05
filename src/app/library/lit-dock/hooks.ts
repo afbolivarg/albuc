@@ -1,46 +1,103 @@
 "use client";
 
-import { useLayoutEffect, useMemo, useRef, useState } from "react";
+import {
+  type RefObject,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 import { SORTS } from "./constants";
 import type { ShelfBook, SortDir, SortKey, StatusFilter } from "./types";
 import { sortBooks } from "./utils";
 
-export function useElementWidth(fallback = 1112) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [w, setW] = useState(fallback);
+const SHELF_SNAPSHOT_KEY = "albuc:shelf-books";
+
+function useRafResizeObserver(
+  ref: RefObject<HTMLElement | null>,
+  readSize: (el: HTMLElement) => number,
+  fallback: number,
+) {
+  const [size, setSize] = useState(fallback);
+  const rafRef = useRef<number | null>(null);
 
   useLayoutEffect(() => {
     const el = ref.current;
     if (!el) return;
 
-    const update = () => setW(el.clientWidth || fallback);
+    const update = () => {
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+      rafRef.current = requestAnimationFrame(() => {
+        rafRef.current = null;
+        setSize(readSize(el) || fallback);
+      });
+    };
+
     update();
 
     const ro = new ResizeObserver(update);
     ro.observe(el);
-    return () => ro.disconnect();
-  }, [fallback]);
+    return () => {
+      ro.disconnect();
+      if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
+    };
+  }, [fallback, readSize, ref]);
 
+  return size;
+}
+
+export function useElementWidth(fallback = 1112) {
+  const ref = useRef<HTMLDivElement>(null);
+  const readSize = useMemo(
+    () => (el: HTMLElement) => (el as HTMLDivElement).clientWidth,
+    [],
+  );
+  const w = useRafResizeObserver(ref, readSize, fallback);
   return [ref, w] as const;
 }
 
 export function useElementHeight(fallback = 600) {
   const ref = useRef<HTMLDivElement>(null);
-  const [h, setH] = useState(fallback);
+  const readSize = useMemo(
+    () => (el: HTMLElement) => (el as HTMLDivElement).clientHeight,
+    [],
+  );
+  const h = useRafResizeObserver(ref, readSize, fallback);
+  return [ref, h] as const;
+}
+
+/** Instant shelf on revisit: show cached books before server data reconciles. */
+export function useShelfBooksSnapshot(serverBooks: ShelfBook[]): ShelfBook[] {
+  const [books, setBooks] = useState(serverBooks);
+  const hydratedFromCache = useRef(false);
 
   useLayoutEffect(() => {
-    const el = ref.current;
-    if (!el) return;
+    if (hydratedFromCache.current) return;
+    try {
+      const raw = localStorage.getItem(SHELF_SNAPSHOT_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw) as ShelfBook[];
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          setBooks(parsed);
+        }
+      }
+    } catch {
+      // ignore corrupt snapshot
+    }
+    hydratedFromCache.current = true;
+  }, []);
 
-    const update = () => setH(el.clientHeight || fallback);
-    update();
+  useEffect(() => {
+    setBooks(serverBooks);
+    try {
+      localStorage.setItem(SHELF_SNAPSHOT_KEY, JSON.stringify(serverBooks));
+    } catch {
+      // quota or private mode
+    }
+  }, [serverBooks]);
 
-    const ro = new ResizeObserver(update);
-    ro.observe(el);
-    return () => ro.disconnect();
-  }, [fallback]);
-
-  return [ref, h] as const;
+  return books;
 }
 
 export function useLibrary(allBooks: ShelfBook[]) {

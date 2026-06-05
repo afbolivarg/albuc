@@ -1,19 +1,31 @@
 "use client";
 
 import { ChevronLeft, ChevronRight, MessageSquare } from "lucide-react";
+import dynamic from "next/dynamic";
 import Link from "next/link";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
 import type { User } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
-import { AddBookDialog, AddBookTriggerButton } from "../add-book";
+import { AddBookTriggerButton } from "../add-book";
 import { UserMenu } from "../user-menu";
 import { GAP } from "./constants";
 import { EmptyShelf, FilterBar } from "./filter-bar";
-import { useElementHeight, useElementWidth, useLibrary } from "./hooks";
+import {
+  useElementHeight,
+  useElementWidth,
+  useLibrary,
+  useShelfBooksSnapshot,
+} from "./hooks";
 import { SpineBook } from "./spine-book";
 import type { ShelfBook } from "./types";
 import { packShelvesFill } from "./utils";
+
+const AddBookDialog = dynamic(
+  () =>
+    import("../add-book-dialog").then((m) => ({ default: m.AddBookDialog })),
+  { ssr: false },
+);
 
 const SHELF_GAP = 42;
 const ROW_H = 226 + 11 + SHELF_GAP;
@@ -73,7 +85,8 @@ type LitDockLibraryProps = {
 };
 
 export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
-  const lib = useLibrary(all);
+  const snapshotBooks = useShelfBooksSnapshot(all);
+  const lib = useLibrary(snapshotBooks);
   const [rootRef, rootW] = useElementWidth(1112);
   const mobile = rootW < 560;
   const pad = mobile ? 20 : 40;
@@ -84,7 +97,10 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
   const toolbarPadX = mobile ? 18 : gutter;
   const [shelfRef, shelfW] = useElementWidth(1112);
   const maxW = Math.max(120, shelfW - pad * 2);
-  const allRows = packShelvesFill(lib.books, maxW, GAP);
+  const allRows = useMemo(
+    () => packShelvesFill(lib.books, maxW, GAP),
+    [lib.books, maxW],
+  );
   const [scrollRef, scrollH] = useElementHeight(600);
   const usableH = Math.max(0, scrollH - 100);
   const per = Math.max(1, Math.floor((usableH + SHELF_GAP) / ROW_H));
@@ -162,7 +178,7 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
         </div>
         {lib.books.length === 0 && (
           <EmptyShelf
-            variant={lib.all.length === 0 ? "empty" : "filtered"}
+            variant={all.length === 0 ? "empty" : "filtered"}
             onAddBook={() => setAddBookOpen(true)}
           />
         )}
