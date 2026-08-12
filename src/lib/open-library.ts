@@ -1,4 +1,5 @@
 import { unstable_cache } from "next/cache";
+import { env } from "@/lib/env";
 import { createLogger, toError } from "@/lib/logger";
 import type { BookSearchResult } from "@/lib/open-library.shared";
 
@@ -9,7 +10,7 @@ const log = createLogger("open-library");
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org";
 const SEARCH_CACHE_SECONDS = 3600;
 
-export const SEARCH_RESULT_LIMIT = 10;
+export const SEARCH_RESULT_LIMIT = 15;
 export const MIN_SEARCH_QUERY_LENGTH = 3;
 
 interface OpenLibrarySearchResult {
@@ -51,7 +52,7 @@ async function searchBooksUncached(
       `${OPEN_LIBRARY_BASE_URL}/search.json?${searchParams}`,
       {
         headers: {
-          "User-Agent": "Albuc (https://albuc.com)",
+          "User-Agent": `Albuc (${env.NEXT_PUBLIC_SITE_URL})`,
         },
       },
     );

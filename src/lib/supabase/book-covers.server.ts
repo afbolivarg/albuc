@@ -2,6 +2,7 @@ import "server-only";
 
 import { revalidatePath } from "next/cache";
 import { updateBookCover } from "@/lib/db/queries";
+import { env } from "@/lib/env";
 import { createLogger, toError } from "@/lib/logger";
 import { getCoverUrl } from "@/lib/open-library.shared";
 import { extractSpineColorsFromImage } from "@/lib/spine-colors.server";
@@ -33,7 +34,7 @@ async function uploadBookCoverFromOpenLibrary(options: {
   try {
     const response = await fetch(sourceUrl, {
       headers: {
-        "User-Agent": "Albuc (https://albuc.com)",
+        "User-Agent": `Albuc (${env.NEXT_PUBLIC_SITE_URL})`,
       },
     });
 

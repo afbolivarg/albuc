@@ -1,7 +1,9 @@
+import { env } from "@/lib/env";
+
 export async function GET() {
   const content = `# Albuc
 
-> Albuc is a free personal library and book-notes app at https://albuc.com. Track your reading, write markdown notes per book, and ask AI questions grounded in your own notes.
+> Albuc is a free personal library and book-notes app at ${env.NEXT_PUBLIC_SITE_URL}. Track your reading, write markdown notes per book, and ask AI questions grounded in your own notes.
 
 Features:
 
