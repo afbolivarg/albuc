@@ -39,7 +39,7 @@ export async function searchBooksAction(
   const user = await getCurrentUser();
 
   if (!user) {
-    throw new Error("Unauthorized");
+    return { results: [], error: "Please sign in again to search." };
   }
 
   const query = formData.get("query") as string;
@@ -71,14 +71,14 @@ export async function searchBooksAction(
 }
 
 export async function addBookAction(
-  _prevState: { success: boolean; error?: string },
+  _prevState: { success: boolean; error?: string; bookId?: string },
   formData: FormData,
-) {
+): Promise<{ success: boolean; error?: string; bookId?: string }> {
   try {
     const user = await getUser();
 
     if (!user) {
-      throw new Error("Authentication required");
+      return { success: false, error: "Please sign in again." };
     }
 
     const bookData = {
@@ -108,6 +108,7 @@ export async function addBookAction(
     const [createdBook] = await createBook({
       userId: user.id,
       workKey: bookData.workKey,
+      editionKey: bookData.editionKey,
       title: bookData.title,
       status: bookData.status,
       authors: bookData.authors,
@@ -136,12 +137,13 @@ export async function addBookAction(
     }
 
     revalidatePath("/library");
-    return { success: true };
+    revalidatePath("/library/add");
+    return { success: true, bookId: createdBook.id };
   } catch (error) {
     log.error("addBookAction failed", toError(error));
     return {
       success: false,
-      error: error instanceof Error ? error.message : "Failed to add book",
+      error: "Failed to add book",
     };
   }
 }

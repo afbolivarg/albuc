@@ -5,12 +5,13 @@ import {
   ArrowUp,
   ArrowUpDown,
   ChevronDown,
+  Plus,
   Search,
 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
 import { cn } from "@/lib/utils";
-import { AddBookTriggerButton } from "../add-book";
 import { SORTS, STATUS_META, STATUS_ORDER } from "./constants";
 import { type LibraryState, useElementWidth } from "./hooks";
 import type { StatusFilter } from "./types";
@@ -241,11 +242,9 @@ export function FilterBar({
 export function EmptyShelf({
   tone = "var(--muted-foreground)",
   variant = "filtered",
-  onAddBook,
 }: {
   tone?: string;
   variant?: "empty" | "filtered";
-  onAddBook?: () => void;
 }) {
   const message =
     variant === "empty"
@@ -263,8 +262,14 @@ export function EmptyShelf({
         className="text-inherit"
       />
       <p className="text-center font-serif text-[19px] italic">{message}</p>
-      {variant === "empty" && onAddBook && (
-        <AddBookTriggerButton trigger="empty-cta" onClick={onAddBook} />
+      {variant === "empty" && (
+        <Link
+          href="/library/add"
+          className="mt-1 inline-flex h-10 items-center gap-2 rounded-full bg-primary px-6 font-serif text-[15px] text-primary-foreground transition-opacity hover:opacity-90"
+        >
+          <Plus className="size-4" />
+          Add your first book
+        </Link>
       )}
     </div>
   );

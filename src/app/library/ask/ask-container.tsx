@@ -1,6 +1,8 @@
 "use client";
 
+import { ChevronLeft } from "lucide-react";
 import dynamic from "next/dynamic";
+import Link from "next/link";
 import { useState } from "react";
 
 const ChatInterface = dynamic(
@@ -37,11 +39,22 @@ export function AskContainer({ initialUsage }: AskContainerProps) {
   };
 
   return (
-    <div className="h-full">
-      <ChatInterface
-        initialUsage={usage}
-        onQueryComplete={handleQueryComplete}
-      />
+    <div className="flex h-full flex-col bg-[#faf9f6]">
+      <header className="flex shrink-0 items-center gap-3 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-2">
+        <Link
+          href="/library"
+          className="inline-flex items-center gap-1.5 py-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
+        >
+          <ChevronLeft className="size-4" />
+          Library
+        </Link>
+      </header>
+      <div className="min-h-0 flex-1">
+        <ChatInterface
+          initialUsage={usage}
+          onQueryComplete={handleQueryComplete}
+        />
+      </div>
     </div>
   );
 }

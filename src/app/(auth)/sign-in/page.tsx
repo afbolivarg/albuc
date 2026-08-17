@@ -1,13 +1,14 @@
 import { redirect } from "next/navigation";
-import { getCurrentUser } from "@/lib/supabase/user";
+import { getUser } from "@/lib/db/queries";
+import { needsOnboarding } from "@/lib/user-profile";
 import { signIn } from "../actions";
 import { AuthField, AuthForm } from "../auth-form";
 
 export default async function SignInPage() {
-  const user = await getCurrentUser();
+  const user = await getUser();
 
   if (user) {
-    redirect("/library");
+    redirect(needsOnboarding(user) ? "/onboarding" : "/library");
   }
 
   return (

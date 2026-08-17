@@ -58,7 +58,7 @@ export async function getUserWithBooks() {
     return null;
   }
 
-  const user = await db.query.users.findFirst({
+  let user = await db.query.users.findFirst({
     where: eq(users.supabaseUserId, supabaseUser.id),
     with: {
       books: {
@@ -66,6 +66,18 @@ export async function getUserWithBooks() {
       },
     },
   });
+
+  if (!user) {
+    await ensureAppUser(supabaseUser);
+    user = await db.query.users.findFirst({
+      where: eq(users.supabaseUserId, supabaseUser.id),
+      with: {
+        books: {
+          orderBy: desc(books.updatedAt),
+        },
+      },
+    });
+  }
 
   return user ?? null;
 }
@@ -113,8 +125,40 @@ export async function updateBook(book: Book) {
   return await db
     .update(books)
     .set(book)
-    .where(eq(books.id, book.id))
+    .where(and(eq(books.id, book.id), eq(books.userId, book.userId)))
     .returning();
+}
+
+export async function updateUserProfile(
+  userId: string,
+  data: {
+    firstName?: string | null;
+    lastName?: string | null;
+    onboardingCompletedAt?: Date | null;
+  },
+) {
+  const [updated] = await db
+    .update(users)
+    .set(data)
+    .where(eq(users.id, userId))
+    .returning();
+
+  return updated ?? null;
+}
+
+export async function listUserBooksForAsk(userId: string) {
+  return db
+    .select({
+      id: books.id,
+      title: books.title,
+      authors: books.authors,
+      status: books.status,
+      publishYear: books.publishYear,
+      hasNotes: sql<boolean>`${books.noteMarkdown} is not null and length(trim(${books.noteMarkdown})) > 0`,
+    })
+    .from(books)
+    .where(eq(books.userId, userId))
+    .orderBy(desc(books.updatedAt));
 }
 
 export async function updateBookCover(
@@ -161,12 +205,14 @@ export async function semanticSearchNotes(
       b.title,
       b.authors,
       b.publish_year,
-      (nc.embedding <-> ${embeddingString}::vector) as distance
+      b.cover_path,
+      b.cover_id,
+      (nc.embedding <=> ${embeddingString}::vector) as distance
     FROM ${noteChunks} nc
     JOIN ${books} b ON nc.book_id = b.id
     WHERE b.user_id = ${userId}
     ${modelFilter}
-    ORDER BY nc.embedding <-> ${embeddingString}::vector
+    ORDER BY nc.embedding <=> ${embeddingString}::vector
     LIMIT ${limit}
   `);
 
@@ -177,7 +223,9 @@ export async function semanticSearchNotes(
     model_version: string;
     title: string;
     authors: string[];
-    publish_year: number;
+    publish_year: number | null;
+    cover_path: string | null;
+    cover_id: number | null;
     distance: number;
   }>;
 }

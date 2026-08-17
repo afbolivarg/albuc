@@ -67,14 +67,19 @@ export async function incrementAIUsage(
       .where(eq(usageCounters.id, counterId))
       .limit(1);
 
-    if (counter.length > 0) {
+    if (counter.length > 0 && counter[0].userId === userId) {
       await db
         .update(usageCounters)
         .set({
           queriesUsed: counter[0].queriesUsed + 1,
           updatedAt: new Date(),
         })
-        .where(eq(usageCounters.id, counterId));
+        .where(
+          and(
+            eq(usageCounters.id, counterId),
+            eq(usageCounters.userId, userId),
+          ),
+        );
       return;
     }
   }

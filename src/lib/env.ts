@@ -28,6 +28,7 @@ const serverSchema = z.object({
   // sb_secret_... from Supabase Dashboard → Settings → API Keys
   SUPABASE_SECRET_KEY: z.string().min(1),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
+  OPENAI_API_KEY: z.string().min(1),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   LOG_PRETTY: z.preprocess((value) => {
     if (value === undefined || value === "") {

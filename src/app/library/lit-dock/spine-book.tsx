@@ -3,17 +3,26 @@
 import Image from "next/image";
 import Link from "next/link";
 import { memo } from "react";
+import { cn } from "@/lib/utils";
 import { STATUS_META } from "./constants";
 import type { ShelfBook } from "./types";
 import { hashJitter, spineWidth } from "./utils";
 
 type SpineBookProps = {
   book: ShelfBook;
+  peeked?: boolean;
+  onNavigate?: (event: React.MouseEvent) => void;
   hLo?: number;
   hHi?: number;
 };
 
-function SpineBookComponent({ book, hLo = 188, hHi = 226 }: SpineBookProps) {
+function SpineBookComponent({
+  book,
+  peeked = false,
+  onNavigate,
+  hLo = 188,
+  hHi = 226,
+}: SpineBookProps) {
   const [b1, b2, ink] = book.spine;
   const w = spineWidth(book);
   const h = hashJitter(book.id, hLo, hHi);
@@ -24,13 +33,21 @@ function SpineBookComponent({ book, hLo = 188, hHi = 226 }: SpineBookProps) {
   return (
     <Link
       href={`/library/${book.id}`}
-      className="relative shrink-0 cursor-pointer transition-transform duration-200 hover:z-50"
+      data-book-id={book.id}
+      onClick={onNavigate}
+      className={cn(
+        "relative shrink-0 cursor-pointer transition-transform duration-200 hover:z-50",
+        peeked && "z-50",
+      )}
       style={{ width: w, height: h }}
       title={`${book.title} — ${book.authors.join(", ")}`}
     >
-      <div className="group/bk absolute inset-0">
+      <div
+        className="group/bk absolute inset-0"
+        data-peek={peeked || undefined}
+      >
         <div
-          className="absolute inset-0 flex flex-col items-center overflow-hidden rounded-[2px] opacity-100 transition-opacity duration-[220ms] ease-in-out group-hover/bk:opacity-0"
+          className="absolute inset-0 flex flex-col items-center overflow-hidden rounded-[2px] opacity-100 transition-opacity duration-[220ms] ease-in-out group-hover/bk:opacity-0 group-data-[peek]/bk:opacity-0"
           style={{
             background: `linear-gradient(95deg, ${b2} 0%, ${b1} 16%, ${b1} 84%, ${b2} 100%)`,
             boxShadow:
@@ -64,7 +81,7 @@ function SpineBookComponent({ book, hLo = 188, hHi = 226 }: SpineBookProps) {
         </div>
 
         <div
-          className="pointer-events-none absolute bottom-0 z-[3] overflow-hidden rounded-[2px_4px_4px_2px] bg-[#ddd] opacity-0 transition-[transform,opacity,box-shadow] duration-400 [transform:rotateY(-84deg)_translateY(-2px)] [transform-origin:center_bottom] [transition-timing-function:cubic-bezier(0.2,0.75,0.25,1)] group-hover/bk:opacity-100 group-hover/bk:[transform:rotateY(0deg)_translateY(-14px)]"
+          className="pointer-events-none absolute bottom-0 z-[3] overflow-hidden rounded-[2px_4px_4px_2px] bg-[#ddd] opacity-0 transition-[transform,opacity,box-shadow] duration-400 [transform:rotateY(-84deg)_translateY(-2px)] [transform-origin:center_bottom] [transition-timing-function:cubic-bezier(0.2,0.75,0.25,1)] group-hover/bk:opacity-100 group-hover/bk:[transform:rotateY(0deg)_translateY(-14px)] group-data-[peek]/bk:opacity-100 group-data-[peek]/bk:[transform:rotateY(0deg)_translateY(-14px)]"
           style={{
             left: (w - coverW) / 2,
             width: coverW,

@@ -10,9 +10,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/lib/db/schema";
+import { userDisplayName, userInitial } from "@/lib/user-profile";
 import { signOut } from "./actions";
 
-function UserAvatar({ email, size = 32 }: { email: string; size?: number }) {
+function UserAvatar({ user, size = 32 }: { user: User; size?: number }) {
   return (
     <div
       className="flex shrink-0 items-center justify-center rounded-full bg-muted"
@@ -22,7 +23,7 @@ function UserAvatar({ email, size = 32 }: { email: string; size?: number }) {
         className="font-semibold text-muted-foreground"
         style={{ fontSize: size * 0.375 }}
       >
-        {email.charAt(0).toUpperCase() || "?"}
+        {userInitial(user)}
       </span>
     </div>
   );
@@ -42,7 +43,7 @@ export function UserMenu({
           type="button"
           className="flex cursor-pointer items-center transition-opacity hover:opacity-80 focus:outline-none focus-visible:outline-none"
         >
-          <UserAvatar email={user.email} size={avatarSize} />
+          <UserAvatar user={user} size={avatarSize} />
         </button>
       </DropdownMenuTrigger>
       <DropdownMenuContent
@@ -53,8 +54,15 @@ export function UserMenu({
       >
         <DropdownMenuLabel className="p-0 font-normal">
           <div className="flex items-center gap-3 px-2 py-2 text-left text-sm">
-            <UserAvatar email={user.email} size={avatarSize} />
-            <span className="truncate font-medium">{user.email}</span>
+            <UserAvatar user={user} size={avatarSize} />
+            <div className="min-w-0">
+              <p className="truncate font-medium">{userDisplayName(user)}</p>
+              {user.firstName && (
+                <p className="truncate text-xs text-muted-foreground">
+                  {user.email}
+                </p>
+              )}
+            </div>
           </div>
         </DropdownMenuLabel>
 

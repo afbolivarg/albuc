@@ -3,11 +3,23 @@
 import { useChat } from "@ai-sdk/react";
 import { Loader2, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Response } from "@/components/ai-elements/response";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { getChatErrorMessage } from "@/lib/ai/chat-errors";
+import type { AskMessage, AskSource } from "@/lib/ai/citations";
+import { CitedResponse } from "./cited-response";
+
+function messageSources(message: AskMessage): AskSource[] {
+  return message.metadata?.sources ?? [];
+}
+
+function messageText(message: AskMessage): string {
+  return message.parts
+    .filter((part) => part.type === "text")
+    .map((part) => part.text)
+    .join("");
+}
 
 interface ChatInterfaceProps {
   initialUsage: {
@@ -22,34 +34,24 @@ export function ChatInterface({
   initialUsage,
   onQueryComplete,
 }: ChatInterfaceProps) {
-  const { messages, sendMessage, status, error } = useChat();
+  const { messages, sendMessage, status, error } = useChat<AskMessage>();
   const [input, setInput] = useState("");
-  const [usage, setUsage] = useState(initialUsage); // used for display and increment
+  const [usage, setUsage] = useState(initialUsage);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // Track the last completed assistant message to avoid multiple increments
   const lastAssistantMessageIdRef = useRef<string | null>(null);
 
-  // Auto-resize textarea on input change
   const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setInput(e.target.value);
     const textarea = e.target;
     textarea.style.height = "auto";
-    const maxHeight = 200;
-    const newHeight = Math.min(textarea.scrollHeight, maxHeight);
-    textarea.style.height = `${newHeight}px`;
+    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
   };
 
-  // Update usage when a new assistant message is completed (not during streaming)
   useEffect(() => {
     if (messages.length === 0) return;
 
     const lastMessage = messages[messages.length - 1];
 
-    // Only increment when:
-    // 1. Last message is from assistant
-    // 2. Not currently streaming (status is not 'streaming' or 'submitted')
-    // 3. We haven't already counted this message
     if (
       lastMessage.role === "assistant" &&
       status !== "streaming" &&
@@ -77,92 +79,70 @@ export function ChatInterface({
     sendMessage({ text: input });
     setInput("");
 
-    // Reset textarea height after submit
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
     }
   };
 
   return (
-    <div className="relative h-full flex flex-col">
-      {/* Main Canvas Area - scrollable messages */}
-      <div className="flex-1 overflow-y-auto px-4 py-8">
-        <div className="max-w-4xl mx-auto h-full">
+    <div className="relative flex h-full flex-col">
+      <div className="flex-1 overflow-y-auto px-4 pt-8 pb-16">
+        <div className="mx-auto h-full max-w-4xl">
           {showChat ? (
-            <div className="space-y-6 px-4 md:px-0">
-              {messages.map((message) => {
-                // For user messages, show chat-like bubble (constrained)
+            <div className="space-y-6 px-4 pb-8 md:px-0">
+              {messages.map((message, index) => {
                 if (message.role === "user") {
                   return (
                     <div key={message.id} className="flex justify-end">
-                      <div className="rounded-lg p-3 max-w-[80%] bg-secondary">
-                        <div className="flex items-start gap-3">
-                          <div className="flex-1">
-                            {message.parts.map((part) => {
-                              if (part.type === "text") {
-                                return (
-                                  <div key={`${message.id}-${part.text}`}>
-                                    {part.text}
-                                  </div>
-                                );
-                              }
-                              return null;
-                            })}
-                          </div>
+                      <div className="max-w-[80%] rounded-lg bg-secondary p-3">
+                        <div className="text-[15px] leading-relaxed">
+                          {messageText(message)}
                         </div>
                       </div>
                     </div>
                   );
                 }
 
-                // For assistant messages, show full-width without box (unconstrained)
                 return (
                   <div
                     key={message.id}
-                    className="w-full flex items-start gap-3 py-2"
+                    className="flex w-full items-start py-2"
                   >
-                    <div className="flex-1 min-w-0">
-                      {message.parts.map((part) => {
-                        if (part.type === "text") {
-                          return (
-                            <Response
-                              key={`${message.id}-${part.text}`}
-                              className="prose prose-sm prose-invert max-w-none"
-                            >
-                              {part.text}
-                            </Response>
-                          );
+                    <div className="min-w-0 flex-1">
+                      <CitedResponse
+                        text={messageText(message)}
+                        sources={messageSources(message)}
+                        showSources={
+                          !(isLoading && index === messages.length - 1)
                         }
-                        return null;
-                      })}
+                      />
                     </div>
                   </div>
                 );
               })}
 
-              {/* Loading State - only show when submitted but no assistant message yet */}
               {isLoading &&
                 messages.length > 0 &&
                 messages[messages.length - 1].role === "user" && (
-                  <div className="w-full flex items-start gap-3 py-2">
+                  <div className="flex w-full items-start py-2">
                     <div className="flex items-center gap-2 pt-0.5">
-                      <Loader2 className="h-4 w-4 animate-spin flex-shrink-0" />
-                      <span className="text-sm">Searching your library...</span>
+                      <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
+                      <span className="text-sm">Searching your library…</span>
                     </div>
                   </div>
                 )}
 
               {displayError && (
-                <div className="w-full flex items-start gap-3 py-2">
-                  <div className="rounded-lg p-3 max-w-[80%] bg-destructive/10 border border-destructive/30 text-destructive">
+                <div className="flex w-full items-start py-2">
+                  <div className="max-w-[80%] rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive">
                     <p className="text-sm">{displayError}</p>
                   </div>
                 </div>
               )}
             </div>
           ) : (
-            <div className="flex items-center justify-center h-full">
-              <p className="font-serif text-2xl font-medium text-muted-foreground select-none">
+            <div className="flex h-full items-center justify-center px-8 sm:px-12">
+              <p className="max-w-md text-center select-none font-serif text-2xl font-medium text-muted-foreground">
                 Ask me anything about your library and notes
               </p>
             </div>
@@ -170,11 +150,10 @@ export function ChatInterface({
         </div>
       </div>
 
-      {/* Input Section - Sticky to bottom */}
       <div>
-        <div className="max-w-4xl mx-auto pb-4 px-4 md:px-0">
+        <div className="mx-auto max-w-4xl px-4 pb-4 md:px-0">
           {usage.queryLimit !== Infinity && (
-            <p className="text-xs text-muted-foreground mb-2">
+            <p className="mb-2 text-xs text-muted-foreground">
               Queries this month: {usage.queriesUsed}
             </p>
           )}
@@ -193,13 +172,13 @@ export function ChatInterface({
                   }}
                   placeholder="Ask a question about your library..."
                   disabled={isLoading}
-                  className="min-h-[60px] max-h-[200px] resize-none border-0 shadow-none bg-transparent p-0 focus-visible:ring-0 focus-visible:ring-offset-0 text-foreground overflow-y-auto"
+                  className="max-h-[200px] min-h-[60px] resize-none overflow-y-auto border-0 bg-transparent p-0 text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
                 <Button
                   type="submit"
                   size="icon"
                   disabled={!input.trim() || isLoading}
-                  className="flex-shrink-0"
+                  className="shrink-0"
                 >
                   <Send className="h-4 w-4" />
                 </Button>

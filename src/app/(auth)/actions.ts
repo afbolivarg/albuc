@@ -31,7 +31,7 @@ export async function signIn(
     });
 
     if (error) {
-      return { error: error.message };
+      return { error: "Could not send the sign-in link. Please try again." };
     }
 
     return { message: "Check your email for the sign-in link." };

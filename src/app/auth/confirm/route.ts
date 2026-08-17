@@ -41,8 +41,11 @@ export async function GET(request: NextRequest) {
 
     if (!error && data.user) {
       try {
-        await ensureAppUser(data.user);
-        return NextResponse.redirect(buildRedirectUrl(request, next));
+        const appUser = await ensureAppUser(data.user);
+        const destination = appUser.onboardingCompletedAt
+          ? next
+          : "/onboarding";
+        return NextResponse.redirect(buildRedirectUrl(request, destination));
       } catch (dbError) {
         log.error("user creation failed", toError(dbError), {
           userId: data.user.id,

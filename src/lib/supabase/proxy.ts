@@ -44,7 +44,11 @@ export async function updateSession(request: NextRequest) {
 
   const user = data?.claims;
 
-  if (!user && request.nextUrl.pathname.startsWith("/library")) {
+  const pathname = request.nextUrl.pathname;
+  const isProtected =
+    pathname.startsWith("/library") || pathname.startsWith("/onboarding");
+
+  if (!user && isProtected) {
     const url = request.nextUrl.clone();
     url.pathname = "/sign-in";
     return NextResponse.redirect(url);

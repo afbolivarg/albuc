@@ -2,9 +2,9 @@ import { createSafeActionClient } from "next-safe-action";
 import { getUser } from "@/lib/db/queries";
 
 export const unauthenticatedAction = createSafeActionClient({
-  handleServerError(e) {
+  handleServerError() {
     return {
-      error: e.message,
+      error: "Something went wrong.",
     };
   },
 });
