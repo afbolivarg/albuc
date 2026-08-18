@@ -117,19 +117,27 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
   return (
     <div
       ref={rootRef}
-      className="relative flex h-full min-h-screen flex-col overflow-hidden bg-[#faf9f6] font-sans text-foreground"
+      className="relative flex h-full flex-col overflow-hidden bg-[#faf9f6] font-sans text-foreground"
     >
       <div
         className="shrink-0"
-        style={{ padding: `22px ${toolbarPadX}px 16px` }}
+        style={{
+          paddingTop: "max(16px, env(safe-area-inset-top, 0px))",
+          paddingLeft: toolbarPadX,
+          paddingRight: toolbarPadX,
+          paddingBottom: 16,
+        }}
       >
         <FilterBar lib={lib} />
       </div>
 
       <div
         ref={scrollRef}
-        className="flex flex-1 flex-col justify-center overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        style={{ padding: `8px ${gutter}px 92px`, touchAction: "pan-y" }}
+        className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        style={{
+          padding: `8px ${gutter}px calc(92px + env(safe-area-inset-bottom, 0px))`,
+          touchAction: "pan-y",
+        }}
         onPointerDown={peek.onPointerDown}
         onPointerMove={peek.onPointerMove}
         onPointerUp={(event) =>
@@ -217,7 +225,12 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
       )}
 
       {peek.showHint && (
-        <div className="absolute bottom-[88px] left-1/2 z-20 flex w-[min(340px,calc(100%-32px))] -translate-x-1/2 items-center justify-between gap-3 rounded-full border border-border bg-background/95 px-4 py-2.5 text-[13px] text-muted-foreground shadow-[0_3px_12px_-4px_rgba(35,26,14,.16)]">
+        <div
+          className="absolute left-1/2 z-20 flex w-[min(340px,calc(100%-32px))] -translate-x-1/2 items-center justify-between gap-3 rounded-full border border-border bg-background/95 px-4 py-2.5 text-[13px] text-muted-foreground shadow-[0_3px_12px_-4px_rgba(35,26,14,.16)]"
+          style={{
+            bottom: "calc(66px + max(12px, env(safe-area-inset-bottom, 0px)))",
+          }}
+        >
           <span>Slide across the spines to see covers</span>
           <button
             type="button"
@@ -229,7 +242,12 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
         </div>
       )}
 
-      <div className="absolute bottom-[22px] left-1/2 z-20 flex -translate-x-1/2 items-center gap-3.5 rounded-full border border-border bg-background px-3 py-[9px] pl-[18px] shadow-[0_3px_12px_-4px_rgba(35,26,14,.16)]">
+      <div
+        className="absolute left-1/2 z-20 flex -translate-x-1/2 items-center gap-3.5 rounded-full border border-border bg-background px-3 py-[9px] pl-[18px] shadow-[0_3px_12px_-4px_rgba(35,26,14,.16)]"
+        style={{
+          bottom: "max(12px, env(safe-area-inset-bottom, 0px))",
+        }}
+      >
         <Link href="/library" aria-label="Go to Library">
           <AlbucLogo iconClassName="size-5" className="text-xl" />
         </Link>

@@ -23,9 +23,11 @@ export default async function BookDetailPage({
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-4xl space-y-4">
-      <BookDetailHeader book={book} />
-      <BookNotes book={book} />
+    <div className="h-full overflow-y-auto overscroll-contain">
+      <div className="container mx-auto max-w-4xl space-y-4 p-6 pt-[max(1.5rem,env(safe-area-inset-top,0px))] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
+        <BookDetailHeader book={book} />
+        <BookNotes book={book} />
+      </div>
     </div>
   );
 }

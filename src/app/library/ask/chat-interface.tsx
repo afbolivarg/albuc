@@ -151,7 +151,7 @@ export function ChatInterface({
       </div>
 
       <div>
-        <div className="mx-auto max-w-4xl px-4 pb-4 md:px-0">
+        <div className="mx-auto max-w-4xl px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] md:px-0">
           {usage.queryLimit !== Infinity && (
             <p className="mb-2 text-xs text-muted-foreground">
               Queries this month: {usage.queriesUsed}

@@ -29,7 +29,7 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
   appleWebApp: {
     capable: true,
-    statusBarStyle: "default",
+    statusBarStyle: "black-translucent",
     title: APP_NAME,
   },
   formatDetection: {
@@ -56,11 +56,14 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: APP_THEME_COLOR,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: APP_THEME_COLOR },
+    { media: "(prefers-color-scheme: dark)", color: APP_THEME_COLOR },
+  ],
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
-  colorScheme: "light",
+  colorScheme: "only light",
 };
 
 export default function RootLayout({

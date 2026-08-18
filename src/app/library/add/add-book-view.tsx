@@ -154,7 +154,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
   const isSelectedSaved = selected ? selected.workKey in added : false;
 
   return (
-    <div className="flex h-screen flex-col overflow-hidden bg-background font-sans text-foreground md:flex-row">
+    <div className="flex h-full flex-col overflow-hidden bg-background font-sans text-foreground md:flex-row">
       {/* ── Left panel ─────────────────────────────────────────── */}
       <div
         className={cn(
@@ -321,7 +321,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
           )}
         </div>
 
-        <div className="flex-shrink-0 border-t border-border px-5 pt-3 pb-3.5 text-center text-[11px] text-neutral-400">
+        <div className="flex-shrink-0 border-t border-border px-5 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] text-center text-[11px] text-neutral-400">
           Book data from Open Library
         </div>
       </div>

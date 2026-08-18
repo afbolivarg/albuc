@@ -15,7 +15,7 @@ export default function manifest(): MetadataRoute.Manifest {
     start_url: "/",
     scope: "/",
     display: "standalone",
-    display_override: ["standalone", "browser"],
+    display_override: ["window-controls-overlay", "standalone", "browser"],
     orientation: "any",
     lang: "en",
     dir: "ltr",
