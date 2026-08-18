@@ -1,7 +1,9 @@
+import { SerwistProvider } from "@serwist/turbopack/react";
 import { Analytics } from "@vercel/analytics/react";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { EB_Garamond, Geist, Geist_Mono } from "next/font/google";
 import { env } from "@/lib/env";
+import { APP_DESCRIPTION, APP_NAME, APP_THEME_COLOR } from "@/lib/pwa";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,8 +24,43 @@ const ebGaramond = EB_Garamond({
 
 export const metadata: Metadata = {
   metadataBase: new URL(env.NEXT_PUBLIC_SITE_URL),
-  title: "Albuc",
-  description: "Your Personal Library and Notes, Beautifully Organized",
+  applicationName: APP_NAME,
+  title: APP_NAME,
+  description: APP_DESCRIPTION,
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  formatDetection: {
+    telephone: false,
+  },
+  openGraph: {
+    type: "website",
+    siteName: APP_NAME,
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
+  twitter: {
+    card: "summary",
+    title: APP_NAME,
+    description: APP_DESCRIPTION,
+  },
+  icons: {
+    icon: [
+      { url: "/icons/icon-192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512.png", sizes: "512x512", type: "image/png" },
+    ],
+    apple: [{ url: "/icons/apple-touch-icon.png", sizes: "180x180" }],
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: APP_THEME_COLOR,
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  colorScheme: "light",
 };
 
 export default function RootLayout({
@@ -40,7 +77,12 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased`}
       >
-        {children}
+        <SerwistProvider
+          swUrl="/serwist/sw.js"
+          disable={process.env.NODE_ENV !== "production"}
+        >
+          {children}
+        </SerwistProvider>
         <Analytics />
       </body>
     </html>

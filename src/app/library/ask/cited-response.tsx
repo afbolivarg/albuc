@@ -2,8 +2,8 @@
 
 import {
   Children,
-  cloneElement,
   type ComponentProps,
+  cloneElement,
   isValidElement,
   type ReactNode,
 } from "react";
