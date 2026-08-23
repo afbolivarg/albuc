@@ -1,4 +1,5 @@
 import type { MetadataRoute } from "next";
+import { getRequestLocale } from "@/lib/i18n/server";
 import {
   APP_BACKGROUND_COLOR,
   APP_DESCRIPTION,
@@ -6,7 +7,8 @@ import {
   APP_THEME_COLOR,
 } from "@/lib/pwa";
 
-export default function manifest(): MetadataRoute.Manifest {
+export default async function manifest(): Promise<MetadataRoute.Manifest> {
+  const locale = await getRequestLocale();
   return {
     id: "/",
     name: APP_NAME,
@@ -17,7 +19,7 @@ export default function manifest(): MetadataRoute.Manifest {
     display: "standalone",
     display_override: ["window-controls-overlay", "standalone", "browser"],
     orientation: "any",
-    lang: "en",
+    lang: locale,
     dir: "ltr",
     theme_color: APP_THEME_COLOR,
     background_color: APP_BACKGROUND_COLOR,

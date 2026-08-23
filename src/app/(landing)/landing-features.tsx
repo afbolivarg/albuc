@@ -1,6 +1,9 @@
+"use client";
+
 import { Edit3, Eye } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 
 const LANDING_SECTION_GAP = "flex flex-col gap-16 md:gap-40";
@@ -108,35 +111,29 @@ function NotesSourcePreview() {
 }
 
 function Positioning() {
+  const t = useT();
   return (
     <div className="mx-auto max-w-3xl text-center">
       <h2 className="m-0 font-serif text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl [&_em]:font-bold [&_em]:italic">
-        Goodreads has the shelf.
+        {t("features.positioning1")}
         <br />
-        Notion has the page.
+        {t("features.positioning2")}
         <br />
-        <em>Albuc has both.</em>
+        <em>{t("features.positioning3")}</em>
       </h2>
     </div>
   );
 }
 
 function LibrarySection() {
+  const t = useT();
   return (
     <div className="overflow-hidden rounded-3xl bg-muted pt-8 pb-0 md:px-10 md:pt-10">
       <div className="mb-9 grid grid-cols-1 items-end gap-10 px-8 md:px-0 md:grid-cols-[1fr_auto]">
         <div>
-          <p className={eyebrowClass}>Library</p>
-          <h2 className={featureTitleClass}>
-            Every book you&apos;ve
-            <br />
-            ever picked up.
-          </h2>
-          <p className={featureLedeClass}>
-            Add any book from Open Library — covers, authors, year, page count,
-            all in. Track what you own, what you&apos;re reading, what
-            you&apos;ve finished. Rate it. Keep it.
-          </p>
+          <p className={eyebrowClass}>{t("features.libraryEyebrow")}</p>
+          <h2 className={featureTitleClass}>{t("features.libraryTitle")}</h2>
+          <p className={featureLedeClass}>{t("features.libraryLede")}</p>
         </div>
         <div className="flex max-w-xs flex-col gap-2 text-sm text-muted-foreground max-md:max-w-none md:text-right">
           <span>
@@ -193,20 +190,13 @@ function LibrarySection() {
 }
 
 function NotesSection() {
+  const t = useT();
   return (
     <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-12">
       <div>
-        <p className={eyebrowClass}>Notes</p>
-        <h2 className={featureTitleClass}>
-          Your words.
-          <br />
-          Not your highlights.
-        </h2>
-        <p className={featureLedeClass}>
-          Write notes in Markdown. Read them back as serif prose, the way
-          you&apos;d want them printed. Albuc keeps what <em>you</em> thought
-          about the book — not what someone else underlined.
-        </p>
+        <p className={eyebrowClass}>{t("features.notesEyebrow")}</p>
+        <h2 className={featureTitleClass}>{t("features.notesTitle")}</h2>
+        <p className={featureLedeClass}>{t("features.notesLede")}</p>
       </div>
       <div
         className={cn(
@@ -252,6 +242,7 @@ function NotesSection() {
 }
 
 function AskSection() {
+  const t = useT();
   return (
     <div className="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
       <div className={cn("order-2 lg:order-none", showcaseClass)}>
@@ -307,23 +298,16 @@ function AskSection() {
         </div>
       </div>
       <div className="order-1 lg:order-none">
-        <p className={eyebrowClass}>Ask</p>
-        <h2 className={featureTitleClass}>
-          Talk to your
-          <br />
-          library.
-        </h2>
-        <p className={featureLedeClass}>
-          Ask anything. The answer comes from <strong>your own notes</strong> —
-          not the web, not a summary, not a generic AI guess. Every claim is
-          cited back to the page you wrote it on.
-        </p>
+        <p className={eyebrowClass}>{t("features.askEyebrow")}</p>
+        <h2 className={featureTitleClass}>{t("features.askTitle")}</h2>
+        <p className={featureLedeClass}>{t("features.askLede")}</p>
       </div>
     </div>
   );
 }
 
 function BuilderNote() {
+  const t = useT();
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center px-0 py-6 pb-2 text-center">
       <blockquote className="m-0 mb-4 font-serif text-xl leading-snug text-pretty text-foreground italic">
@@ -336,7 +320,7 @@ function BuilderNote() {
         — Andrés Bolívar
       </p>
       <Button asChild variant="ghost">
-        <Link href="/why">Why I built this</Link>
+        <Link href="/why">{t("home.whyBuilt")}</Link>
       </Button>
     </div>
   );

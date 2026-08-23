@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
 import type { User } from "@/lib/db/schema";
+import { useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { UserMenu } from "../user-menu";
 import { GAP } from "./constants";
@@ -78,6 +79,7 @@ type LitDockLibraryProps = {
 };
 
 export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
+  const t = useT();
   const snapshotBooks = useShelfBooksSnapshot(all);
   const lib = useLibrary(snapshotBooks);
   const [rootRef, rootW] = useElementWidth(1112);
@@ -117,7 +119,7 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
   return (
     <div
       ref={rootRef}
-      className="relative flex h-full flex-col overflow-hidden bg-[#faf9f6] font-sans text-foreground"
+      className="relative flex h-full flex-col overflow-hidden bg-background font-sans text-foreground"
     >
       <div
         className="shrink-0"
@@ -231,13 +233,13 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
             bottom: "calc(66px + max(12px, env(safe-area-inset-bottom, 0px)))",
           }}
         >
-          <span>Slide across the spines to see covers</span>
+          <span>{t("library.slideHint")}</span>
           <button
             type="button"
             onClick={peek.dismissHint}
             className="shrink-0 text-[12px] font-medium text-foreground"
           >
-            OK
+            {t("library.ok")}
           </button>
         </div>
       )}
@@ -257,14 +259,14 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
           className="inline-flex h-9 cursor-pointer items-center gap-[7px] rounded-full border border-border bg-background px-3.5 text-[13.5px] font-medium text-foreground transition-colors hover:bg-accent"
         >
           <Plus className="size-[15px]" />
-          Add
+          {t("nav.add")}
         </Link>
         <Link
           href="/library/ask"
           className="inline-flex h-9 cursor-pointer items-center gap-[7px] rounded-full border-none bg-foreground px-3.5 text-[13.5px] font-medium text-background"
         >
           <MessageSquare className="size-[15px]" />
-          Ask
+          {t("nav.ask")}
         </Link>
         <UserMenu user={user} avatarSize={36} />
       </div>

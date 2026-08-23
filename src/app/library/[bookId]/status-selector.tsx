@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Book } from "@/lib/db/schema";
+import { useT } from "@/lib/i18n/client";
 import { updateBookStatusAction } from "./actions";
 
 interface StatusSelectorProps {
@@ -21,14 +22,30 @@ interface StatusSelectorProps {
   currentStatus: Book["status"];
 }
 
-const statusOptions = [
-  { value: "WANT", label: "Want to Read", color: "bg-gray-500" },
-  { value: "OWNED", label: "Owned", color: "bg-red-500" },
-  { value: "READING", label: "Currently Reading", color: "bg-yellow-500" },
-  { value: "READ", label: "Finished", color: "bg-green-500" },
-] as const;
-
 export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
+  const t = useT();
+  const statusOptions = [
+    {
+      value: "WANT" as const,
+      label: t("library.status.WANT_LONG"),
+      color: "bg-gray-500",
+    },
+    {
+      value: "OWNED" as const,
+      label: t("library.status.OWNED_LONG"),
+      color: "bg-red-500",
+    },
+    {
+      value: "READING" as const,
+      label: t("library.status.READING_LONG"),
+      color: "bg-yellow-500",
+    },
+    {
+      value: "READ" as const,
+      label: t("library.status.READ_LONG"),
+      color: "bg-green-500",
+    },
+  ];
   const [state, formAction, isPending] = useActionState(
     updateBookStatusAction,
     null,
@@ -68,7 +85,7 @@ export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
         onValueChange={handleStatusChange}
         disabled={isPending}
       >
-        <SelectTrigger className="w-50 shadow-none">
+        <SelectTrigger className="h-9 w-full shadow-none">
           <SelectValue>
             <div className="flex items-center gap-2">
               <div

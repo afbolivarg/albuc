@@ -40,10 +40,10 @@ export function getEmbeddingModelId(): string {
   return getEmbeddingModel().modelId;
 }
 
-export async function generateEmbedding(
+export async function generateEmbeddingResult(
   text: string,
   taskType: EmbeddingTaskType = "RETRIEVAL_QUERY",
-): Promise<number[]> {
+): Promise<{ embedding: number[]; tokens: number }> {
   if (!text || text.trim().length === 0) {
     throw new Error("Cannot generate embedding for empty text");
   }
@@ -51,13 +51,16 @@ export async function generateEmbedding(
   const { model } = getEmbeddingModel();
 
   try {
-    const { embedding } = await embed({
+    const result = await embed({
       model: model as Parameters<typeof embed>[0]["model"],
       value: text,
       providerOptions: getProviderOptions(taskType),
     });
 
-    return normalizeEmbedding(embedding);
+    return {
+      embedding: normalizeEmbedding(result.embedding),
+      tokens: result.usage?.tokens ?? 0,
+    };
   } catch (error) {
     log.error("generateEmbedding failed", toError(error));
     throw new Error(
@@ -66,14 +69,27 @@ export async function generateEmbedding(
   }
 }
 
-export async function generateEmbeddings(texts: string[]): Promise<number[][]> {
+export async function generateEmbedding(
+  text: string,
+  taskType: EmbeddingTaskType = "RETRIEVAL_QUERY",
+): Promise<number[]> {
+  const { embedding } = await generateEmbeddingResult(text, taskType);
+  return embedding;
+}
+
+export async function generateEmbeddings(
+  texts: string[],
+): Promise<{ embeddings: number[][]; tokens: number }> {
   if (texts.length === 0) {
-    return [];
+    return { embeddings: [], tokens: 0 };
   }
 
   const embeddings: number[][] = [];
+  let tokens = 0;
   for (const text of texts) {
-    embeddings.push(await generateEmbedding(text, "RETRIEVAL_DOCUMENT"));
+    const result = await generateEmbeddingResult(text, "RETRIEVAL_DOCUMENT");
+    embeddings.push(result.embedding);
+    tokens += result.tokens;
   }
-  return embeddings;
+  return { embeddings, tokens };
 }

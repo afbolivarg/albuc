@@ -1,5 +1,9 @@
+"use client";
+
 import Link from "next/link";
 import { AlbucLogo } from "@/components/albuc-logo";
+import { LocaleSwitcher } from "@/components/locale-switcher";
+import { useT } from "@/lib/i18n/client";
 
 function BuiltByCredit() {
   return (
@@ -18,6 +22,7 @@ function BuiltByCredit() {
 }
 
 export function LandingFooter() {
+  const t = useT();
   return (
     <footer className="bg-primary text-primary-foreground py-8 md:py-12">
       <div className="max-w-7xl mx-auto px-4 md:px-6 flex flex-col gap-4 sm:gap-8 sm:flex-row sm:justify-between sm:items-start">
@@ -44,7 +49,7 @@ export function LandingFooter() {
                 href="/why"
                 className="hover:text-primary-foreground transition-colors"
               >
-                Why
+                {t("nav.why")}
               </Link>
             </li>
             <li>
@@ -52,7 +57,7 @@ export function LandingFooter() {
                 href="/privacy"
                 className="hover:text-primary-foreground transition-colors"
               >
-                Privacy
+                {t("nav.privacy")}
               </Link>
             </li>
             <li>
@@ -60,7 +65,7 @@ export function LandingFooter() {
                 href="/terms"
                 className="hover:text-primary-foreground transition-colors"
               >
-                Terms
+                {t("nav.terms")}
               </Link>
             </li>
             <li>
@@ -70,10 +75,11 @@ export function LandingFooter() {
                 rel="noopener noreferrer"
                 className="hover:text-primary-foreground transition-colors"
               >
-                GitHub
+                {t("nav.github")}
               </a>
             </li>
           </ul>
+          <LocaleSwitcher className="sm:justify-end" tone="onDark" />
           <div className="hidden sm:block">
             <BuiltByCredit />
           </div>

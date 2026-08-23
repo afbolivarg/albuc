@@ -1,5 +1,6 @@
 import { relations, sql } from "drizzle-orm";
 import {
+  boolean,
   customType,
   index,
   integer,
@@ -8,6 +9,7 @@ import {
   pgTable,
   text,
   timestamp,
+  uniqueIndex,
   uuid,
 } from "drizzle-orm/pg-core";
 
@@ -31,15 +33,28 @@ export const bookStatusEnum = pgEnum("book_status", [
   "READ",
 ]);
 
-export const users = pgTable("users", {
-  id: uuid("id").primaryKey().defaultRandom(),
-  supabaseUserId: text("supabase_user_id").notNull().unique(),
-  email: text("email").notNull(),
-  firstName: text("first_name"),
-  lastName: text("last_name"),
-  onboardingCompletedAt: timestamp("onboarding_completed_at"),
-  createdAt: timestamp("created_at").notNull().defaultNow(),
-});
+export const noteVisibilityEnum = pgEnum("note_visibility", [
+  "private",
+  "public",
+]);
+
+export const users = pgTable(
+  "users",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    supabaseUserId: text("supabase_user_id").notNull().unique(),
+    email: text("email").notNull(),
+    firstName: text("first_name"),
+    lastName: text("last_name"),
+    handle: text("handle"),
+    locale: text("locale").notNull().default("en"),
+    localeLocked: boolean("locale_locked").notNull().default(false),
+    publicProfile: boolean("public_profile").notNull().default(false),
+    onboardingCompletedAt: timestamp("onboarding_completed_at"),
+    createdAt: timestamp("created_at").notNull().defaultNow(),
+  },
+  (table) => [uniqueIndex("users_handle_unique").on(table.handle)],
+);
 
 export const books = pgTable(
   "books",
@@ -60,8 +75,10 @@ export const books = pgTable(
     isbn10: text("isbn_10").array(),
     isbn13: text("isbn_13").array(),
     status: bookStatusEnum("status").notNull(),
-    rating: numeric("rating", { precision: 2, scale: 1 }), // 0.5 steps allowed, 0-5 range
+    rating: numeric("rating", { precision: 2, scale: 1 }), // 0-5 whole stars
     noteMarkdown: text("note_markdown"),
+    visibility: noteVisibilityEnum("visibility").notNull().default("private"),
+    shareSlug: text("share_slug"),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },
@@ -69,6 +86,7 @@ export const books = pgTable(
     index("user_books_user_id_idx").on(table.userId),
     index("user_books_status_idx").on(table.status),
     index("user_books_updated_at_idx").on(table.updatedAt.desc()),
+    uniqueIndex("books_share_slug_unique").on(table.shareSlug),
   ],
 );
 
@@ -81,6 +99,9 @@ export const usageCounters = pgTable(
       .references(() => users.id, { onDelete: "cascade" }),
     month: text("month").notNull(), // Format: "YYYY-MM"
     queriesUsed: integer("queries_used").notNull().default(0),
+    promptTokens: integer("prompt_tokens").notNull().default(0),
+    completionTokens: integer("completion_tokens").notNull().default(0),
+    embeddingTokens: integer("embedding_tokens").notNull().default(0),
     createdAt: timestamp("created_at").notNull().defaultNow(),
     updatedAt: timestamp("updated_at").notNull().defaultNow(),
   },

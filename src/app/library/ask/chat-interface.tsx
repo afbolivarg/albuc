@@ -1,13 +1,30 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { Loader2, Send } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Conversation,
+  ConversationContent,
+  ConversationEmptyState,
+  ConversationScrollButton,
+} from "@/components/ai-elements/conversation";
+import { Message, MessageContent } from "@/components/ai-elements/message";
+import {
+  PromptInput,
+  PromptInputBody,
+  PromptInputFooter,
+  type PromptInputMessage,
+  PromptInputSubmit,
+  PromptInputTextarea,
+} from "@/components/ai-elements/prompt-input";
+import { AlbucLogo } from "@/components/albuc-logo";
 import { getChatErrorMessage } from "@/lib/ai/chat-errors";
 import type { AskMessage, AskSource } from "@/lib/ai/citations";
+import {
+  type AIUsageSnapshot,
+  SOFT_MONTHLY_QUERY_LIMIT,
+} from "@/lib/ai/usage.shared";
+import { useT } from "@/lib/i18n/client";
 import { CitedResponse } from "./cited-response";
 
 function messageSources(message: AskMessage): AskSource[] {
@@ -22,11 +39,10 @@ function messageText(message: AskMessage): string {
 }
 
 interface ChatInterfaceProps {
-  initialUsage: {
-    queriesUsed: number;
-    queryLimit: number;
-    allowed: boolean;
-  };
+  initialUsage: Pick<
+    AIUsageSnapshot,
+    "queriesUsed" | "queryLimit" | "allowed" | "overSoftCap" | "tokensUsed"
+  >;
   onQueryComplete?: () => void;
 }
 
@@ -34,18 +50,10 @@ export function ChatInterface({
   initialUsage,
   onQueryComplete,
 }: ChatInterfaceProps) {
-  const { messages, sendMessage, status, error } = useChat<AskMessage>();
-  const [input, setInput] = useState("");
+  const t = useT();
+  const { messages, sendMessage, status, error, stop } = useChat<AskMessage>();
   const [usage, setUsage] = useState(initialUsage);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   const lastAssistantMessageIdRef = useRef<string | null>(null);
-
-  const handleInputChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setInput(e.target.value);
-    const textarea = e.target;
-    textarea.style.height = "auto";
-    textarea.style.height = `${Math.min(textarea.scrollHeight, 200)}px`;
-  };
 
   useEffect(() => {
     if (messages.length === 0) return;
@@ -62,130 +70,121 @@ export function ChatInterface({
       setUsage((prev) => ({
         ...prev,
         queriesUsed: prev.queriesUsed + 1,
+        overSoftCap:
+          prev.overSoftCap || prev.queriesUsed + 1 >= SOFT_MONTHLY_QUERY_LIMIT,
       }));
       onQueryComplete?.();
     }
   }, [messages, status, onQueryComplete]);
 
-  const hasMessages = messages.length > 0;
   const isLoading = status === "streaming" || status === "submitted";
   const displayError = error ? getChatErrorMessage(error) : undefined;
-  const showChat = hasMessages || Boolean(displayError);
+  const inputDisabled = isLoading || !usage.allowed;
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!input.trim() || isLoading) return;
-
-    sendMessage({ text: input });
-    setInput("");
-
-    if (textareaRef.current) {
-      textareaRef.current.style.height = "auto";
-    }
+  const handleSubmit = (message: PromptInputMessage) => {
+    const text = message.text.trim();
+    if (!text || inputDisabled) return;
+    sendMessage({ text });
   };
 
   return (
-    <div className="relative flex h-full flex-col">
-      <div className="flex-1 overflow-y-auto px-4 pt-8 pb-16">
-        <div className="mx-auto h-full max-w-4xl">
-          {showChat ? (
-            <div className="space-y-6 px-4 pb-8 md:px-0">
+    <div className="relative flex h-full min-h-0 flex-col">
+      <Conversation className="min-h-0">
+        <ConversationContent
+          className={
+            messages.length === 0 && !displayError
+              ? "mx-auto flex h-full min-h-full w-full max-w-4xl items-center justify-center px-4 md:px-0"
+              : "mx-auto w-full max-w-4xl gap-6 px-4 pt-4 pb-8 md:px-0"
+          }
+        >
+          {messages.length === 0 && !displayError ? (
+            <ConversationEmptyState className="min-h-0 gap-2.5 p-0">
+              <AlbucLogo
+                className="text-neutral-400"
+                iconClassName="size-12 opacity-35"
+                showText={false}
+              />
+              <p className="max-w-md select-none text-center font-serif text-[19px] text-neutral-400">
+                {t("ask.empty")}
+              </p>
+            </ConversationEmptyState>
+          ) : (
+            <>
               {messages.map((message, index) => {
                 if (message.role === "user") {
                   return (
-                    <div key={message.id} className="flex justify-end">
-                      <div className="max-w-[80%] rounded-lg bg-secondary p-3">
+                    <Message from="user" key={message.id}>
+                      <MessageContent>
                         <div className="text-[15px] leading-relaxed">
                           {messageText(message)}
                         </div>
-                      </div>
-                    </div>
+                      </MessageContent>
+                    </Message>
                   );
                 }
 
                 return (
-                  <div
-                    key={message.id}
-                    className="flex w-full items-start py-2"
-                  >
-                    <div className="min-w-0 flex-1">
+                  <Message from="assistant" key={message.id}>
+                    <MessageContent className="w-full max-w-none">
                       <CitedResponse
-                        text={messageText(message)}
-                        sources={messageSources(message)}
                         showSources={
                           !(isLoading && index === messages.length - 1)
                         }
+                        sources={messageSources(message)}
+                        text={messageText(message)}
                       />
-                    </div>
-                  </div>
+                    </MessageContent>
+                  </Message>
                 );
               })}
 
               {isLoading &&
                 messages.length > 0 &&
                 messages[messages.length - 1].role === "user" && (
-                  <div className="flex w-full items-start py-2">
-                    <div className="flex items-center gap-2 pt-0.5">
-                      <Loader2 className="h-4 w-4 shrink-0 animate-spin" />
-                      <span className="text-sm">Searching your library…</span>
-                    </div>
-                  </div>
+                  <Message from="assistant">
+                    <MessageContent>
+                      <p className="text-sm text-muted-foreground">
+                        {t("ask.searching")}
+                      </p>
+                    </MessageContent>
+                  </Message>
                 )}
 
               {displayError && (
-                <div className="flex w-full items-start py-2">
-                  <div className="max-w-[80%] rounded-lg border border-destructive/30 bg-destructive/10 p-3 text-destructive">
-                    <p className="text-sm">{displayError}</p>
-                  </div>
-                </div>
+                <Message from="assistant">
+                  <MessageContent>
+                    <p className="text-sm text-destructive">{displayError}</p>
+                  </MessageContent>
+                </Message>
               )}
-            </div>
-          ) : (
-            <div className="flex h-full items-center justify-center px-8 sm:px-12">
-              <p className="max-w-md text-center select-none font-serif text-2xl font-medium text-muted-foreground">
-                Ask me anything about your library and notes
-              </p>
-            </div>
+            </>
           )}
-        </div>
-      </div>
+        </ConversationContent>
+        <ConversationScrollButton />
+      </Conversation>
 
-      <div>
-        <div className="mx-auto max-w-4xl px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] md:px-0">
-          {usage.queryLimit !== Infinity && (
-            <p className="mb-2 text-xs text-muted-foreground">
-              Queries this month: {usage.queriesUsed}
-            </p>
-          )}
-          <form onSubmit={handleSubmit} className="w-full">
-            <Card className="p-4">
-              <div className="flex gap-2">
-                <Textarea
-                  ref={textareaRef}
-                  value={input}
-                  onChange={handleInputChange}
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && !e.shiftKey) {
-                      e.preventDefault();
-                      handleSubmit(e);
-                    }
-                  }}
-                  placeholder="Ask a question about your library..."
-                  disabled={isLoading}
-                  className="max-h-[200px] min-h-[60px] resize-none overflow-y-auto border-0 bg-transparent p-0 text-foreground shadow-none focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-                <Button
-                  type="submit"
-                  size="icon"
-                  disabled={!input.trim() || isLoading}
-                  className="shrink-0"
-                >
-                  <Send className="h-4 w-4" />
-                </Button>
-              </div>
-            </Card>
-          </form>
-        </div>
+      <div className="mx-auto w-full max-w-4xl px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] md:px-0">
+        {usage.overSoftCap ? (
+          <p className="mb-2 text-xs text-muted-foreground">
+            {usage.allowed ? t("ask.softCap") : t("ask.hardCap")}
+          </p>
+        ) : null}
+        <PromptInput onSubmit={handleSubmit}>
+          <PromptInputBody>
+            <PromptInputTextarea
+              disabled={inputDisabled}
+              placeholder={t("ask.placeholder")}
+            />
+          </PromptInputBody>
+          <PromptInputFooter>
+            <span />
+            <PromptInputSubmit
+              disabled={!usage.allowed && status !== "streaming"}
+              onStop={stop}
+              status={status}
+            />
+          </PromptInputFooter>
+        </PromptInput>
       </div>
     </div>
   );

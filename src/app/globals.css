@@ -47,11 +47,11 @@
 
 :root {
   --radius: 0.625rem;
-  --background: oklch(1 0 0);
+  --background: #faf9f6;
   --foreground: oklch(0.145 0 0);
-  --card: oklch(1 0 0);
+  --card: #faf9f6;
   --card-foreground: oklch(0.145 0 0);
-  --popover: oklch(1 0 0);
+  --popover: #faf9f6;
   --popover-foreground: oklch(0.145 0 0);
   --primary: oklch(0.205 0 0);
   --primary-foreground: oklch(0.985 0 0);
@@ -123,15 +123,14 @@
     scroll-behavior: smooth;
   }
   body {
-    @apply text-foreground font-sans;
+    @apply bg-background text-foreground font-sans;
     min-height: 100%;
-    background-color: #faf9f6;
   }
 
   @media (display-mode: standalone), (display-mode: window-controls-overlay) {
     html,
     body {
-      background-color: #faf9f6;
+      @apply bg-background;
       overscroll-behavior: none;
     }
   }
@@ -166,4 +165,238 @@
   .aspect-cover {
     aspect-ratio: 2 / 3;
   }
+}
+
+.albuc-note-editor {
+  --baseTextContrast: var(--foreground);
+  --baseBg: var(--background);
+  --accentSolid: var(--foreground);
+  --basePageFont: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --font-body: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  font-family: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  display: flex;
+  min-height: 0;
+  height: 100%;
+  flex: 1;
+  flex-direction: column;
+  border: none;
+  border-radius: 0;
+  background: var(--background);
+  overflow: hidden;
+}
+
+.albuc-note-editor.mdxeditor {
+  --font-body: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+}
+
+.albuc-note-editor > div:not(.mdxeditor-toolbar) {
+  min-height: 0;
+  flex: 1;
+  overflow-y: auto;
+}
+
+.albuc-note-editor .mdxeditor-root-contenteditable {
+  box-sizing: border-box;
+  padding-inline: clamp(2rem, 6vw, 4.5rem);
+}
+
+.albuc-note-editor-toolbar.mdxeditor-toolbar,
+.albuc-note-editor .mdxeditor-toolbar {
+  position: absolute;
+  top: 14px;
+  left: 50%;
+  z-index: 15;
+  display: flex;
+  height: auto !important;
+  min-height: 44px;
+  width: max-content;
+  max-width: min(720px, calc(100% - 7.5rem));
+  transform: translateX(-50%);
+  align-items: center;
+  gap: 2px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  background: color-mix(in srgb, #fff 88%, transparent);
+  padding: 6px 10px;
+  box-shadow: 0 10px 32px -14px rgba(35, 26, 14, 0.32);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.albuc-note-editor-toolbar button,
+.albuc-note-editor-toolbar [role="button"] {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 32px;
+  min-width: 32px;
+  padding: 0;
+}
+
+.albuc-note-editor-toolbar button svg,
+.albuc-note-editor-toolbar [role="button"] svg {
+  display: block;
+  margin: 0;
+  flex-shrink: 0;
+}
+
+.albuc-note-editor--readonly .albuc-note-editor-toolbar {
+  display: none !important;
+}
+
+.albuc-note-editor-content,
+.albuc-note-editor .mdxeditor-root-contenteditable,
+.albuc-note-editor [contenteditable="true"] {
+  font-family:
+    var(--font-eb-garamond), "EB Garamond", Georgia, serif !important;
+  font-size: 1.2rem;
+  line-height: 1.75;
+  color: var(--foreground);
+}
+
+.albuc-note-editor-content :where(:not(code, kbd, pre, samp, code *, pre *)) {
+  font-family: inherit !important;
+}
+
+.albuc-note-editor .mdxeditor-contenteditable-wrapper {
+  min-height: 100%;
+}
+
+.albuc-note-editor-content {
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 40rem;
+  margin-inline: auto;
+  padding: 1.25rem 0 6rem !important;
+}
+
+.albuc-note-editor:not(.albuc-note-editor--readonly)
+  .albuc-note-editor-content {
+  padding-top: 5.5rem !important;
+}
+
+.albuc-note-editor-content[contenteditable] {
+  min-height: 100%;
+}
+
+.albuc-note-editor
+  .mdxeditor-root-contenteditable
+  > .albuc-note-editor-content:not([contenteditable]) {
+  position: absolute !important;
+  top: 0 !important;
+  bottom: auto !important;
+  left: 0;
+  right: 0;
+  height: auto !important;
+  min-height: 0 !important;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: 40rem;
+  margin: 0 auto !important;
+  padding: 1.25rem 0 0 !important;
+  color: var(--muted-foreground);
+  overflow: visible;
+  white-space: normal;
+  display: block;
+  pointer-events: none;
+}
+
+.albuc-note-editor
+  .mdxeditor-root-contenteditable
+  > .albuc-note-editor-content:not([contenteditable])
+  p {
+  margin: 0;
+}
+
+.albuc-note-editor:not(.albuc-note-editor--readonly)
+  .mdxeditor-root-contenteditable
+  > .albuc-note-editor-content:not([contenteditable]) {
+  display: none;
+}
+
+.albuc-note-editor-content > :first-child {
+  margin-top: 0;
+}
+
+.albuc-note-editor-content h1,
+.albuc-note-editor-content h2,
+.albuc-note-editor-content h3 {
+  font-family: inherit;
+}
+
+.albuc-note-editor-content h1 {
+  font-size: 2.05rem;
+  font-weight: 700;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+  margin: 1.35em 0 0.55em;
+}
+
+.albuc-note-editor-content h2 {
+  font-size: 1.55rem;
+  font-weight: 650;
+  line-height: 1.25;
+  margin: 1.25em 0 0.45em;
+}
+
+.albuc-note-editor-content h3 {
+  font-size: 1.28rem;
+  font-weight: 600;
+  line-height: 1.3;
+  margin: 1.1em 0 0.4em;
+}
+
+.albuc-note-editor-content p {
+  margin: 0 0 1em;
+}
+
+.albuc-note-editor-content ul,
+.albuc-note-editor-content ol {
+  margin: 0 0 1em;
+  padding-left: 1.6em;
+}
+
+.albuc-note-editor-content ul {
+  list-style: disc;
+}
+
+.albuc-note-editor-content ol {
+  list-style: decimal;
+}
+
+.albuc-note-editor-content li {
+  margin: 0.2em 0;
+}
+
+.albuc-note-editor-content li::marker {
+  color: color-mix(in srgb, var(--foreground) 45%, transparent);
+}
+
+.albuc-note-editor-content blockquote {
+  margin: 1.1em 0;
+  padding: 0.15em 0 0.15em 1em;
+  border-left: 3px solid color-mix(in srgb, var(--foreground) 22%, transparent);
+  color: var(--muted-foreground);
+  font-style: italic;
+}
+
+.albuc-note-editor-content hr {
+  margin: 1.75em 0;
+  border: none;
+  border-top: 1px solid var(--border);
+}
+
+.albuc-note-editor-content code {
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+  background: color-mix(in srgb, var(--foreground) 6%, transparent);
+  border-radius: 4px;
+  padding: 0.1em 0.35em;
+}
+
+.albuc-note-editor-content a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }

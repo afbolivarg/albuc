@@ -135,6 +135,10 @@ export async function updateUserProfile(
     firstName?: string | null;
     lastName?: string | null;
     onboardingCompletedAt?: Date | null;
+    handle?: string | null;
+    publicProfile?: boolean;
+    locale?: string;
+    localeLocked?: boolean;
   },
 ) {
   const [updated] = await db
@@ -228,4 +232,38 @@ export async function semanticSearchNotes(
     cover_id: number | null;
     distance: number;
   }>;
+}
+
+export async function getPublicProfileByHandle(handle: string) {
+  const user = await db.query.users.findFirst({
+    where: eq(users.handle, handle.toLowerCase()),
+  });
+  if (!user?.publicProfile || !user.handle) return null;
+  const shelf = await db
+    .select({
+      id: books.id,
+      title: books.title,
+      authors: books.authors,
+      status: books.status,
+      rating: books.rating,
+      coverPath: books.coverPath,
+      coverId: books.coverId,
+      spineColors: books.spineColors,
+      workKey: books.workKey,
+      shareSlug: books.shareSlug,
+      visibility: books.visibility,
+    })
+    .from(books)
+    .where(eq(books.userId, user.id))
+    .orderBy(desc(books.updatedAt));
+  return { user, shelf };
+}
+
+export async function getPublicNoteBySlug(slug: string) {
+  const book = await db.query.books.findFirst({
+    where: and(eq(books.shareSlug, slug), eq(books.visibility, "public")),
+    with: { user: true },
+  });
+  if (!book) return null;
+  return book;
 }

@@ -4,5 +4,13 @@
       "path": "/api/cron/keep-alive",
       "schedule": "0 12 * * *"
     }
+  ],
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [{ "type": "host", "value": "www.albuc.com" }],
+      "destination": "https://albuc.com/:path*",
+      "permanent": true
+    }
   ]
 }

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { revalidatePath } from "next/cache";
+import sharp from "sharp";
 import { updateBookCover } from "@/lib/db/queries";
 import { env } from "@/lib/env";
 import { createLogger, toError } from "@/lib/logger";
@@ -47,15 +48,20 @@ async function uploadBookCoverFromOpenLibrary(options: {
       return null;
     }
 
-    const coverPath = `${options.supabaseUserId}/${options.bookId}.jpg`;
-    const imageBuffer = await response.arrayBuffer();
-    const spineColors = await extractSpineColorsFromImage(imageBuffer);
+    const coverPath = `${options.supabaseUserId}/${options.bookId}.webp`;
+    const imageBuffer = Buffer.from(await response.arrayBuffer());
+    const webpBuffer = await sharp(imageBuffer)
+      .rotate()
+      .resize(480, 720, { fit: "inside", withoutEnlargement: true })
+      .webp({ quality: 80 })
+      .toBuffer();
+    const spineColors = await extractSpineColorsFromImage(webpBuffer);
 
     const supabase = createAdminClient();
     const { error } = await supabase.storage
       .from(BOOK_COVERS_BUCKET)
-      .upload(coverPath, imageBuffer, {
-        contentType: "image/jpeg",
+      .upload(coverPath, webpBuffer, {
+        contentType: "image/webp",
         upsert: true,
         cacheControl: BOOK_COVER_CACHE_CONTROL,
       });

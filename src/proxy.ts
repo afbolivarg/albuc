@@ -1,8 +1,10 @@
 import type { NextRequest } from "next/server";
+import { applyInferredLocaleCookie } from "@/lib/i18n/cookie";
 import { updateSession } from "@/lib/supabase/proxy";
 
 export async function proxy(request: NextRequest) {
-  return await updateSession(request);
+  const response = await updateSession(request);
+  return applyInferredLocaleCookie(request, response);
 }
 
 export const config = {

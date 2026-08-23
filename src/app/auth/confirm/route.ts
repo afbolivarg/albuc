@@ -1,8 +1,17 @@
 import type { EmailOtpType } from "@supabase/supabase-js";
+import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { db } from "@/lib/db";
 import { ensureAppUser } from "@/lib/db/queries";
+import { users } from "@/lib/db/schema";
 import { env } from "@/lib/env";
+import {
+  isLocale,
+  LOCALE_COOKIE,
+  LOCALE_LOCKED_COOKIE,
+} from "@/lib/i18n/config";
+import { setLocaleOnResponse } from "@/lib/i18n/cookie";
 import { createLogger, toError } from "@/lib/logger";
 import { createClient } from "@/lib/supabase/server";
 
@@ -42,10 +51,27 @@ export async function GET(request: NextRequest) {
     if (!error && data.user) {
       try {
         const appUser = await ensureAppUser(data.user);
+        const cookieLocale = request.cookies.get(LOCALE_COOKIE)?.value;
+        const cookieLocked =
+          request.cookies.get(LOCALE_LOCKED_COOKIE)?.value === "1";
+        if (!appUser.localeLocked && isLocale(cookieLocale) && cookieLocked) {
+          await db
+            .update(users)
+            .set({ locale: cookieLocale, localeLocked: true })
+            .where(eq(users.id, appUser.id));
+        }
         const destination = appUser.onboardingCompletedAt
           ? next
           : "/onboarding";
-        return NextResponse.redirect(buildRedirectUrl(request, destination));
+        const redirectResponse = NextResponse.redirect(
+          buildRedirectUrl(request, destination),
+        );
+        if (appUser.localeLocked && isLocale(appUser.locale)) {
+          setLocaleOnResponse(redirectResponse, appUser.locale, true);
+        } else if (cookieLocked && isLocale(cookieLocale)) {
+          setLocaleOnResponse(redirectResponse, cookieLocale, true);
+        }
+        return redirectResponse;
       } catch (dbError) {
         log.error("user creation failed", toError(dbError), {
           userId: data.user.id,

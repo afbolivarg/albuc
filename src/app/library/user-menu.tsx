@@ -1,6 +1,8 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
+import { useState } from "react";
+import { SettingsDialog } from "@/components/settings/settings-dialog";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -10,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/lib/db/schema";
+import { useT } from "@/lib/i18n/client";
 import { userDisplayName, userInitial } from "@/lib/user-profile";
 import { signOut } from "./actions";
 
@@ -36,50 +39,61 @@ export function UserMenu({
   user: User;
   avatarSize?: number;
 }) {
+  const t = useT();
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="flex cursor-pointer items-center transition-opacity hover:opacity-80 focus:outline-none focus-visible:outline-none"
-        >
-          <UserAvatar user={user} size={avatarSize} />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        className="w-56"
-        side="bottom"
-        align="end"
-        sideOffset={4}
-      >
-        <DropdownMenuLabel className="p-0 font-normal">
-          <div className="flex items-center gap-3 px-2 py-2 text-left text-sm">
+    <>
+      <DropdownMenu>
+        <DropdownMenuTrigger asChild>
+          <button
+            type="button"
+            className="flex cursor-pointer items-center transition-opacity hover:opacity-80 focus:outline-none focus-visible:outline-none"
+          >
             <UserAvatar user={user} size={avatarSize} />
-            <div className="min-w-0">
-              <p className="truncate font-medium">{userDisplayName(user)}</p>
-              {user.firstName && (
-                <p className="truncate text-xs text-muted-foreground">
-                  {user.email}
-                </p>
-              )}
+          </button>
+        </DropdownMenuTrigger>
+        <DropdownMenuContent
+          className="w-56"
+          side="bottom"
+          align="end"
+          sideOffset={4}
+        >
+          <DropdownMenuLabel className="p-0 font-normal">
+            <div className="flex items-center gap-3 px-2 py-2 text-left text-sm">
+              <UserAvatar user={user} size={avatarSize} />
+              <div className="min-w-0">
+                <p className="truncate font-medium">{userDisplayName(user)}</p>
+                {user.firstName && (
+                  <p className="truncate text-xs text-muted-foreground">
+                    {user.email}
+                  </p>
+                )}
+              </div>
             </div>
-          </div>
-        </DropdownMenuLabel>
+          </DropdownMenuLabel>
 
-        <DropdownMenuSeparator />
-
-        <DropdownMenuItem asChild>
+          <DropdownMenuSeparator />
+          <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
+            <Settings />
+            {t("settings.title")}
+          </DropdownMenuItem>
+          <DropdownMenuSeparator />
           <form action={signOut} className="w-full">
-            <button
-              type="submit"
-              className="flex w-full items-center text-left"
-            >
-              <LogOut className="mr-2 h-4 w-4" />
-              <span>Sign Out</span>
-            </button>
+            <DropdownMenuItem asChild>
+              <button className="w-full" type="submit">
+                <LogOut />
+                {t("auth.signOut")}
+              </button>
+            </DropdownMenuItem>
           </form>
-        </DropdownMenuItem>
-      </DropdownMenuContent>
-    </DropdownMenu>
+        </DropdownMenuContent>
+      </DropdownMenu>
+      <SettingsDialog
+        onOpenChange={setSettingsOpen}
+        open={settingsOpen}
+        user={user}
+      />
+    </>
   );
 }

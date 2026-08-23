@@ -1,11 +1,14 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { after } from "next/server";
-import { createChatErrorResponse } from "@/lib/ai/chat-errors";
+import {
+  createChatErrorResponse,
+  MONTHLY_BUDGET_CHAT_MESSAGE,
+} from "@/lib/ai/chat-errors";
 import type { AskSource } from "@/lib/ai/citations";
-import { generateEmbedding } from "@/lib/ai/embedding";
+import { generateEmbeddingResult } from "@/lib/ai/embedding";
 import { getChatModel } from "@/lib/ai/provider";
 import { selectContextChunks, toAskSources } from "@/lib/ai/retrieve";
-import { checkAIUsageAllowed, incrementAIUsage } from "@/lib/ai/usage";
+import { checkAIUsageAllowed, recordAIUsage } from "@/lib/ai/usage";
 import {
   getUser,
   listUserBooksForAsk,
@@ -19,6 +22,9 @@ const STREAM_HEADERS = {
   "X-Accel-Buffering": "no",
   "Cache-Control": "no-cache, no-transform",
 } as const;
+
+const MERMAID_GUIDANCE = `
+Diagrams: include a mermaid fenced code block only when the user asks for a diagram, system, workflow, architecture, or comparison that is clearer as a flowchart, sequence, or graph — or when the notes themselves describe a process. Never add mermaid for ordinary Q&A or citation-heavy synthesis.`;
 
 function formatCatalog(
   library: Awaited<ReturnType<typeof listUserBooksForAsk>>,
@@ -41,6 +47,7 @@ function buildSystemPrompt(
   catalog: string,
   sources: AskSource[],
   context: string,
+  locale: string,
 ): string {
   if (sources.length === 0) {
     return `You are Albuc, a careful reading copilot. Answer only from the user's library.
@@ -50,7 +57,7 @@ ${catalog}
 
 You did not find matching notes for this question. If the question is about which books they have, their reading status, or the catalog itself, answer from the catalog. Otherwise say you need notes on the relevant books, and name the closest titles if any exist.
 
-Do not use outside knowledge. Do not invent quotes. No emojis. Match the user's language.`;
+Do not use outside knowledge. Do not invent quotes. No emojis. Respond in ${locale === "es" ? "Spanish" : "English"}.${MERMAID_GUIDANCE}`;
   }
 
   return `You are Albuc, a careful reading copilot for a personal library.
@@ -65,7 +72,8 @@ CRITICAL RULES:
 5. Cite with [n] immediately after the supported claim. Use only the provided numbers. Multiple notes can support one sentence: [1][3].
 6. Prefer short quotations from the notes when they carry the point.
 7. Synthesize across books when several notes agree or disagree. Be specific, not generic.
-8. Match the user's language. No emojis.
+8. Respond in ${locale === "es" ? "Spanish" : "English"}. No emojis.
+${MERMAID_GUIDANCE}
 
 Library catalog:
 ${catalog}
@@ -97,17 +105,21 @@ export async function POST(req: Request) {
       return createChatErrorResponse(400);
     }
 
-    const [usageCheck, queryEmbedding, library] = await Promise.all([
-      checkAIUsageAllowed(user.id),
-      generateEmbedding(question),
+    const usageCheck = await checkAIUsageAllowed(user.id);
+    if (!usageCheck.allowed) {
+      return createChatErrorResponse(402, MONTHLY_BUDGET_CHAT_MESSAGE);
+    }
+
+    const [queryEmbedding, library] = await Promise.all([
+      generateEmbeddingResult(question),
       listUserBooksForAsk(user.id),
     ]);
 
-    if (!usageCheck.allowed) {
-      return createChatErrorResponse(402);
-    }
-
-    const rawChunks = await semanticSearchNotes(user.id, queryEmbedding, 16);
+    const rawChunks = await semanticSearchNotes(
+      user.id,
+      queryEmbedding.embedding,
+      16,
+    );
     const relevantChunks = selectContextChunks(rawChunks, 10);
     const sources = toAskSources(relevantChunks);
     const context = relevantChunks
@@ -118,13 +130,33 @@ export async function POST(req: Request) {
       })
       .join("\n\n");
 
-    after(() => incrementAIUsage(user.id, usageCheck.counterId));
+    after(() =>
+      recordAIUsage({
+        userId: user.id,
+        counterId: usageCheck.counterId,
+        queries: 1,
+        embeddingTokens: queryEmbedding.tokens,
+      }),
+    );
 
     const result = streamText({
       model: getChatModel() as Parameters<typeof streamText>[0]["model"],
-      system: buildSystemPrompt(formatCatalog(library), sources, context),
+      system: buildSystemPrompt(
+        formatCatalog(library),
+        sources,
+        context,
+        user.locale,
+      ),
       messages: convertToModelMessages(messages),
       maxRetries: 2,
+      onFinish: ({ usage }) => {
+        void recordAIUsage({
+          userId: user.id,
+          counterId: usageCheck.counterId,
+          promptTokens: usage.inputTokens ?? 0,
+          completionTokens: usage.outputTokens ?? 0,
+        });
+      },
     });
 
     return result.toUIMessageStreamResponse({

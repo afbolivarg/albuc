@@ -10,7 +10,14 @@ export default async function AddBookPage() {
   }
 
   const savedBooks = Object.fromEntries(
-    user.books.map((book) => [book.workKey, book.id]),
+    user.books.map((book) => [
+      book.workKey,
+      {
+        id: book.id,
+        status: book.status,
+        rating: book.rating ? Number.parseFloat(book.rating) : 0,
+      },
+    ]),
   );
 
   return <AddBookView savedBooks={savedBooks} />;

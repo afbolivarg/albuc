@@ -14,6 +14,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { AlbucLogo } from "@/components/albuc-logo";
 import { StarRating } from "@/components/star-rating";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +25,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useT } from "@/lib/i18n/client";
 import { MIN_SEARCH_QUERY_LENGTH } from "@/lib/open-library";
 import { type BookSearchResult, getCoverUrl } from "@/lib/open-library.shared";
 import { cn } from "@/lib/utils";
@@ -32,23 +34,59 @@ import { addBookAction, searchBooksAction } from "../actions";
 type BookStatus = "WANT" | "OWNED" | "READING" | "READ";
 
 const STATUS_OPTIONS = [
-  { value: "WANT", label: "Want to Read", color: "bg-gray-500" },
-  { value: "OWNED", label: "Owned", color: "bg-red-500" },
-  { value: "READING", label: "Currently Reading", color: "bg-yellow-500" },
-  { value: "READ", label: "Finished", color: "bg-green-500" },
+  { value: "WANT", color: "bg-gray-500" },
+  { value: "OWNED", color: "bg-red-500" },
+  { value: "READING", color: "bg-yellow-500" },
+  { value: "READ", color: "bg-green-500" },
 ] as const satisfies ReadonlyArray<{
   value: BookStatus;
-  label: string;
   color: string;
 }>;
 
 const SEARCH_DEBOUNCE_MS = 350;
+const COVER_WARMUP_MS = 800;
+
+function preloadCover(src: string) {
+  return new Promise<void>((resolve) => {
+    const img = new window.Image();
+    img.onload = () => resolve();
+    img.onerror = () => resolve();
+    img.src = src;
+  });
+}
+
+async function warmupResultCovers(books: BookSearchResult[]) {
+  const urls = books
+    .map((book) => getCoverUrl(book.coverId, "S"))
+    .filter((url): url is string => Boolean(url));
+  if (urls.length === 0) return;
+
+  await Promise.race([
+    Promise.all(urls.map(preloadCover)),
+    new Promise<void>((resolve) => {
+      window.setTimeout(resolve, COVER_WARMUP_MS);
+    }),
+  ]);
+}
+
+type SavedShelfEntry = {
+  id: string;
+  status: BookStatus;
+  rating: number;
+};
 
 type AddBookViewProps = {
-  savedBooks: Record<string, string>;
+  savedBooks: Record<string, SavedShelfEntry>;
 };
 
 export function AddBookView({ savedBooks }: AddBookViewProps) {
+  const t = useT();
+  const statusLabels: Record<BookStatus, string> = {
+    WANT: t("library.status.WANT_LONG"),
+    OWNED: t("library.status.OWNED_LONG"),
+    READING: t("library.status.READING_LONG"),
+    READ: t("library.status.READ_LONG"),
+  };
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<BookSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -60,9 +98,9 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
 
   const [isAdding, setIsAdding] = useState(false);
   const [addError, setAddError] = useState<string | null>(null);
-  const [added, setAdded] = useState<Record<string, string | undefined>>(
-    () => ({ ...savedBooks }),
-  );
+  const [added, setAdded] = useState<Record<string, SavedShelfEntry>>(() => ({
+    ...savedBooks,
+  }));
 
   const latestQuery = useRef("");
   const inputRef = useRef<HTMLInputElement>(null);
@@ -88,6 +126,9 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
 
         if (latestQuery.current !== trimmed) return;
 
+        await warmupResultCovers(result.results);
+        if (latestQuery.current !== trimmed) return;
+
         setResults(result.results);
         setSearchError(result.error ?? null);
       } catch {
@@ -106,8 +147,9 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
 
   const handleSelect = (book: BookSearchResult) => {
     setSelected(book);
-    setStatus("WANT");
-    setRating(0);
+    const saved = added[book.workKey];
+    setStatus(saved?.status ?? "WANT");
+    setRating(saved?.rating ?? 0);
     setAddError(null);
   };
 
@@ -141,8 +183,15 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
 
     setIsAdding(false);
 
-    if (result.success) {
-      setAdded((prev) => ({ ...prev, [selected.workKey]: result.bookId }));
+    if (result.success && result.bookId) {
+      setAdded((prev) => ({
+        ...prev,
+        [selected.workKey]: {
+          id: result.bookId as string,
+          status,
+          rating,
+        },
+      }));
       router.refresh();
     } else {
       setAddError(result.error ?? "Failed to add book");
@@ -150,28 +199,28 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
   };
 
   const currentStatus = STATUS_OPTIONS.find((o) => o.value === status);
-  const savedBookId = selected ? added[selected.workKey] : undefined;
-  const isSelectedSaved = selected ? selected.workKey in added : false;
+  const savedEntry = selected ? added[selected.workKey] : undefined;
+  const isSelectedSaved = Boolean(savedEntry);
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background font-sans text-foreground md:flex-row">
       {/* ── Left panel ─────────────────────────────────────────── */}
       <div
         className={cn(
-          "w-full flex-1 flex-col overflow-hidden border-border bg-background md:flex md:w-80 md:flex-none md:border-r",
+          "w-full flex-1 flex-col overflow-hidden border-border bg-white md:flex md:w-80 md:flex-none md:border-r",
           selected ? "hidden" : "flex",
         )}
       >
-        <div className="flex-shrink-0 px-5 pt-[max(1.75rem,env(safe-area-inset-top))] pb-3.5">
+        <div className="flex-shrink-0 px-5 pt-[max(1.25rem,env(safe-area-inset-top))] pb-2">
           <Link
             href="/library"
             className="inline-flex items-center gap-1.5 py-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
           >
             <ChevronLeft className="size-4" />
-            Back to library
+            {t("nav.library")}
           </Link>
           <h1 className="mt-3 font-serif text-[22px] font-semibold tracking-tight">
-            Add a book
+            {t("add.title")}
           </h1>
         </div>
 
@@ -243,6 +292,8 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
                             alt={book.title}
                             width={30}
                             height={44}
+                            unoptimized
+                            loading="eager"
                             className="h-full w-full object-cover"
                           />
                         ) : (
@@ -311,9 +362,6 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
             </div>
           ) : (
             <div className="flex h-full flex-col items-center justify-center gap-2 px-4 py-12 text-center">
-              <p className="font-serif text-[17px] text-neutral-400 italic">
-                Find your next book
-              </p>
               <p className="text-xs text-neutral-400">
                 Search by title, author, or ISBN to get started.
               </p>
@@ -322,14 +370,22 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
         </div>
 
         <div className="flex-shrink-0 border-t border-border px-5 pt-3 pb-[max(0.875rem,env(safe-area-inset-bottom,0px))] text-center text-[11px] text-neutral-400">
-          Book data from Open Library
+          Book data from{" "}
+          <a
+            href="https://openlibrary.org"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="cursor-pointer hover:underline underline-offset-4"
+          >
+            Open Library
+          </a>
         </div>
       </div>
 
       {/* ── Right panel ────────────────────────────────────────── */}
       <div
         className={cn(
-          "flex-1 flex-col overflow-y-auto bg-muted md:flex",
+          "flex-1 flex-col overflow-y-auto bg-background md:flex",
           selected ? "flex" : "hidden",
         )}
       >
@@ -383,7 +439,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
                                 currentStatus?.color ?? "bg-gray-400",
                               )}
                             />
-                            <span>{currentStatus?.label}</span>
+                            <span>{statusLabels[status]}</span>
                           </div>
                         </SelectValue>
                       </SelectTrigger>
@@ -397,7 +453,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
                                   option.color,
                                 )}
                               />
-                              <span>{option.label}</span>
+                              <span>{statusLabels[option.value]}</span>
                             </div>
                           </SelectItem>
                         ))}
@@ -408,9 +464,6 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
                   <div className="flex flex-col gap-[7px]">
                     <span className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                       Rating
-                      <span className="ml-1.5 text-[10px] font-normal tracking-normal text-neutral-400 normal-case">
-                        optional
-                      </span>
                     </span>
                     <div className="flex items-center gap-2">
                       <StarRating
@@ -436,7 +489,9 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
                       >
                         <Link
                           href={
-                            savedBookId ? `/library/${savedBookId}` : "/library"
+                            savedEntry
+                              ? `/library/${savedEntry.id}`
+                              : "/library"
                           }
                         >
                           View in library
@@ -454,7 +509,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
                         ) : (
                           <Plus className="size-4" />
                         )}
-                        Add to library
+                        {t("add.toLibrary")}
                       </Button>
                     )}
 
@@ -469,13 +524,13 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center">
             <div className="flex w-full max-w-sm flex-col items-center gap-2.5 px-6 py-10 text-center text-neutral-400">
-              <BookOpen className="size-12 opacity-35" />
-              <p className="font-serif text-[19px] text-neutral-400 italic">
+              <AlbucLogo
+                className="text-neutral-400"
+                iconClassName="size-12 opacity-35"
+                showText={false}
+              />
+              <p className="font-serif text-[19px] text-neutral-400">
                 Select a book to add
-              </p>
-              <p className="text-xs text-neutral-400">
-                Search and pick a result to see its details and add it to your
-                library.
               </p>
             </div>
           </div>

@@ -1,20 +1,28 @@
 "use client";
 
-import { Edit3, Eye, Save, Signature, X } from "lucide-react";
+import type { MDXEditorMethods } from "@mdxeditor/editor";
+import { useRouter } from "next/navigation";
 import {
   startTransition,
   useActionState,
   useEffect,
   useOptimistic,
+  useRef,
   useState,
 } from "react";
-import ReactMarkdown from "react-markdown";
-import rehypeSanitize from "rehype-sanitize";
-import remarkGfm from "remark-gfm";
+import { NoteMdxEditor } from "@/components/note-editor/note-mdx-editor";
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
-import { Textarea } from "@/components/ui/textarea";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import type { Book } from "@/lib/db/schema";
+import { useT } from "@/lib/i18n/client";
+import { cn } from "@/lib/utils";
 import { updateBookNotesAction } from "./actions";
 
 interface BookNotesProps {
@@ -22,230 +30,163 @@ interface BookNotesProps {
 }
 
 export function BookNotes({ book }: BookNotesProps) {
+  const t = useT();
+  const router = useRouter();
   const [state, formAction] = useActionState(updateBookNotesAction, null);
   const [isEditing, setIsEditing] = useState(false);
-  const [noteContent, setNoteContent] = useState(book.noteMarkdown || "");
-  const [showPreview, setShowPreview] = useState(false);
+  const [draft, setDraft] = useState(book.noteMarkdown || "");
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const editorRef = useRef<MDXEditorMethods>(null);
+  const pendingHref = useRef<string | null>(null);
 
-  const [optimisticNotes, setOptimisticNotes] = useOptimistic(
+  const [savedMarkdown, setSavedMarkdown] = useOptimistic(
     book.noteMarkdown || "",
-    (_currentNotes, newNotes: string) => newNotes,
+    (_current, next: string) => next,
   );
+
+  const dirty = draft !== savedMarkdown;
 
   useEffect(() => {
     if (state?.error) {
-      setOptimisticNotes(book.noteMarkdown || "");
-      setIsEditing(true);
-      setNoteContent(book.noteMarkdown || "");
+      setSavedMarkdown(book.noteMarkdown || "");
+      setDraft(book.noteMarkdown || "");
     }
-  }, [state, book.noteMarkdown, setOptimisticNotes]);
+  }, [state, book.noteMarkdown, setSavedMarkdown]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const onBeforeUnload = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    window.addEventListener("beforeunload", onBeforeUnload);
+    return () => window.removeEventListener("beforeunload", onBeforeUnload);
+  }, [dirty]);
+
+  useEffect(() => {
+    if (!dirty) return;
+    const onClick = (event: MouseEvent) => {
+      if (event.defaultPrevented || event.button !== 0) return;
+      if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+        return;
+      }
+      const target = event.target;
+      if (!(target instanceof Element)) return;
+      const anchor = target.closest("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+      if (anchor.target === "_blank" || anchor.hasAttribute("download")) return;
+      const href = anchor.getAttribute("href");
+      if (!href || href.startsWith("#")) return;
+      const url = new URL(anchor.href, window.location.href);
+      if (url.origin !== window.location.origin) return;
+      if (
+        url.pathname === window.location.pathname &&
+        url.search === window.location.search
+      ) {
+        return;
+      }
+      event.preventDefault();
+      event.stopPropagation();
+      pendingHref.current = `${url.pathname}${url.search}${url.hash}`;
+      setConfirmOpen(true);
+    };
+    document.addEventListener("click", onClick, true);
+    return () => document.removeEventListener("click", onClick, true);
+  }, [dirty]);
+
+  const discardEdits = () => {
+    const href = pendingHref.current;
+    pendingHref.current = null;
+    editorRef.current?.setMarkdown(savedMarkdown);
+    setDraft(savedMarkdown);
+    setIsEditing(false);
+    setConfirmOpen(false);
+    if (href) router.push(href);
+  };
+
+  const requestExit = () => {
+    pendingHref.current = null;
+    if (dirty) {
+      setConfirmOpen(true);
+      return;
+    }
+    setIsEditing(false);
+  };
 
   const handleSave = () => {
+    const markdown = editorRef.current?.getMarkdown() ?? draft;
+    setDraft(markdown);
     setIsEditing(false);
-    setShowPreview(false);
     startTransition(() => {
-      setOptimisticNotes(noteContent);
+      setSavedMarkdown(markdown);
       const formData = new FormData();
       formData.append("bookId", book.id);
-      formData.append("noteMarkdown", noteContent);
+      formData.append("noteMarkdown", markdown);
       formAction(formData);
     });
   };
 
-  const handleCancel = () => {
-    setNoteContent(book.noteMarkdown || "");
-    setIsEditing(false);
-    setShowPreview(false);
-  };
-
-  const hasNotes = optimisticNotes && optimisticNotes.trim().length > 0;
-
   return (
-    <Card className="backdrop-blur-sm shadow-none p-8">
-      <div className="space-y-4">
-        <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-serif font-bold">My Notes</h2>
-
-          {isEditing ? (
-            <div className="flex items-center gap-2">
-              {noteContent.trim() && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setShowPreview(!showPreview)}
-                >
-                  <Eye className="h-4 w-4" />
-                  {showPreview ? "Edit" : "Preview"}
-                </Button>
-              )}
-              <Button variant="outline" onClick={handleCancel} size="sm">
-                <X className="h-4 w-4" />
-                Cancel
-              </Button>
-              <Button onClick={handleSave} size="sm">
-                <Save className="h-4 w-4" />
-                Save
-              </Button>
-            </div>
-          ) : (
-            <Button
-              onClick={() => setIsEditing(true)}
-              variant="outline"
-              size="sm"
-            >
-              <Edit3 className="h-4 w-4" />
-              {hasNotes ? "Edit Notes" : "Add Notes"}
-            </Button>
-          )}
+    <div className="relative flex min-h-[70vh] flex-col overflow-hidden bg-background md:h-full md:min-h-0">
+      {state?.error && (
+        <div className="shrink-0 border-b border-destructive/20 bg-destructive/10 px-5 py-2 text-sm text-destructive">
+          {t("common.error")}: {state.error}
         </div>
+      )}
 
-        {state?.error && (
-          <div className="text-sm text-destructive bg-destructive/10 p-3 rounded-lg border border-destructive/20">
-            Error: {state.error}
-          </div>
+      <div
+        className={cn(
+          "flex min-h-0 flex-1 flex-col overflow-hidden",
+          !isEditing && "cursor-text",
         )}
-
-        {isEditing ? (
-          <div className="space-y-4">
-            {showPreview ? (
-              <div className="min-h-[300px] p-4 border border-muted rounded-lg bg-muted/30">
-                {noteContent.trim() ? (
-                  <div className="prose prose-muted max-w-none">
-                    <ReactMarkdown
-                      remarkPlugins={[remarkGfm]}
-                      rehypePlugins={[rehypeSanitize]}
-                      components={{
-                        h1: ({ children }) => (
-                          <h1 className="text-2xl font-serif font-bold mb-4">
-                            {children}
-                          </h1>
-                        ),
-                        h2: ({ children }) => (
-                          <h2 className="text-xl font-serif font-semibold mb-3">
-                            {children}
-                          </h2>
-                        ),
-                        h3: ({ children }) => (
-                          <h3 className="text-lg font-serif font-semibold mb-2">
-                            {children}
-                          </h3>
-                        ),
-                        p: ({ children }) => (
-                          <p className="leading-relaxed mb-4 font-serif">
-                            {children}
-                          </p>
-                        ),
-                        blockquote: ({ children }) => (
-                          <blockquote className="border-l-4 border-muted pl-4 py-2 bg-muted/30 italic mb-4 font-serif">
-                            {children}
-                          </blockquote>
-                        ),
-                        ul: ({ children }) => (
-                          <ul className="list-disc list-inside mb-4 space-y-1 font-serif">
-                            {children}
-                          </ul>
-                        ),
-                        ol: ({ children }) => (
-                          <ol className="list-decimal list-inside mb-4 space-y-1 font-serif">
-                            {children}
-                          </ol>
-                        ),
-                      }}
-                    >
-                      {noteContent}
-                    </ReactMarkdown>
-                  </div>
-                ) : (
-                  <p className="text-muted-foreground italic">
-                    Nothing to preview yet...
-                  </p>
-                )}
-              </div>
-            ) : (
-              <Textarea
-                value={noteContent}
-                onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-                  setNoteContent(e.target.value)
-                }
-                placeholder="Write your notes in Markdown...
-
-**Bold text**, *italic text*
-
-# Heading 1
-## Heading 2
-
-- List item
-- Another item
-
-> Quote
-
-[Link text](url)"
-                className="min-h-[300px] border-muted focus:border-muted focus:ring-muted font-mono text-sm resize-none"
-              />
-            )}
-
-            <p className="text-xs text-muted-foreground">
-              Supports Markdown formatting including **bold**, *italic*,
-              headings, lists, quotes, and links.
-            </p>
-          </div>
-        ) : hasNotes ? (
-          <div className="prose prose-muted max-w-none">
-            <ReactMarkdown
-              remarkPlugins={[remarkGfm]}
-              rehypePlugins={[rehypeSanitize]}
-              components={{
-                h1: ({ children }) => (
-                  <h1 className="text-2xl font-serif font-bold mb-4">
-                    {children}
-                  </h1>
-                ),
-                h2: ({ children }) => (
-                  <h2 className="text-xl font-serif font-semibold mb-3">
-                    {children}
-                  </h2>
-                ),
-                h3: ({ children }) => (
-                  <h3 className="text-lg font-serif font-semibold mb-2">
-                    {children}
-                  </h3>
-                ),
-                p: ({ children }) => (
-                  <p className="leading-relaxed mb-4 font-serif text-lg">
-                    {children}
-                  </p>
-                ),
-                blockquote: ({ children }) => (
-                  <blockquote className="border-l-4 border-muted pl-6 py-4 bg-muted/30 italic mb-6 rounded-r-lg font-serif">
-                    {children}
-                  </blockquote>
-                ),
-                ul: ({ children }) => (
-                  <ul className="list-disc list-inside mb-4 space-y-2 text-lg font-serif">
-                    {children}
-                  </ul>
-                ),
-                ol: ({ children }) => (
-                  <ol className="list-decimal list-inside mb-4 space-y-2 text-lg font-serif">
-                    {children}
-                  </ol>
-                ),
-              }}
-            >
-              {optimisticNotes}
-            </ReactMarkdown>
-          </div>
-        ) : (
-          <div className="text-center py-12 flex flex-col items-center justify-center gap-2">
-            <Signature className="w-10 h-10 text-muted-foreground" />
-            <p className="text-muted-foreground mb-2">No notes yet</p>
-            <p className="text-sm text-muted-foreground">
-              Click &quot;Add Notes&quot; to start writing your thoughts about
-              this book
-            </p>
-          </div>
-        )}
+        onPointerDown={() => {
+          if (!isEditing) setIsEditing(true);
+        }}
+      >
+        <NoteMdxEditor
+          key={book.id}
+          canSave={dirty}
+          doneLabel={t("notes.done")}
+          markdown={savedMarkdown}
+          onChange={(markdown, initialNormalize) => {
+            if (initialNormalize) return;
+            setDraft(markdown);
+          }}
+          onDone={requestExit}
+          onSave={handleSave}
+          placeholder={
+            isEditing || savedMarkdown.trim()
+              ? undefined
+              : t("notes.placeholder")
+          }
+          readOnly={!isEditing}
+          ref={editorRef}
+          saveLabel={t("notes.save")}
+        />
       </div>
-    </Card>
+
+      <Dialog
+        onOpenChange={(open) => {
+          setConfirmOpen(open);
+          if (!open) pendingHref.current = null;
+        }}
+        open={confirmOpen}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{t("notes.discardTitle")}</DialogTitle>
+            <DialogDescription>{t("notes.discardBody")}</DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setConfirmOpen(false)} variant="ghost">
+              {t("notes.keepEditing")}
+            </Button>
+            <Button onClick={discardEdits} variant="destructive">
+              {t("notes.discard")}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

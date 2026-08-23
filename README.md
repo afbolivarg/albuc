@@ -2,7 +2,7 @@
 
 Your personal library and book notes, with AI-powered Q&A over your notes.
 
-**Free to use at [albuc.afbolivarg.com](https://albuc.afbolivarg.com)**
+**Free to use at [albuc.com](https://albuc.com)**
 
 ## Features
 

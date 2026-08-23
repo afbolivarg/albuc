@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { getUserWithBook } from "@/lib/db/queries";
-import { BookDetailHeader } from "./book-detail-header";
 import { BookNotes } from "./book-notes";
+import { BookSidebar } from "./book-sidebar";
 
 export default async function BookDetailPage({
   params,
@@ -23,9 +23,9 @@ export default async function BookDetailPage({
   }
 
   return (
-    <div className="h-full overflow-y-auto overscroll-contain">
-      <div className="container mx-auto max-w-4xl space-y-4 p-6 pt-[max(1.5rem,env(safe-area-inset-top,0px))] pb-[max(1.5rem,env(safe-area-inset-bottom,0px))]">
-        <BookDetailHeader book={book} />
+    <div className="flex h-full flex-col overflow-y-auto overscroll-contain bg-background font-sans text-foreground md:flex-row md:overflow-hidden">
+      <BookSidebar book={book} />
+      <div className="md:min-h-0 md:flex-1 md:overflow-hidden">
         <BookNotes book={book} />
       </div>
     </div>

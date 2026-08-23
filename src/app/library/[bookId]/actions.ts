@@ -4,6 +4,11 @@ import { revalidatePath } from "next/cache";
 import { processBookEmbeddingsAsync } from "@/lib/ai/embedding-pipeline";
 import { getUser, getUserBook, updateBook } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
+import {
+  createShareSlug,
+  publicNoteUrl,
+  publicProfilePath,
+} from "@/lib/sharing";
 
 const log = createLogger("library.book-actions");
 
@@ -63,9 +68,8 @@ export async function updateBookRatingAction(
     return { error: "Missing required fields" };
   }
 
-  // Validate rating (0-5 in 0.5 increments)
-  if (rating < 0 || rating > 5 || (rating * 2) % 1 !== 0) {
-    return { error: "Rating must be between 0 and 5 in 0.5 increments" };
+  if (rating < 0 || rating > 5 || !Number.isInteger(rating)) {
+    return { error: "Rating must be a whole number from 0 to 5" };
   }
 
   try {
@@ -145,4 +149,34 @@ export async function updateBookNotesAction(
     log.error("updateBookNotesAction failed", toError(error), { bookId });
     return { error: "Failed to update notes" };
   }
+}
+
+export async function togglePublicNoteAction(
+  bookId: string,
+  makePublic: boolean,
+) {
+  const user = await getUser();
+  if (!user) return { error: "Authentication required" };
+  const currentBook = await getUserBook(user.id, bookId);
+  if (!currentBook) return { error: "Book not found" };
+
+  const shareSlug = currentBook.shareSlug ?? createShareSlug();
+  const updated = await updateBook({
+    ...currentBook,
+    visibility: makePublic ? "public" : "private",
+    shareSlug,
+    updatedAt: new Date(),
+  });
+  if (!updated?.[0]) return { error: "Failed to update sharing" };
+  revalidatePath(`/library/${bookId}`);
+  if (user.handle) revalidatePath(publicProfilePath(user.handle));
+  return {
+    success: true as const,
+    visibility: updated[0].visibility,
+    shareSlug: updated[0].shareSlug,
+    url:
+      makePublic && updated[0].shareSlug
+        ? publicNoteUrl(updated[0].shareSlug)
+        : null,
+  };
 }

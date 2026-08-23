@@ -15,6 +15,8 @@ export default async function AskPage() {
     queriesUsed: usageResult.data.queriesUsed,
     queryLimit: usageResult.data.queryLimit,
     allowed: usageResult.data.allowed,
+    overSoftCap: usageResult.data.overSoftCap,
+    tokensUsed: usageResult.data.tokensUsed,
   };
 
   return (

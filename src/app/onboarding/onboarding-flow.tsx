@@ -13,10 +13,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
+import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { User } from "@/lib/db/schema";
+import { useT } from "@/lib/i18n/client";
 import { MIN_SEARCH_QUERY_LENGTH } from "@/lib/open-library";
 import { type BookSearchResult, getCoverUrl } from "@/lib/open-library.shared";
 import { cn } from "@/lib/utils";
@@ -82,9 +84,10 @@ export function OnboardingFlow({ user }: { user: User }) {
   };
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#faf9f6] text-foreground">
+    <div className="flex min-h-screen flex-col bg-background text-foreground">
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-2">
         <AlbucLogo className="text-xl" iconClassName="size-5" />
+        <LocaleSwitcher />
         <div className="flex items-center gap-1.5">
           {STEPS.map((item, index) => (
             <span
@@ -146,18 +149,19 @@ function NameStep({
   onLastName: (value: string) => void;
   onContinue: () => void;
 }) {
+  const t = useT();
   const canContinue = firstName.trim().length > 0 && lastName.trim().length > 0;
 
   return (
     <div>
       <p className="mb-3 text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-        Welcome
+        {t("onboarding.welcome")}
       </p>
       <h1 className="font-serif text-[34px] leading-[1.1] font-semibold tracking-tight">
-        What should we call you?
+        {t("onboarding.callYou")}
       </h1>
       <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-        Just your name — so the library feels like yours.
+        {t("onboarding.nameLede")}
       </p>
 
       <form
@@ -168,7 +172,7 @@ function NameStep({
         }}
       >
         <div className="space-y-2">
-          <Label htmlFor="firstName">First name</Label>
+          <Label htmlFor="firstName">{t("onboarding.firstName")}</Label>
           <Input
             id="firstName"
             value={firstName}
@@ -179,7 +183,7 @@ function NameStep({
           />
         </div>
         <div className="space-y-2">
-          <Label htmlFor="lastName">Last name</Label>
+          <Label htmlFor="lastName">{t("onboarding.lastName")}</Label>
           <Input
             id="lastName"
             value={lastName}
@@ -194,7 +198,11 @@ function NameStep({
           disabled={!canContinue || saving}
           className="mt-2 h-11 w-full text-[15px]"
         >
-          {saving ? <Loader className="size-4 animate-spin" /> : "Continue"}
+          {saving ? (
+            <Loader className="size-4 animate-spin" />
+          ) : (
+            t("onboarding.continue")
+          )}
         </Button>
       </form>
     </div>
@@ -210,6 +218,7 @@ function BookStep({
   onSkip: () => void;
   onAdded: () => void;
 }) {
+  const t = useT();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<BookSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -281,10 +290,12 @@ function BookStep({
   return (
     <div>
       <p className="mb-3 text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-        Your first book
+        {t("onboarding.firstBook")}
       </p>
       <h1 className="font-serif text-[34px] leading-[1.1] font-semibold tracking-tight">
-        {firstName ? `${firstName}, add a book` : "Add a book"}
+        {firstName
+          ? t("onboarding.addBook", { name: firstName })
+          : t("onboarding.addBookPlain")}
       </h1>
       <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
         Optional — you can always do this from the shelf. One book is enough to
@@ -370,7 +381,7 @@ function BookStep({
         onClick={onSkip}
         className="mt-4 w-full py-2 text-center text-[13px] text-muted-foreground transition-colors hover:text-foreground"
       >
-        Skip for now
+        {t("onboarding.skip")}
       </button>
     </div>
   );
@@ -383,16 +394,17 @@ function TourStep({
   finishing: boolean;
   onFinish: () => void;
 }) {
+  const t = useT();
   return (
     <div>
       <p className="mb-3 text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
-        How Albuc works
+        {t("onboarding.how")}
       </p>
       <h1 className="font-serif text-[34px] leading-[1.1] font-semibold tracking-tight">
-        A quiet place for what you read
+        {t("onboarding.quiet")}
       </h1>
       <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
-        Three things, and that’s the whole product.
+        {t("onboarding.three")}
       </p>
 
       <ul className="mt-8 space-y-5">
@@ -423,7 +435,7 @@ function TourStep({
           <Loader className="size-4 animate-spin" />
         ) : (
           <>
-            Start reading
+            {t("onboarding.start")}
             <Check className="size-4" />
           </>
         )}

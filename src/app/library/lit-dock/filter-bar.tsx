@@ -11,16 +11,34 @@ import {
 import Link from "next/link";
 import { useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
+import { useT } from "@/lib/i18n/client";
+import type { MessageKey } from "@/lib/i18n/en";
 import { cn } from "@/lib/utils";
 import { SORTS, STATUS_META, STATUS_ORDER } from "./constants";
+
+const STATUS_KEYS: Record<(typeof STATUS_ORDER)[number], MessageKey> = {
+  WANT: "library.status.WANT",
+  OWNED: "library.status.OWNED",
+  READING: "library.status.READING",
+  READ: "library.status.READ",
+};
+
+const SORT_KEYS: Record<(typeof SORTS)[number]["key"], MessageKey> = {
+  added: "library.sort.added",
+  title: "library.sort.title",
+  author: "library.sort.author",
+  rating: "library.sort.rating",
+};
+
 import { type LibraryState, useElementWidth } from "./hooks";
 import type { StatusFilter } from "./types";
 
 function StatusTabs({ lib }: { lib: LibraryState }) {
+  const t = useT();
   const items: Array<[StatusFilter, string]> = [
-    ["ALL", "All"],
+    ["ALL", t("library.status.all")],
     ...STATUS_ORDER.map(
-      (s) => [s, STATUS_META[s].label] as [StatusFilter, string],
+      (s) => [s, t(STATUS_KEYS[s])] as [StatusFilter, string],
     ),
   ];
 
@@ -66,6 +84,7 @@ function SearchSort({
   lib: LibraryState;
   width?: number;
 }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const cur = SORTS.find((s) => s.key === lib.sort);
 
@@ -76,7 +95,7 @@ function SearchSort({
         <input
           value={lib.query}
           onChange={(e) => lib.setQuery(e.target.value)}
-          placeholder="Search library…"
+          placeholder={t("library.search")}
           className="h-[38px] min-w-[130px] rounded-[10px] border border-border bg-background pr-3 pl-[34px] text-sm text-foreground outline-none"
           style={{ width }}
         />
@@ -118,7 +137,7 @@ function SearchSort({
                       : "bg-transparent hover:bg-accent",
                   )}
                 >
-                  {s.label}
+                  {t(SORT_KEYS[s.key])}
                   {s.key === lib.sort &&
                     (lib.dir === "asc" ? (
                       <ArrowUp className="size-[13px]" />
@@ -136,15 +155,17 @@ function SearchSort({
 }
 
 function StatusSelect({ lib }: { lib: LibraryState }) {
+  const t = useT();
   const [open, setOpen] = useState(false);
   const items: Array<[StatusFilter, string]> = [
-    ["ALL", "All"],
+    ["ALL", t("library.status.all")],
     ...STATUS_ORDER.map(
-      (s) => [s, STATUS_META[s].label] as [StatusFilter, string],
+      (s) => [s, t(STATUS_KEYS[s])] as [StatusFilter, string],
     ),
   ];
   const curKey = lib.status;
-  const curLabel = curKey === "ALL" ? "All" : STATUS_META[curKey].label;
+  const curLabel =
+    curKey === "ALL" ? t("library.status.all") : t(STATUS_KEYS[curKey]);
   const curDot = curKey === "ALL" ? null : STATUS_META[curKey].dot;
 
   return (
@@ -246,10 +267,9 @@ export function EmptyShelf({
   tone?: string;
   variant?: "empty" | "filtered";
 }) {
+  const t = useT();
   const message =
-    variant === "empty"
-      ? "Your Albuc is empty"
-      : "No books match these filters";
+    variant === "empty" ? t("library.empty") : t("library.noMatch");
 
   return (
     <div
@@ -268,7 +288,7 @@ export function EmptyShelf({
           className="mt-1 inline-flex h-10 items-center gap-2 rounded-full bg-primary px-6 font-serif text-[15px] text-primary-foreground transition-opacity hover:opacity-90"
         >
           <Plus className="size-4" />
-          Add your first book
+          {t("library.addFirst")}
         </Link>
       )}
     </div>

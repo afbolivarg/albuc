@@ -2,7 +2,10 @@ import { SerwistProvider } from "@serwist/turbopack/react";
 import { Analytics } from "@vercel/analytics/react";
 import type { Metadata, Viewport } from "next";
 import { EB_Garamond, Geist, Geist_Mono } from "next/font/google";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import { env } from "@/lib/env";
+import { LocaleProvider } from "@/lib/i18n/client";
+import { getRequestLocale } from "@/lib/i18n/server";
 import { APP_DESCRIPTION, APP_NAME, APP_THEME_COLOR } from "@/lib/pwa";
 import "./globals.css";
 
@@ -20,6 +23,7 @@ const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
   subsets: ["latin"],
   weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
 });
 
 export const metadata: Metadata = {
@@ -66,13 +70,15 @@ export const viewport: Viewport = {
   colorScheme: "only light",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const locale = await getRequestLocale();
+
   return (
-    <html lang="en">
+    <html lang={locale}>
       <head>
         <link rel="preconnect" href={env.NEXT_PUBLIC_SUPABASE_URL} />
         <link rel="preconnect" href="https://covers.openlibrary.org" />
@@ -80,12 +86,16 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased`}
       >
-        <SerwistProvider
-          swUrl="/serwist/sw.js"
-          disable={process.env.NODE_ENV !== "production"}
-        >
-          {children}
-        </SerwistProvider>
+        <LocaleProvider locale={locale}>
+          <TooltipProvider>
+            <SerwistProvider
+              swUrl="/serwist/sw.js"
+              disable={process.env.NODE_ENV !== "production"}
+            >
+              {children}
+            </SerwistProvider>
+          </TooltipProvider>
+        </LocaleProvider>
         <Analytics />
       </body>
     </html>

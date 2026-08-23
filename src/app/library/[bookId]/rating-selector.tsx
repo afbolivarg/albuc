@@ -48,8 +48,11 @@ export function RatingSelector({ bookId, currentRating }: RatingSelectorProps) {
           rating={optimisticRating}
           onChange={handleRatingChange}
           size="lg"
-          className={isPending ? "opacity-50 pointer-events-none" : ""}
+          className={isPending ? "pointer-events-none opacity-50" : ""}
         />
+        {optimisticRating === 0 && (
+          <span className="text-[11px] text-neutral-400">Unrated</span>
+        )}
       </div>
       {state?.error && (
         <div className="text-xs text-destructive">Error: {state.error}</div>

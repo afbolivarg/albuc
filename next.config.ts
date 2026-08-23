@@ -26,6 +26,7 @@ const nextConfig: NextConfig = {
         : []),
     ],
   },
+  transpilePackages: ["@mdxeditor/editor"],
 };
 
 export default withSerwist(nextConfig);

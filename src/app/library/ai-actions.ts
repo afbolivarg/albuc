@@ -9,8 +9,11 @@ export const getAIUsageAction = authenticatedAction.action(
 
     return {
       allowed: usageCheck.allowed,
+      overSoftCap: usageCheck.overSoftCap,
       queriesUsed: usageCheck.queriesUsed,
       queryLimit: usageCheck.queryLimit,
+      tokensUsed: usageCheck.tokensUsed,
+      tokenLimit: usageCheck.tokenLimit,
       reason: usageCheck.reason,
     };
   },

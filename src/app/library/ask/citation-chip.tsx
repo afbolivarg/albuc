@@ -3,7 +3,12 @@
 import { ArrowUpRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useId, useRef, useState } from "react";
+import { useId } from "react";
+import {
+  HoverCard,
+  HoverCardContent,
+  HoverCardTrigger,
+} from "@/components/ui/hover-card";
 import type { AskSource } from "@/lib/ai/citations";
 import { cn } from "@/lib/utils";
 
@@ -83,51 +88,7 @@ export function CitationCard({
 }
 
 export function CitationChip({ n, source }: { n: number; source?: AskSource }) {
-  const [pinned, setPinned] = useState(false);
-  const [hovered, setHovered] = useState(false);
-  const rootRef = useRef<HTMLSpanElement>(null);
-  const closeTimer = useRef<number | null>(null);
   const labelId = useId();
-  const visible = pinned || hovered;
-
-  const keepOpen = () => {
-    if (closeTimer.current !== null) {
-      window.clearTimeout(closeTimer.current);
-      closeTimer.current = null;
-    }
-    setHovered(true);
-  };
-
-  const scheduleClose = () => {
-    if (closeTimer.current !== null) {
-      window.clearTimeout(closeTimer.current);
-    }
-    closeTimer.current = window.setTimeout(() => {
-      setHovered(false);
-      closeTimer.current = null;
-    }, 160);
-  };
-
-  useEffect(() => {
-    return () => {
-      if (closeTimer.current !== null) {
-        window.clearTimeout(closeTimer.current);
-      }
-    };
-  }, []);
-
-  useEffect(() => {
-    if (!pinned) return;
-
-    const onPointerDown = (event: PointerEvent) => {
-      if (!rootRef.current?.contains(event.target as Node)) {
-        setPinned(false);
-      }
-    };
-
-    document.addEventListener("pointerdown", onPointerDown);
-    return () => document.removeEventListener("pointerdown", onPointerDown);
-  }, [pinned]);
 
   if (!source) {
     return (
@@ -138,31 +99,29 @@ export function CitationChip({ n, source }: { n: number; source?: AskSource }) {
   }
 
   return (
-    <span
-      ref={rootRef}
-      className="relative -top-0.5 mx-0.5 inline-flex align-middle"
-      onMouseEnter={keepOpen}
-      onMouseLeave={scheduleClose}
-    >
-      <button
-        type="button"
-        aria-describedby={labelId}
-        aria-expanded={visible}
-        onClick={() => setPinned((value) => !value)}
-        className="relative inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-border bg-background px-1 text-[10px] leading-none font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+    <HoverCard closeDelay={160} openDelay={80}>
+      <HoverCardTrigger asChild>
+        <button
+          type="button"
+          aria-describedby={labelId}
+          className="relative -top-0.5 mx-0.5 inline-flex h-[18px] min-w-[18px] items-center justify-center rounded-full border border-border bg-background px-1 align-middle text-[10px] leading-none font-medium text-muted-foreground transition-colors hover:border-foreground/30 hover:text-foreground"
+        >
+          {n}
+        </button>
+      </HoverCardTrigger>
+      <HoverCardContent
+        align="center"
+        collisionPadding={16}
+        side="top"
+        sideOffset={8}
+        className="w-auto border-0 bg-transparent p-0 shadow-none"
       >
-        {n}
-      </button>
-      {visible && (
-        <span className="absolute bottom-full left-1/2 z-30 flex -translate-x-1/2 flex-col items-center">
-          <CitationCard source={source} />
-          <span className="h-2 w-full" aria-hidden />
+        <CitationCard source={source} />
+        <span id={labelId} className="sr-only">
+          {source.title}
         </span>
-      )}
-      <span id={labelId} className="sr-only">
-        {source.title}
-      </span>
-    </span>
+      </HoverCardContent>
+    </HoverCard>
   );
 }
 
@@ -181,7 +140,7 @@ export function SourceBooks({ sources }: { sources: AskSource[] }) {
           className="inline-flex items-center gap-2 rounded-full border border-border bg-background py-1 pr-2.5 pl-2.5 transition-colors hover:border-foreground/20"
         >
           <BookCover source={source} className="h-6 w-4 rounded-[2px]" />
-          <span className="max-w-[140px] truncate font-serif text-[12.5px] text-foreground">
+          <span className="max-w-[140px] truncate text-[12.5px] text-foreground">
             {source.title}
           </span>
         </Link>

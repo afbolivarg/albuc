@@ -1,5 +1,8 @@
 "use client";
 
+import { cjk } from "@streamdown/cjk";
+import { code } from "@streamdown/code";
+import { mermaid } from "@streamdown/mermaid";
 import {
   Children,
   type ComponentProps,
@@ -11,6 +14,16 @@ import { Streamdown } from "streamdown";
 import { type AskSource, uniqueSourcesByBook } from "@/lib/ai/citations";
 import { cn } from "@/lib/utils";
 import { CitationChip, SourceBooks } from "./citation-chip";
+
+const plugins = { cjk, code, mermaid };
+
+function MermaidFallback({ chart }: { chart: string; error: string }) {
+  return (
+    <pre className="overflow-x-auto rounded-lg bg-muted/50 p-3 font-mono text-xs text-muted-foreground">
+      {chart}
+    </pre>
+  );
+}
 
 function replaceCiteText(
   text: string,
@@ -127,9 +140,11 @@ export function CitedResponse({
     <div>
       <Streamdown
         className={cn(
-          "prose prose-sm size-full max-w-none text-foreground prose-headings:font-serif prose-p:text-foreground prose-strong:text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0",
+          "prose prose-sm size-full max-w-none text-foreground prose-headings:font-serif prose-p:text-foreground prose-strong:text-foreground [&>*:first-child]:mt-0 [&>*:last-child]:mb-0 [&_ul]:my-3 [&_ul]:list-disc [&_ul]:pl-8 [&_ol]:my-3 [&_ol]:list-decimal [&_ol]:pl-8 [&_li]:my-1",
         )}
         components={citationComponents(sources)}
+        mermaid={{ errorComponent: MermaidFallback }}
+        plugins={plugins}
       >
         {text.replace(/\[blocked\]/gi, "")}
       </Streamdown>

@@ -5,10 +5,11 @@
 
 import { eq } from "drizzle-orm";
 import { db } from "@/lib/db";
-import { type NewNoteChunk, noteChunks } from "@/lib/db/schema";
+import { books, type NewNoteChunk, noteChunks } from "@/lib/db/schema";
 import { createLogger, toError } from "@/lib/logger";
 import { generateEmbeddings, getEmbeddingModelId } from "./embedding";
 import { splitNoteIntoChunks } from "./note-splitter";
+import { recordAIUsage } from "./usage";
 
 const log = createLogger("embedding-pipeline");
 
@@ -77,11 +78,24 @@ async function processBookEmbeddings(
     // Step 2: Generate embeddings for all chunks (outside transaction)
     log.debug("Generating embeddings", { bookId, chunkCount: chunks.length });
     const chunkTexts = chunks.map((c) => c.text);
-    const embeddings = await generateEmbeddings(chunkTexts);
+    const { embeddings, tokens } = await generateEmbeddings(chunkTexts);
     log.debug("Generated embeddings", {
       bookId,
       embeddingCount: embeddings.length,
+      tokens,
     });
+
+    const [book] = await db
+      .select({ userId: books.userId })
+      .from(books)
+      .where(eq(books.id, bookId))
+      .limit(1);
+    if (book && tokens > 0) {
+      await recordAIUsage({
+        userId: book.userId,
+        embeddingTokens: tokens,
+      });
+    }
 
     // Step 3: Prepare chunks for insertion with current model version
     const modelVersion = getEmbeddingModelId();
