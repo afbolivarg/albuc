@@ -79,14 +79,10 @@ export function UserMenu({
             {t("settings.title")}
           </DropdownMenuItem>
           <DropdownMenuSeparator />
-          <form action={signOut} className="w-full">
-            <DropdownMenuItem asChild>
-              <button className="w-full" type="submit">
-                <LogOut />
-                {t("auth.signOut")}
-              </button>
-            </DropdownMenuItem>
-          </form>
+          <DropdownMenuItem onSelect={() => void signOut()}>
+            <LogOut />
+            {t("auth.signOut")}
+          </DropdownMenuItem>
         </DropdownMenuContent>
       </DropdownMenu>
       <SettingsDialog

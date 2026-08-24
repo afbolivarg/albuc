@@ -1,12 +1,26 @@
 "use client";
 
-import { createContext, type ReactNode, useContext, useEffect } from "react";
+import {
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useState,
+} from "react";
 import type { Locale } from "./config";
-import { DEFAULT_LOCALE } from "./config";
+import { DEFAULT_LOCALE, isLocale, LOCALE_COOKIE } from "./config";
 import type { MessageKey } from "./en";
 import { isMessageKey, translate } from "./translate";
 
 const LocaleContext = createContext<Locale>(DEFAULT_LOCALE);
+
+function localeFromDocumentCookie(): Locale {
+  const match = document.cookie
+    .split("; ")
+    .find((part) => part.startsWith(`${LOCALE_COOKIE}=`))
+    ?.split("=")[1];
+  return isLocale(match) ? match : DEFAULT_LOCALE;
+}
 
 export function LocaleProvider({
   locale,
@@ -15,12 +29,21 @@ export function LocaleProvider({
   locale: Locale;
   children: ReactNode;
 }) {
+  const [current, setCurrent] = useState(locale);
+
   useEffect(() => {
-    document.documentElement.lang = locale;
-  }, [locale]);
+    const sync = () => {
+      const fromCookie = localeFromDocumentCookie();
+      setCurrent(fromCookie);
+      document.documentElement.lang = fromCookie;
+    };
+    sync();
+    window.addEventListener("albuc:locale", sync);
+    return () => window.removeEventListener("albuc:locale", sync);
+  }, []);
 
   return (
-    <LocaleContext.Provider value={locale}>{children}</LocaleContext.Provider>
+    <LocaleContext.Provider value={current}>{children}</LocaleContext.Provider>
   );
 }
 

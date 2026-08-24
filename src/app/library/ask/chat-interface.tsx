@@ -175,7 +175,6 @@ export function ChatInterface({
             />
           </PromptInputBody>
           <PromptInputFooter>
-            <span />
             <PromptInputSubmit
               disabled={!usage.allowed && status !== "streaming"}
               onStop={stop}

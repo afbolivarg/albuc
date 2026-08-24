@@ -5,8 +5,7 @@ import { EB_Garamond, Geist, Geist_Mono } from "next/font/google";
 import { Suspense } from "react";
 import { env } from "@/lib/env";
 import { LocaleProvider } from "@/lib/i18n/client";
-import { DEFAULT_LOCALE, type Locale } from "@/lib/i18n/config";
-import { getRequestLocale } from "@/lib/i18n/server";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { APP_DESCRIPTION, APP_NAME, APP_THEME_COLOR } from "@/lib/pwa";
 import "./globals.css";
 
@@ -78,15 +77,9 @@ export const viewport: Viewport = {
   colorScheme: "only light",
 };
 
-function AppProviders({
-  locale,
-  children,
-}: {
-  locale: Locale;
-  children: React.ReactNode;
-}) {
+function AppProviders({ children }: { children: React.ReactNode }) {
   return (
-    <LocaleProvider locale={locale}>
+    <LocaleProvider locale={DEFAULT_LOCALE}>
       <SerwistProvider
         swUrl="/serwist/sw.js"
         disable={process.env.NODE_ENV !== "production"}
@@ -95,11 +88,6 @@ function AppProviders({
       </SerwistProvider>
     </LocaleProvider>
   );
-}
-
-async function LocalizedApp({ children }: { children: React.ReactNode }) {
-  const locale = await getRequestLocale();
-  return <AppProviders locale={locale}>{children}</AppProviders>;
 }
 
 export default function RootLayout({
@@ -116,9 +104,9 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} ${ebGaramond.variable} antialiased`}
       >
-        <Suspense fallback={null}>
-          <LocalizedApp>{children}</LocalizedApp>
-        </Suspense>
+        <AppProviders>
+          <Suspense fallback={null}>{children}</Suspense>
+        </AppProviders>
         {process.env.VERCEL ? <Analytics /> : null}
       </body>
     </html>

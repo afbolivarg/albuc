@@ -1,6 +1,7 @@
 import { cacheLife, cacheTag } from "next/cache";
 import { Suspense } from "react";
 import type { Locale } from "@/lib/i18n/config";
+import { DEFAULT_LOCALE } from "@/lib/i18n/config";
 import { getRequestLocale } from "@/lib/i18n/server";
 import { translate } from "@/lib/i18n/translate";
 import { LandingFooter } from "./landing-footer";
@@ -26,9 +27,24 @@ async function CachedLandingFooter({
   return <LandingFooter locale={locale} year={year} />;
 }
 
-async function LocalizedLanding({ children }: { children: React.ReactNode }) {
+async function LocalizedHeader() {
   const locale = await getRequestLocale();
-  const skip = translate(locale, "a11y.skip");
+  return <CachedLandingHeader locale={locale} />;
+}
+
+async function LocalizedFooter() {
+  const locale = await getRequestLocale();
+  return (
+    <CachedLandingFooter locale={locale} year={new Date().getFullYear()} />
+  );
+}
+
+export default function LandingLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  const skip = translate(DEFAULT_LOCALE, "a11y.skip");
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <a
@@ -38,24 +54,18 @@ async function LocalizedLanding({ children }: { children: React.ReactNode }) {
         {skip}
       </a>
       <div className="mx-auto flex w-full max-w-7xl flex-1 flex-col p-4 md:p-6">
-        <CachedLandingHeader locale={locale} />
+        <div className="mb-4 min-h-9 md:mb-6">
+          <Suspense fallback={null}>
+            <LocalizedHeader />
+          </Suspense>
+        </div>
         <main id="main" className="flex flex-1 flex-col">
           {children}
         </main>
       </div>
-      <CachedLandingFooter locale={locale} year={new Date().getFullYear()} />
+      <Suspense fallback={null}>
+        <LocalizedFooter />
+      </Suspense>
     </div>
-  );
-}
-
-export default function LandingLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  return (
-    <Suspense fallback={null}>
-      <LocalizedLanding>{children}</LocalizedLanding>
-    </Suspense>
   );
 }

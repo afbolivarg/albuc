@@ -72,7 +72,7 @@ export function AuthForm({
   const shownMessage = message(state.message);
 
   return (
-    <Card className="w-full max-w-sm">
+    <Card className="w-full">
       <CardHeader>
         <Link href="/" className="w-fit" aria-label="Albuc">
           <AlbucLogo className="mb-6" iconClassName="w-8 h-8" />

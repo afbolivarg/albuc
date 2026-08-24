@@ -19,17 +19,23 @@ import { getCurrentUser } from "@/lib/supabase/user";
 const log = createLogger("library.actions");
 
 export async function signOut() {
-  const supabase = createServerClient(await cookies());
-
+  const cookieStore = await cookies();
+  const supabase = createServerClient(cookieStore);
   const { error } = await supabase.auth.signOut();
 
   if (error) {
-    throw new Error("Failed to sign out");
+    log.warn("signOut supabase error", { message: error.message });
+  }
+
+  for (const cookie of cookieStore.getAll()) {
+    if (cookie.name.startsWith("sb-")) {
+      cookieStore.delete(cookie.name);
+    }
   }
 
   revalidatePath("/");
   revalidatePath("/library");
-  redirect("/");
+  redirect("/sign-in");
 }
 
 export async function searchBooksAction(

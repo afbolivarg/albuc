@@ -6,4 +6,5 @@ export function persistLocaleCookies(locale: Locale) {
   const attrs = `Path=/; Max-Age=${TEN_YEARS}; SameSite=Lax`;
   document.cookie = `${LOCALE_COOKIE}=${locale}; ${attrs}`;
   document.cookie = `${LOCALE_LOCKED_COOKIE}=1; ${attrs}`;
+  window.dispatchEvent(new Event("albuc:locale"));
 }
