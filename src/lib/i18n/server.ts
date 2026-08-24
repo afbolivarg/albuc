@@ -1,10 +1,8 @@
 import { cookies, headers } from "next/headers";
 import {
-  DEFAULT_LOCALE,
   inferLocaleFromAcceptLanguage,
   isLocale,
   LOCALE_COOKIE,
-  LOCALE_LOCKED_COOKIE,
   type Locale,
 } from "./config";
 import type { MessageKey } from "./en";
@@ -18,14 +16,25 @@ export async function getRequestLocale(): Promise<Locale> {
   return inferLocaleFromAcceptLanguage(accept);
 }
 
-export async function isRequestLocaleLocked(): Promise<boolean> {
-  const store = await cookies();
-  return store.get(LOCALE_LOCKED_COOKIE)?.value === "1";
+export function localeFromFormData(
+  formData: FormData | undefined,
+): Locale | null {
+  const value = formData?.get("locale");
+  return typeof value === "string" && isLocale(value) ? value : null;
 }
 
 export async function t(
   key: MessageKey,
   vars?: Record<string, string | number>,
+  locale?: Locale | null,
 ): Promise<string> {
-  return translate(await getRequestLocale(), key, vars);
+  return translate(locale ?? (await getRequestLocale()), key, vars);
+}
+
+export async function actionT(
+  formData: FormData | undefined,
+  key: MessageKey,
+  vars?: Record<string, string | number>,
+): Promise<string> {
+  return t(key, vars, localeFromFormData(formData));
 }

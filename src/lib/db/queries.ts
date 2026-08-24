@@ -1,5 +1,8 @@
 import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { and, desc, eq, sql } from "drizzle-orm";
+import { cacheLife, cacheTag } from "next/cache";
+import { cache } from "react";
+import { publicNoteTag, publicProfileTag } from "@/lib/cache-tags";
 import { db } from "@/lib/db";
 import {
   type Book,
@@ -33,7 +36,7 @@ export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
   return created;
 }
 
-export async function getUser() {
+export const getUser = cache(async () => {
   const supabaseUser = await getCurrentUser();
 
   if (!supabaseUser) {
@@ -49,9 +52,9 @@ export async function getUser() {
   }
 
   return user;
-}
+});
 
-export async function getUserWithBooks() {
+export const getUserWithBooks = cache(async () => {
   const supabaseUser = await getCurrentUser();
 
   if (!supabaseUser) {
@@ -80,9 +83,9 @@ export async function getUserWithBooks() {
   }
 
   return user ?? null;
-}
+});
 
-export async function getUserWithBook(bookId: string) {
+export const getUserWithBook = cache(async (bookId: string) => {
   const supabaseUser = await getCurrentUser();
 
   if (!supabaseUser) {
@@ -98,7 +101,7 @@ export async function getUserWithBook(bookId: string) {
     },
   });
   return user ?? null;
-}
+});
 
 export async function getUserBookByWorkKey(userId: string, workKey: string) {
   const result = await db.query.books.findFirst({
@@ -179,11 +182,6 @@ export async function updateBookCover(
   return updated ?? null;
 }
 
-/** @deprecated Use updateBookCover */
-export async function updateBookCoverPath(bookId: string, coverPath: string) {
-  return updateBookCover(bookId, coverPath, null);
-}
-
 /**
  * Perform semantic search across a user's note chunks
  * Returns the top K most similar chunks with their book metadata
@@ -235,6 +233,9 @@ export async function semanticSearchNotes(
 }
 
 export async function getPublicProfileByHandle(handle: string) {
+  "use cache";
+  cacheTag("public-profile", publicProfileTag(handle));
+  cacheLife("minutes");
   const user = await db.query.users.findFirst({
     where: eq(users.handle, handle.toLowerCase()),
   });
@@ -260,6 +261,9 @@ export async function getPublicProfileByHandle(handle: string) {
 }
 
 export async function getPublicNoteBySlug(slug: string) {
+  "use cache";
+  cacheTag("public-note", publicNoteTag(slug));
+  cacheLife("minutes");
   const book = await db.query.books.findFirst({
     where: and(eq(books.shareSlug, slug), eq(books.visibility, "public")),
     with: { user: true },

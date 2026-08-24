@@ -6,24 +6,15 @@ import { notFound } from "next/navigation";
 import { PublicPageShell } from "@/components/public-page-shell";
 import { getPublicNoteBySlug } from "@/lib/db/queries";
 import { t } from "@/lib/i18n/server";
+import { APP_DESCRIPTION } from "@/lib/pwa";
 import { publicProfilePath } from "@/lib/sharing";
 import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
 import { PublicNoteMarkdown } from "./public-note-markdown";
 
-export async function generateMetadata({
-  params,
-}: {
-  params: Promise<{ slug: string }>;
-}): Promise<Metadata> {
-  const { slug } = await params;
-  const book = await getPublicNoteBySlug(slug);
-  if (!book) return { title: "Albuc" };
-  const handle = book.user.handle ? `@${book.user.handle}` : "";
-  return {
-    title: `${book.title} · Albuc`,
-    description: handle ? await t("public.from", { handle }) : book.title,
-  };
-}
+export const metadata: Metadata = {
+  title: "Note",
+  description: APP_DESCRIPTION,
+};
 
 export default async function PublicNotePage({
   params,
@@ -60,6 +51,9 @@ export default async function PublicNotePage({
               alt={book.title}
               className="h-full w-full object-cover"
               height={140}
+              loading="eager"
+              priority
+              sizes="92px"
               src={cover}
               width={92}
             />

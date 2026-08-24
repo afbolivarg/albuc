@@ -3,6 +3,12 @@
 import { Star } from "lucide-react";
 import { useState } from "react";
 
+const SIZE_CLASSES = {
+  sm: "h-3 w-3",
+  md: "h-4 w-4",
+  lg: "h-5 w-5",
+} as const;
+
 interface StarRatingProps {
   rating: number;
   onChange?: (rating: number) => void;
@@ -19,12 +25,6 @@ export function StarRating({
   className,
 }: StarRatingProps) {
   const [hoverRating, setHoverRating] = useState(0);
-
-  const sizeClasses = {
-    sm: "h-3 w-3",
-    md: "h-4 w-4",
-    lg: "h-5 w-5",
-  };
 
   const handleClick = (starIndex: number) => {
     if (readonly || !onChange) return;
@@ -53,7 +53,7 @@ export function StarRating({
             key={star}
             filled={filled}
             readonly={readonly}
-            sizeClass={sizeClasses[size]}
+            sizeClass={SIZE_CLASSES[size]}
             star={star}
             onClick={handleClick}
             onMouseEnter={handleMouseEnter}

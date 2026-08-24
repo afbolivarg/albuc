@@ -21,7 +21,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import type { Book } from "@/lib/db/schema";
-import { useT } from "@/lib/i18n/client";
+import { useActionMessage, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
 import { updateBookNotesAction } from "./actions";
 
@@ -31,6 +31,7 @@ interface BookNotesProps {
 
 export function BookNotes({ book }: BookNotesProps) {
   const t = useT();
+  const actionMessage = useActionMessage();
   const router = useRouter();
   const [state, formAction] = useActionState(updateBookNotesAction, null);
   const [isEditing, setIsEditing] = useState(false);
@@ -130,7 +131,7 @@ export function BookNotes({ book }: BookNotesProps) {
     <div className="relative flex min-h-[70vh] flex-col overflow-hidden bg-background md:h-full md:min-h-0">
       {state?.error && (
         <div className="shrink-0 border-b border-destructive/20 bg-destructive/10 px-5 py-2 text-sm text-destructive">
-          {t("common.error")}: {state.error}
+          {t("common.error")}: {actionMessage(state.error)}
         </div>
       )}
 

@@ -35,11 +35,6 @@ export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const token_hash = searchParams.get("token_hash");
   const type = searchParams.get("type") as EmailOtpType | null;
-  let next = searchParams.get("next") ?? "/library";
-
-  if (!next.startsWith("/")) {
-    next = "/library";
-  }
 
   if (token_hash && type) {
     const supabase = createClient(await cookies());
@@ -61,7 +56,7 @@ export async function GET(request: NextRequest) {
             .where(eq(users.id, appUser.id));
         }
         const destination = appUser.onboardingCompletedAt
-          ? next
+          ? "/library"
           : "/onboarding";
         const redirectResponse = NextResponse.redirect(
           buildRedirectUrl(request, destination),
@@ -77,7 +72,7 @@ export async function GET(request: NextRequest) {
           userId: data.user.id,
         });
         return NextResponse.redirect(
-          buildRedirectUrl(request, "/?error=user_creation_failed"),
+          buildRedirectUrl(request, "/sign-in?error=auth.userCreateFailed"),
         );
       }
     }
@@ -89,9 +84,6 @@ export async function GET(request: NextRequest) {
   }
 
   return NextResponse.redirect(
-    buildRedirectUrl(
-      request,
-      `/sign-in?error=${encodeURIComponent("Invalid or expired sign-in link. Please try again.")}`,
-    ),
+    buildRedirectUrl(request, "/sign-in?error=auth.linkInvalid"),
   );
 }

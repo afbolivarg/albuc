@@ -12,6 +12,9 @@ export interface BookSearchResult {
   isbn13?: string[];
 }
 
+export const SEARCH_RESULT_LIMIT = 20;
+export const MIN_SEARCH_QUERY_LENGTH = 3;
+
 export function getCoverUrl(
   coverId: number | undefined,
   size: "S" | "M" | "L" = "M",

@@ -18,8 +18,9 @@ import {
   PromptInputTextarea,
 } from "@/components/ai-elements/prompt-input";
 import { AlbucLogo } from "@/components/albuc-logo";
-import { getChatErrorMessage } from "@/lib/ai/chat-errors";
+import { getChatErrorKey } from "@/lib/ai/chat-errors";
 import type { AskMessage, AskSource } from "@/lib/ai/citations";
+import { joinTextParts } from "@/lib/ai/message-text";
 import {
   type AIUsageSnapshot,
   SOFT_MONTHLY_QUERY_LIMIT,
@@ -32,10 +33,7 @@ function messageSources(message: AskMessage): AskSource[] {
 }
 
 function messageText(message: AskMessage): string {
-  return message.parts
-    .filter((part) => part.type === "text")
-    .map((part) => part.text)
-    .join("");
+  return joinTextParts(message.parts);
 }
 
 interface ChatInterfaceProps {
@@ -78,7 +76,7 @@ export function ChatInterface({
   }, [messages, status, onQueryComplete]);
 
   const isLoading = status === "streaming" || status === "submitted";
-  const displayError = error ? getChatErrorMessage(error) : undefined;
+  const displayError = error ? t(getChatErrorKey(error)) : undefined;
   const inputDisabled = isLoading || !usage.allowed;
 
   const handleSubmit = (message: PromptInputMessage) => {

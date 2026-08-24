@@ -16,12 +16,12 @@ import {
   Card,
   CardContent,
   CardDescription,
-  CardFooter,
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { useActionMessage, useLocale, useT } from "@/lib/i18n/client";
 
 type AuthFormProps = {
   title: string;
@@ -30,6 +30,7 @@ type AuthFormProps = {
   submitLabel: string;
   children: ReactNode;
   footer?: ReactNode;
+  initialError?: string;
 };
 
 function AuthFormMessage({
@@ -62,13 +63,18 @@ export function AuthForm({
   submitLabel,
   children,
   footer,
+  initialError,
 }: AuthFormProps) {
   const [state, formAction] = useActionState(action, {});
+  const locale = useLocale();
+  const message = useActionMessage();
+  const shownError = message(state.error ?? initialError);
+  const shownMessage = message(state.message);
 
   return (
     <Card className="w-full max-w-sm">
       <CardHeader>
-        <Link href="/" className="w-fit" aria-label="Go to home">
+        <Link href="/" className="w-fit" aria-label="Albuc">
           <AlbucLogo className="mb-6" iconClassName="w-8 h-8" />
         </Link>
         <CardTitle>{title}</CardTitle>
@@ -76,13 +82,14 @@ export function AuthForm({
       </CardHeader>
       <CardContent className="space-y-4">
         <form action={formAction} className="space-y-4">
+          <input name="locale" type="hidden" value={locale} />
           {children}
           <AuthSubmitButton>{submitLabel}</AuthSubmitButton>
-          {state.message && (
-            <AuthFormMessage variant="success">{state.message}</AuthFormMessage>
+          {shownMessage && (
+            <AuthFormMessage variant="success">{shownMessage}</AuthFormMessage>
           )}
-          {state.error && (
-            <AuthFormMessage variant="error">{state.error}</AuthFormMessage>
+          {shownError && (
+            <AuthFormMessage variant="error">{shownError}</AuthFormMessage>
           )}
         </form>
       </CardContent>
@@ -128,6 +135,7 @@ export function AuthField({
   labelExtra,
   validateEmailOnBlur,
 }: AuthFieldProps) {
+  const t = useT();
   const [fieldError, setFieldError] = useState<string | null>(null);
   const errorId = `${id}-error`;
 
@@ -142,8 +150,8 @@ export function AuthField({
       return;
     }
 
-    const isValid = z.string().email().safeParse(value).success;
-    setFieldError(isValid ? null : "Enter a valid email address.");
+    const isValid = z.email().safeParse(value).success;
+    setFieldError(isValid ? null : t("auth.invalidEmail"));
   }
 
   return (
@@ -175,15 +183,5 @@ export function AuthField({
       )}
       {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
     </div>
-  );
-}
-
-export function AuthFooter({ children }: { children: ReactNode }) {
-  return (
-    <CardFooter className="justify-center border-t-0 px-6 pt-0">
-      <div className="text-center text-sm text-muted-foreground">
-        {children}
-      </div>
-    </CardFooter>
   );
 }

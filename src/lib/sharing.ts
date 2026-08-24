@@ -16,7 +16,3 @@ export function publicProfilePath(handle: string) {
 export function publicNoteUrl(slug: string) {
   return `${env.NEXT_PUBLIC_SITE_URL}/n/${slug}`;
 }
-
-export function publicProfileUrl(handle: string) {
-  return `${env.NEXT_PUBLIC_SITE_URL}${publicProfilePath(handle)}`;
-}

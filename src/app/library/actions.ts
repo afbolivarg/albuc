@@ -39,7 +39,7 @@ export async function searchBooksAction(
   const user = await getCurrentUser();
 
   if (!user) {
-    return { results: [], error: "Please sign in again to search." };
+    return { results: [], error: "errors.searchSignIn" };
   }
 
   const query = formData.get("query") as string;
@@ -51,7 +51,7 @@ export async function searchBooksAction(
   if (query.trim().length < MIN_SEARCH_QUERY_LENGTH) {
     return {
       results: [],
-      error: `Enter at least ${MIN_SEARCH_QUERY_LENGTH} characters to search.`,
+      error: "errors.searchMin",
     };
   }
 
@@ -65,7 +65,7 @@ export async function searchBooksAction(
     log.error("searchBooksAction failed", toError(error));
     return {
       results: [],
-      error: "Failed to search books",
+      error: "errors.searchFailed",
     };
   }
 }
@@ -78,7 +78,7 @@ export async function addBookAction(
     const user = await getUser();
 
     if (!user) {
-      return { success: false, error: "Please sign in again." };
+      return { success: false, error: "errors.signInAgain" };
     }
 
     const bookData = {
@@ -101,7 +101,7 @@ export async function addBookAction(
     if (existingBook) {
       return {
         success: false,
-        error: "Book already exists in your library",
+        error: "errors.bookExists",
       };
     }
 
@@ -143,7 +143,7 @@ export async function addBookAction(
     log.error("addBookAction failed", toError(error));
     return {
       success: false,
-      error: "Failed to add book",
+      error: "errors.addBookFailed",
     };
   }
 }

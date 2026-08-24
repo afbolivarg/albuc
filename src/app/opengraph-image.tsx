@@ -1,7 +1,6 @@
 import { ImageResponse } from "next/og";
 import { APP_DESCRIPTION, APP_NAME } from "@/lib/pwa";
 
-export const runtime = "edge";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -26,10 +25,17 @@ export default function OpenGraphImage() {
         {APP_NAME}
       </div>
       <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-        <div style={{ fontSize: 72, fontWeight: 700, lineHeight: 1.05 }}>
-          Don&apos;t just read.
-          <br />
-          Build ideas.
+        <div
+          style={{
+            display: "flex",
+            flexDirection: "column",
+            fontSize: 72,
+            fontWeight: 700,
+            lineHeight: 1.05,
+          }}
+        >
+          <span>Don&apos;t just read.</span>
+          <span>Build ideas.</span>
         </div>
         <div style={{ fontSize: 28, color: "#57534e", maxWidth: 820 }}>
           {APP_DESCRIPTION}

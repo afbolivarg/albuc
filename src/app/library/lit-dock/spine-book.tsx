@@ -33,6 +33,7 @@ function SpineBookComponent({
   return (
     <Link
       href={`/library/${book.id}`}
+      prefetch
       data-book-id={book.id}
       onClick={onNavigate}
       className={cn(

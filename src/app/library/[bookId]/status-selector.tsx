@@ -14,7 +14,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import type { Book } from "@/lib/db/schema";
-import { useT } from "@/lib/i18n/client";
+import { useActionMessage, useT } from "@/lib/i18n/client";
 import { updateBookStatusAction } from "./actions";
 
 interface StatusSelectorProps {
@@ -24,6 +24,7 @@ interface StatusSelectorProps {
 
 export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
   const t = useT();
+  const actionMessage = useActionMessage();
   const statusOptions = [
     {
       value: "WANT" as const,
@@ -107,7 +108,9 @@ export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
         </SelectContent>
       </Select>
       {state?.error && (
-        <div className="text-xs text-destructive">Error: {state.error}</div>
+        <div className="text-xs text-destructive">
+          {t("common.error")}: {actionMessage(state.error)}
+        </div>
       )}
     </div>
   );

@@ -1,47 +1,22 @@
 "use client";
 
-import {
-  BookOpen,
-  Check,
-  ChevronLeft,
-  ChevronRight,
-  Loader,
-  Plus,
-  Search,
-  X,
-} from "lucide-react";
-import Image from "next/image";
+import { ChevronLeft, Loader, Search, X } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
-import { StarRating } from "@/components/star-rating";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useActionMessage, useT } from "@/lib/i18n/client";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { useT } from "@/lib/i18n/client";
-import { MIN_SEARCH_QUERY_LENGTH } from "@/lib/open-library";
-import { type BookSearchResult, getCoverUrl } from "@/lib/open-library.shared";
+  type BookSearchResult,
+  getCoverUrl,
+  MIN_SEARCH_QUERY_LENGTH,
+} from "@/lib/open-library.shared";
 import { cn } from "@/lib/utils";
 import { addBookAction, searchBooksAction } from "../actions";
-
-type BookStatus = "WANT" | "OWNED" | "READING" | "READ";
-
-const STATUS_OPTIONS = [
-  { value: "WANT", color: "bg-gray-500" },
-  { value: "OWNED", color: "bg-red-500" },
-  { value: "READING", color: "bg-yellow-500" },
-  { value: "READ", color: "bg-green-500" },
-] as const satisfies ReadonlyArray<{
-  value: BookStatus;
-  color: string;
-}>;
+import { AddBookDetail } from "./add-book-detail";
+import { AddBookResults } from "./add-book-results";
+import type { BookStatus, SavedShelfEntry } from "./add-book-types";
 
 const SEARCH_DEBOUNCE_MS = 350;
 const COVER_WARMUP_MS = 800;
@@ -69,18 +44,13 @@ async function warmupResultCovers(books: BookSearchResult[]) {
   ]);
 }
 
-type SavedShelfEntry = {
-  id: string;
-  status: BookStatus;
-  rating: number;
-};
-
 type AddBookViewProps = {
   savedBooks: Record<string, SavedShelfEntry>;
 };
 
 export function AddBookView({ savedBooks }: AddBookViewProps) {
   const t = useT();
+  const actionMessage = useActionMessage();
   const statusLabels: Record<BookStatus, string> = {
     WANT: t("library.status.WANT_LONG"),
     OWNED: t("library.status.OWNED_LONG"),
@@ -134,7 +104,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
       } catch {
         if (latestQuery.current !== trimmed) return;
         setResults([]);
-        setSearchError("Could not reach the catalog. Try again in a moment.");
+        setSearchError("errors.catalogUnreachable");
       } finally {
         if (latestQuery.current === trimmed) {
           setIsSearching(false);
@@ -179,32 +149,31 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
     formData.append("status", status);
     formData.append("rating", rating.toString());
 
-    const result = await addBookAction({ success: false }, formData);
+    try {
+      const result = await addBookAction({ success: false }, formData);
 
-    setIsAdding(false);
-
-    if (result.success && result.bookId) {
-      setAdded((prev) => ({
-        ...prev,
-        [selected.workKey]: {
-          id: result.bookId as string,
-          status,
-          rating,
-        },
-      }));
-      router.refresh();
-    } else {
-      setAddError(result.error ?? "Failed to add book");
+      if (result.success && result.bookId) {
+        setAdded((prev) => ({
+          ...prev,
+          [selected.workKey]: {
+            id: result.bookId as string,
+            status,
+            rating,
+          },
+        }));
+        router.refresh();
+      } else {
+        setAddError(result.error ?? "errors.addBookFailed");
+      }
+    } finally {
+      setIsAdding(false);
     }
   };
 
-  const currentStatus = STATUS_OPTIONS.find((o) => o.value === status);
   const savedEntry = selected ? added[selected.workKey] : undefined;
-  const isSelectedSaved = Boolean(savedEntry);
 
   return (
     <div className="flex h-full flex-col overflow-hidden bg-background font-sans text-foreground md:flex-row">
-      {/* ── Left panel ─────────────────────────────────────────── */}
       <div
         className={cn(
           "w-full flex-1 flex-col overflow-hidden border-border bg-white md:flex md:w-80 md:flex-none md:border-r",
@@ -236,7 +205,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
               autoComplete="off"
               className="h-9 bg-muted pr-9 pl-9 text-[13.5px] focus-visible:bg-background"
             />
-            {query && (
+            {query ? (
               <button
                 type="button"
                 onClick={handleClearSearch}
@@ -245,7 +214,7 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
               >
                 <X className="size-3.5" />
               </button>
-            )}
+            ) : null}
           </div>
         </div>
 
@@ -256,108 +225,20 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
               <span>Searching the catalog…</span>
             </div>
           ) : results.length > 0 ? (
-            <ul className="py-1">
-              {results.map((book) => {
-                const isSelected = selected?.workKey === book.workKey;
-                const isSaved = book.workKey in added;
-                const cover = getCoverUrl(book.coverId, "S");
-                const meta = [
-                  book.authors.length > 0
-                    ? book.authors.join(", ")
-                    : "Unknown Author",
-                  book.publishYear?.toString(),
-                ]
-                  .filter(Boolean)
-                  .join(" · ");
-
-                return (
-                  <li key={book.workKey}>
-                    <button
-                      type="button"
-                      onClick={() => handleSelect(book)}
-                      className={cn(
-                        "mb-[3px] flex w-full items-center gap-[11px] rounded-[10px] border border-transparent px-[11px] py-2.5 text-left transition-colors",
-                        isSelected ? "bg-foreground" : "hover:bg-muted",
-                      )}
-                    >
-                      <div
-                        className={cn(
-                          "flex h-11 w-[30px] flex-shrink-0 items-center justify-center overflow-hidden rounded-[3px] bg-muted",
-                          isSelected && "bg-neutral-700",
-                        )}
-                      >
-                        {cover ? (
-                          <Image
-                            src={cover}
-                            alt={book.title}
-                            width={30}
-                            height={44}
-                            unoptimized
-                            loading="eager"
-                            className="h-full w-full object-cover"
-                          />
-                        ) : (
-                          <BookOpen className="size-4 text-muted-foreground" />
-                        )}
-                      </div>
-
-                      <div className="min-w-0 flex-1">
-                        <div
-                          className={cn(
-                            "truncate font-serif text-[13px] font-semibold leading-tight",
-                            isSelected
-                              ? "text-white"
-                              : isSaved
-                                ? "text-muted-foreground"
-                                : "text-foreground",
-                          )}
-                        >
-                          {book.title}
-                        </div>
-                        <div
-                          className={cn(
-                            "truncate text-[11px]",
-                            isSelected
-                              ? "text-white/50"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          {meta}
-                        </div>
-                      </div>
-
-                      {isSaved ? (
-                        <span
-                          className={cn(
-                            "inline-flex flex-shrink-0 items-center gap-1 text-[10.5px]",
-                            isSelected
-                              ? "text-white/60"
-                              : "text-muted-foreground",
-                          )}
-                        >
-                          <Check className="size-3" />
-                          Saved
-                        </span>
-                      ) : (
-                        <ChevronRight
-                          className={cn(
-                            "size-4 flex-shrink-0",
-                            isSelected ? "text-white/35" : "text-neutral-400",
-                          )}
-                        />
-                      )}
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
+            <AddBookResults
+              added={added}
+              onSelect={handleSelect}
+              results={results}
+              selectedWorkKey={selected?.workKey ?? null}
+            />
           ) : query.trim().length >= MIN_SEARCH_QUERY_LENGTH ? (
             <div className="flex h-full flex-col items-center justify-center gap-2 px-4 py-12 text-center">
               <p className="font-serif text-[17px] text-neutral-400 italic">
-                No books found
+                {t("add.noResults")}
               </p>
               <p className="text-xs text-neutral-400">
-                {searchError ?? "Try different keywords or check the spelling."}
+                {actionMessage(searchError, { n: MIN_SEARCH_QUERY_LENGTH }) ??
+                  t("add.searchRetry")}
               </p>
             </div>
           ) : (
@@ -382,7 +263,6 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
         </div>
       </div>
 
-      {/* ── Right panel ────────────────────────────────────────── */}
       <div
         className={cn(
           "flex-1 flex-col overflow-y-auto bg-background md:flex",
@@ -390,137 +270,19 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
         )}
       >
         {selected ? (
-          <div className="flex flex-1 flex-col">
-            <div className="flex-shrink-0 px-5 pt-7 pb-3.5 md:hidden">
-              <button
-                type="button"
-                onClick={() => setSelected(null)}
-                className="inline-flex items-center gap-1.5 py-1 text-[13px] text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <ChevronLeft className="size-4" />
-                Back to results
-              </button>
-            </div>
-
-            <div className="mx-auto flex w-full max-w-[760px] flex-col items-center gap-9 px-6 pt-16 pb-10 md:flex-row md:items-start md:px-12 md:pt-24 md:pb-12">
-              <DetailCover book={selected} />
-
-              <div className="flex w-full min-w-0 flex-1 flex-col">
-                <h1 className="mb-[7px] text-center font-serif text-[26px] font-bold leading-[1.1] tracking-tight md:text-left">
-                  {selected.title}
-                </h1>
-                <p className="text-center text-sm text-muted-foreground md:text-left">
-                  {selected.authors.length > 0
-                    ? selected.authors.join(", ")
-                    : "Unknown Author"}
-                </p>
-                {selected.publishYear && (
-                  <p className="text-center text-xs text-neutral-500 md:text-left">
-                    First published {selected.publishYear}
-                  </p>
-                )}
-
-                <div className="mt-7 flex flex-col gap-5">
-                  <div className="flex flex-col gap-[7px]">
-                    <span className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
-                      Status
-                    </span>
-                    <Select
-                      value={status}
-                      onValueChange={(value) => setStatus(value as BookStatus)}
-                      disabled={isSelectedSaved}
-                    >
-                      <SelectTrigger className="h-9 w-full bg-background shadow-none md:w-[220px]">
-                        <SelectValue>
-                          <div className="flex items-center gap-2">
-                            <span
-                              className={cn(
-                                "size-2.5 rounded-full",
-                                currentStatus?.color ?? "bg-gray-400",
-                              )}
-                            />
-                            <span>{statusLabels[status]}</span>
-                          </div>
-                        </SelectValue>
-                      </SelectTrigger>
-                      <SelectContent>
-                        {STATUS_OPTIONS.map((option) => (
-                          <SelectItem key={option.value} value={option.value}>
-                            <div className="flex items-center gap-2">
-                              <span
-                                className={cn(
-                                  "size-2.5 rounded-full",
-                                  option.color,
-                                )}
-                              />
-                              <span>{statusLabels[option.value]}</span>
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="flex flex-col gap-[7px]">
-                    <span className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
-                      Rating
-                    </span>
-                    <div className="flex items-center gap-2">
-                      <StarRating
-                        rating={rating}
-                        onChange={isSelectedSaved ? undefined : setRating}
-                        readonly={isSelectedSaved}
-                        size="lg"
-                      />
-                      {rating === 0 && (
-                        <span className="text-[11px] text-neutral-400">
-                          Unrated
-                        </span>
-                      )}
-                    </div>
-                  </div>
-
-                  <div className="mt-1 flex flex-col gap-2">
-                    {isSelectedSaved ? (
-                      <Button
-                        asChild
-                        variant="outline"
-                        className="h-10 w-full bg-background text-[13.5px] font-medium md:w-[220px]"
-                      >
-                        <Link
-                          href={
-                            savedEntry
-                              ? `/library/${savedEntry.id}`
-                              : "/library"
-                          }
-                        >
-                          View in library
-                        </Link>
-                      </Button>
-                    ) : (
-                      <Button
-                        type="button"
-                        onClick={handleAdd}
-                        disabled={isAdding}
-                        className="h-10 w-full text-sm font-medium md:w-[220px]"
-                      >
-                        {isAdding ? (
-                          <Loader className="size-4 animate-spin" />
-                        ) : (
-                          <Plus className="size-4" />
-                        )}
-                        {t("add.toLibrary")}
-                      </Button>
-                    )}
-
-                    {addError && (
-                      <p className="text-xs text-destructive">{addError}</p>
-                    )}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+          <AddBookDetail
+            addError={actionMessage(addError)}
+            book={selected}
+            isAdding={isAdding}
+            onAdd={handleAdd}
+            onBack={() => setSelected(null)}
+            onRatingChange={setRating}
+            onStatusChange={setStatus}
+            rating={rating}
+            savedEntry={savedEntry}
+            status={status}
+            statusLabels={statusLabels}
+          />
         ) : (
           <div className="flex flex-1 flex-col items-center justify-center">
             <div className="flex w-full max-w-sm flex-col items-center gap-2.5 px-6 py-10 text-center text-neutral-400">
@@ -536,28 +298,6 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function DetailCover({ book }: { book: BookSearchResult }) {
-  const cover = getCoverUrl(book.coverId, "L");
-
-  return (
-    <div className="h-[180px] w-[120px] flex-shrink-0 overflow-hidden rounded-[14px] bg-border shadow-[0_4px_24px_rgba(0,0,0,0.10)] md:h-[300px] md:w-[200px]">
-      {cover ? (
-        <Image
-          src={cover}
-          alt={book.title}
-          width={200}
-          height={300}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center">
-          <BookOpen className="size-8 text-muted-foreground" />
-        </div>
-      )}
     </div>
   );
 }

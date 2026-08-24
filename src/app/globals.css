@@ -58,7 +58,7 @@
   --secondary: oklch(0.97 0 0);
   --secondary-foreground: oklch(0.205 0 0);
   --muted: oklch(0.97 0 0);
-  --muted-foreground: oklch(0.556 0 0);
+  --muted-foreground: oklch(0.42 0.01 75);
   --accent: oklch(0.97 0 0);
   --accent-foreground: oklch(0.205 0 0);
   --destructive: oklch(0.577 0.245 27.325);
@@ -187,6 +187,20 @@
 
 .albuc-note-editor.mdxeditor {
   --font-body: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --note-pad-top: 1.75rem;
+  --note-pad-bottom: 2rem;
+  --note-pad-inline: clamp(2rem, 6vw, 4.5rem);
+}
+
+.albuc-note-editor:not(.albuc-note-editor--readonly) {
+  --note-pad-top: 5.5rem;
+}
+
+@media (min-width: 768px) {
+  .albuc-note-editor.mdxeditor,
+  .albuc-note-editor:not(.albuc-note-editor--readonly) {
+    --note-pad-top: 5.5rem;
+  }
 }
 
 .albuc-note-editor > div:not(.mdxeditor-toolbar) {
@@ -197,7 +211,7 @@
 
 .albuc-note-editor .mdxeditor-root-contenteditable {
   box-sizing: border-box;
-  padding-inline: clamp(2rem, 6vw, 4.5rem);
+  padding-inline: var(--note-pad-inline);
 }
 
 .albuc-note-editor-toolbar.mdxeditor-toolbar,
@@ -269,12 +283,7 @@
   width: 100%;
   max-width: 40rem;
   margin-inline: auto;
-  padding: 1.25rem 0 6rem !important;
-}
-
-.albuc-note-editor:not(.albuc-note-editor--readonly)
-  .albuc-note-editor-content {
-  padding-top: 5.5rem !important;
+  padding: var(--note-pad-top) 0 var(--note-pad-bottom) !important;
 }
 
 .albuc-note-editor-content[contenteditable] {
@@ -287,15 +296,15 @@
   position: absolute !important;
   top: 0 !important;
   bottom: auto !important;
-  left: 0;
-  right: 0;
+  left: var(--note-pad-inline);
+  right: var(--note-pad-inline);
   height: auto !important;
   min-height: 0 !important;
   box-sizing: border-box;
-  width: 100%;
+  width: auto;
   max-width: 40rem;
-  margin: 0 auto !important;
-  padding: 1.25rem 0 0 !important;
+  margin-inline: auto !important;
+  padding: var(--note-pad-top) 0 0 !important;
   color: var(--muted-foreground);
   overflow: visible;
   white-space: normal;

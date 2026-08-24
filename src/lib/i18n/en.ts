@@ -8,8 +8,6 @@ export const en = {
   "nav.add": "Add",
   "nav.ask": "Ask",
   "common.error": "Error",
-  "common.save": "Save",
-  "common.cancel": "Cancel",
   "common.language": "Language",
   "lang.en": "English",
   "lang.es": "Español",
@@ -63,6 +61,8 @@ export const en = {
   "library.ok": "OK",
   "add.title": "Add a book",
   "add.toLibrary": "Add to library",
+  "add.searchRetry": "Try different keywords or check the spelling.",
+  "add.noResults": "No books found. Try another title.",
   "ask.empty": "Ask me anything about your library and notes",
   "ask.placeholder": "Ask a question about your library...",
   "ask.searching": "Searching your library…",
@@ -109,23 +109,132 @@ export const en = {
   "onboarding.three": "Three things, and that's the whole product.",
   "onboarding.start": "Start reading",
   "privacy.title": "Privacy",
+  "privacy.metaDescription": "How Albuc handles your data.",
   "privacy.intro":
     "Albuc stores what you give it: your email, your book library, and your notes. That's it.",
   "privacy.whatTitle": "What we store",
+  "privacy.itemEmail": "Your account email",
+  "privacy.itemBooks":
+    "Books you add and their metadata (title, author, cover)",
+  "privacy.itemNotes": "Notes you write for each book",
+  "privacy.itemAsk":
+    "How often you use the Ask feature (for basic usage stats)",
   "privacy.whoTitle": "Who sees your data",
   "privacy.whoBody":
     "Your library and notes are private to your account unless you choose to share. When you use Ask, your question and relevant note excerpts are sent to an AI provider to generate an answer. We use Supabase for auth and database hosting. If you turn on a public profile or a public note, that chosen shelf or note is visible to anyone with the link.",
   "privacy.analyticsTitle": "Site analytics",
+  "privacy.analyticsBody":
+    "We use Vercel Analytics to understand basic usage — page views, where visitors come from, that kind of thing. No ad tracking, no selling that data.",
   "privacy.dontTitle": "What we don't do",
   "privacy.dontBody":
     "We don't sell your data. We don't show ads. Private notes stay private until you publish them.",
   "terms.title": "Terms",
+  "terms.metaDescription": "Terms of use for Albuc.",
+  "terms.intro":
+    "Albuc is a free service for managing your personal book library and notes. By using it, you agree to these simple terms.",
+  "terms.responsibleTitle": "Use it responsibly",
+  "terms.responsibleBody":
+    "Don't abuse the service, spam signups, or try to break it. Don't upload illegal content. Your account is for your personal use.",
+  "terms.guaranteesTitle": "No guarantees",
+  "terms.guaranteesBody":
+    "Albuc is provided as-is. I do my best to keep it running, but there's no uptime guarantee. AI answers may be wrong — always trust your own reading over what Ask returns.",
+  "terms.accountsTitle": "Accounts",
+  "terms.accountsBody":
+    "I may suspend or remove accounts that violate these terms or abuse the service. The service may change or shut down — I'll try to give reasonable notice if that ever happens.",
+  "terms.closing": "That's it. Read books, take notes, build ideas.",
   "public.from": "from {handle}'s library",
   "public.back": "Back",
   "public.shelfTitle": "{handle}'s library",
-  "public.privateNotes": "Notes on this shelf stay private.",
-  "public.notFound": "This page isn't public.",
   "why.title": "Why Albuc exists",
+  "why.metaTitle": "Why Albuc",
+  "why.metaDescription":
+    "The story behind Albuc, a personal library and notes app for readers.",
+  "why.p1":
+    "I read a lot. Or at least I try to. And every time I finished a book, the same thing happened: the ideas faded. Highlights lived in three different apps. Notes were scattered between the actual pages of the book, my notebooks, Notion, and Apple Notes. Goodreads knew what I read, but not what I thought about it.",
+  "why.p2":
+    "I wanted one place: a library that felt like mine. Not a social feed, not a generic note app. Something where each book had a shelf, a status, a rating, and room for my own words. Something where I could later ask “what did I think about X?” and get an answer from my notes, not the internet.",
+  "why.p3":
+    "Goodreads gives you the catalog. Notion gives you the blank page. Neither gives you both, tied to the books you actually read. That gap is what Albuc fills.",
+  "why.freeTitle": "Why it's free",
+  "why.freeBody":
+    "I built this because I needed it. I'm a developer, and this is the tool I wished existed. Hosting it costs me a little, but not much, and the joy of other readers using something I made is worth more than charging for it. No paywall, no premium tier. Just sign up and use it.",
+  "why.codeBefore": "The code is open on",
+  "why.codeAfter":
+    "if you're curious how it works. But you don't need to run anything yourself. Just come read, take notes, and build on what you learn.",
+  "why.cta": "Start your library",
+  "home.metaDescription":
+    "Your personal library and notes, beautifully organized.",
+  "a11y.skip": "Skip to content",
+  "footer.builtBy": "Built by",
+  "features.poweredBy": "Powered by",
+  "features.openLibraryLede1": "Millions of titles. One search.",
+  "features.openLibraryLede2": "Your shelf, not someone else's algorithm.",
+  "features.shelfAria":
+    "An illustration of a bookshelf showing the spines of many books.",
+  "features.edit": "Edit",
+  "features.preview": "Preview",
+  "features.savedAgo": "Saved · 2 min ago",
+  "features.notesDemoOn": "On {book}",
+  "features.notesDemoSource":
+    '# On {book}\n\nThiel\'s 0 → 1 frame: real progress is creating something new — not competing in crowded markets.\n\n> "Every moment in business happens only once."',
+  "features.notesDemoBody":
+    "Thiel's 0 → 1 frame: real progress is creating something new — not competing in crowded markets.",
+  "features.notesDemoQuote": "Every moment in business happens only once.",
+  "features.askDemoQuestion": "What did I think about {book}?",
+  "features.askDemoAnswer":
+    "You wrote that Thiel's 0 → 1 frame is the through-line — real progress means creating something new, not competing in crowded markets. You linked this to {book2}: that paying close attention is choosing what to make real.",
+  "features.askDemoCite2Quote":
+    "Attention is a form of devotion. Choosing where to put it is choosing what to make real.",
+  "features.builderQuote1":
+    "I wanted one place. A library that felt like mine. Not a social feed, not a generic note app. Something where I could later ask",
+  "features.builderQuoteAsk": "what did I think about X?",
+  "features.builderQuote2":
+    "and get an answer from my notes, not the internet.",
+  "offline.title": "You're offline",
+  "offline.body":
+    "Albuc needs a connection for this page. Check your network and try again.",
+  "offline.retry": "Try again",
+  "notFound.title": "Page not found",
+  "notFound.body": "Sorry, we couldn't find the page you're looking for.",
+  "notFound.home": "Return home",
+  "error.oops": "Oops!",
+  "error.title": "Something went wrong",
+  "error.body": "We're sorry, but something unexpected happened.",
+  "auth.invalidEmail": "Enter a valid email address.",
+  "auth.sendFailed": "Could not send the sign-in link. Please try again.",
+  "auth.emailRequired": "Email is required.",
+  "auth.checkEmail": "Check your email for the sign-in link.",
+  "auth.genericError": "Something went wrong. Please try again.",
+  "auth.linkInvalid": "Invalid or expired sign-in link. Please try again.",
+  "auth.userCreateFailed":
+    "Could not finish creating your account. Please try again.",
+  "errors.generic": "Something went wrong.",
+  "errors.signInAgain": "Please sign in again.",
+  "errors.authRequired": "Authentication required",
+  "errors.missingFields": "Missing required fields",
+  "errors.bookNotFound": "Book not found",
+  "errors.updateFailed": "Failed to update book",
+  "errors.statusUpdateFailed": "Failed to update status",
+  "errors.ratingInvalid": "Rating must be a whole number from 0 to 5",
+  "errors.ratingUpdateFailed": "Failed to update rating",
+  "errors.notesUpdateFailed": "Failed to update notes",
+  "errors.sharingUpdateFailed": "Failed to update sharing",
+  "errors.searchFailed": "Failed to search books",
+  "errors.searchSignIn": "Please sign in again to search.",
+  "errors.searchMin": "Enter at least {n} characters to search.",
+  "errors.addBookFailed": "Failed to add book",
+  "errors.bookExists": "Book already exists in your library",
+  "errors.catalogUnreachable":
+    "Could not reach the catalog. Try again in a moment.",
+  "errors.saveName": "Could not save your name.",
+  "errors.nameRequired": "Enter your first and last name.",
+  "errors.addNameFirst": "Add your name first.",
+  "errors.handleFormat": "Use 3–24 letters, numbers, or hyphens.",
+  "errors.handleRequired": "Choose a handle before making your shelf public.",
+  "errors.handleTaken": "That handle is already taken.",
+  "errors.localeInvalid": "Invalid locale",
+  "ask.error":
+    "We're experiencing issues. Please report this and try again later.",
 } as const;
 
 export type MessageKey = keyof typeof en;

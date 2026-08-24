@@ -154,10 +154,3 @@ export async function recordAIUsage(options: {
       ),
     );
 }
-
-export async function incrementAIUsage(
-  userId: string,
-  counterId?: string,
-): Promise<void> {
-  await recordAIUsage({ userId, counterId, queries: 1 });
-}

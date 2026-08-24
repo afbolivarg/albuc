@@ -1,9 +1,9 @@
-"use client";
-
 import { Edit3, Eye } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { useT } from "@/lib/i18n/client";
+import type { Locale } from "@/lib/i18n/config";
+import type { MessageKey } from "@/lib/i18n/en";
+import { translate } from "@/lib/i18n/translate";
 import { cn } from "@/lib/utils";
 
 const LANDING_SECTION_GAP = "flex flex-col gap-16 md:gap-40";
@@ -89,29 +89,9 @@ const SPINE_DATA = SHELF_BOOKS.map((book, index) => {
   };
 });
 
-function NotesSourcePreview() {
-  return (
-    <>
-      <span className="text-muted-foreground"># </span>On{" "}
-      <span className="font-semibold">Zero to One</span>
-      {"\n\n"}
-      Thiel&apos;s <span className="font-semibold">0 → 1</span> frame: real
-      {"\n"}
-      progress is creating something new — not
-      {"\n"}
-      competing in crowded markets.
-      {"\n\n"}
-      <span className="text-muted-foreground">&gt; </span>
-      &quot;Every moment in business
-      {"\n"}
-      <span className="text-muted-foreground">&gt; </span>
-      happens only once.&quot;
-    </>
-  );
-}
+type Copy = (key: MessageKey, vars?: Record<string, string | number>) => string;
 
-function Positioning() {
-  const t = useT();
+function Positioning({ t }: { t: Copy }) {
   return (
     <div className="mx-auto max-w-3xl text-center">
       <h2 className="m-0 font-serif text-4xl font-bold leading-tight tracking-tight text-foreground md:text-5xl lg:text-6xl [&_em]:font-bold [&_em]:italic">
@@ -125,8 +105,7 @@ function Positioning() {
   );
 }
 
-function LibrarySection() {
-  const t = useT();
+function LibrarySection({ t }: { t: Copy }) {
   return (
     <div className="overflow-hidden rounded-3xl bg-muted pt-8 pb-0 md:px-10 md:pt-10">
       <div className="mb-9 grid grid-cols-1 items-end gap-10 px-8 md:px-0 md:grid-cols-[1fr_auto]">
@@ -138,21 +117,21 @@ function LibrarySection() {
         <div className="flex max-w-xs flex-col gap-2 text-sm text-muted-foreground max-md:max-w-none md:text-right">
           <span>
             <strong className="font-semibold text-foreground">
-              Powered by{" "}
+              {t("features.poweredBy")}{" "}
               <a
                 href="https://openlibrary.org"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="hover:underline underline-offset-4"
+                className="underline-offset-4 hover:underline"
               >
                 Open Library
               </a>
             </strong>
           </span>
           <span>
-            Millions of titles. One search.
+            {t("features.openLibraryLede1")}
             <br />
-            Your shelf, not someone else&apos;s algorithm.
+            {t("features.openLibraryLede2")}
           </span>
         </div>
       </div>
@@ -163,7 +142,7 @@ function LibrarySection() {
           showcaseClass,
         )}
         role="img"
-        aria-label="An illustration of a bookshelf showing the spines of many books."
+        aria-label={t("features.shelfAria")}
       >
         {SPINE_DATA.map((s) => (
           <div
@@ -189,8 +168,8 @@ function LibrarySection() {
   );
 }
 
-function NotesSection() {
-  const t = useT();
+function NotesSection({ t }: { t: Copy }) {
+  const demoBook = "Zero to One";
   return (
     <div className="grid items-center gap-8 lg:grid-cols-[1fr_1.4fr] lg:gap-12">
       <div>
@@ -208,31 +187,28 @@ function NotesSection() {
         <div className="flex items-center gap-2 border-b border-border bg-background px-4 py-2">
           <span className="inline-flex cursor-default items-center gap-1.5 rounded-sm px-2 py-1 text-xs text-muted-foreground">
             <Edit3 size={12} aria-hidden />
-            Edit
+            {t("features.edit")}
           </span>
           <span className="inline-flex cursor-default items-center gap-1.5 rounded-sm bg-muted px-2 py-1 text-xs font-medium text-foreground">
             <Eye size={12} aria-hidden />
-            Preview
+            {t("features.preview")}
           </span>
           <span className="flex-1" />
           <span className="text-xs text-muted-foreground">
-            Saved · 2 min ago
+            {t("features.savedAgo")}
           </span>
         </div>
         <div className="grid min-h-72 grid-cols-2">
           <div className="whitespace-pre-wrap border-r border-border bg-background p-5 font-mono text-xs leading-relaxed text-foreground">
-            <NotesSourcePreview />
+            {t("features.notesDemoSource", { book: demoBook })}
           </div>
           <div className="p-5 font-serif text-base leading-snug text-foreground">
             <h4 className="m-0 mb-2 font-serif text-lg font-bold tracking-tight">
-              On <em>Zero to One</em>
+              {t("features.notesDemoOn", { book: demoBook })}
             </h4>
-            <p className="mb-2 text-pretty">
-              Thiel&apos;s <strong>0 → 1</strong> frame: real progress is
-              creating something new — not competing in crowded markets.
-            </p>
+            <p className="mb-2 text-pretty">{t("features.notesDemoBody")}</p>
             <blockquote className="my-2 border-l-4 border-border pl-4 text-muted-foreground italic">
-              &quot;Every moment in business happens only once.&quot;
+              &quot;{t("features.notesDemoQuote")}&quot;
             </blockquote>
           </div>
         </div>
@@ -241,29 +217,19 @@ function NotesSection() {
   );
 }
 
-function AskSection() {
-  const t = useT();
+function AskSection({ t }: { t: Copy }) {
+  const demoBook = "Zero to One";
+  const demoBook2 = "The Creative Act";
   return (
     <div className="grid items-center gap-8 lg:grid-cols-[1.4fr_1fr] lg:gap-12">
       <div className={cn("order-2 lg:order-none", showcaseClass)}>
         <div className="flex flex-col gap-4 rounded-xl bg-muted p-6">
           <div className="max-w-3/4 self-end rounded-xl bg-primary px-4 py-2 text-sm leading-snug text-primary-foreground">
-            What did I think about <em>Zero to One</em>?
+            {t("features.askDemoQuestion", { book: demoBook })}
           </div>
           <div className="flex w-full flex-col gap-3 font-sans">
-            <div className="text-base leading-relaxed text-pretty text-foreground">
-              You wrote that Thiel&apos;s <strong>0 → 1</strong> frame is the
-              through-line — real progress means creating something new, not
-              competing in crowded markets
-              <span className="relative -top-1 ml-0.5 inline-flex size-5 items-center justify-center rounded-full border border-border bg-card font-sans text-[10px] font-semibold leading-none text-muted-foreground">
-                1
-              </span>
-              . You linked this to <em>The Creative Act</em>: that paying close
-              attention is choosing what to make real
-              <span className="relative -top-1 ml-0.5 inline-flex size-5 items-center justify-center rounded-full border border-border bg-card font-sans text-[10px] font-semibold leading-none text-muted-foreground">
-                2
-              </span>
-              .
+            <div className="text-pretty text-base leading-relaxed text-foreground">
+              {t("features.askDemoAnswer", { book2: demoBook2 })}
             </div>
             <div className="mt-1 flex flex-col gap-2">
               <div className="flex items-start gap-2 rounded-md border border-border bg-card p-2 text-xs leading-snug text-muted-foreground">
@@ -272,10 +238,10 @@ function AskSection() {
                 </span>
                 <div>
                   <div className="text-sm font-semibold text-foreground">
-                    On <em>Zero to One</em>
+                    {t("features.notesDemoOn", { book: demoBook })}
                   </div>
                   <div className="mt-0.5 italic">
-                    &quot;Every moment in business happens only once.&quot;
+                    &quot;{t("features.notesDemoQuote")}&quot;
                   </div>
                 </div>
               </div>
@@ -285,11 +251,10 @@ function AskSection() {
                 </span>
                 <div>
                   <div className="text-sm font-semibold text-foreground">
-                    On <em>The Creative Act</em>
+                    {t("features.notesDemoOn", { book: demoBook2 })}
                   </div>
                   <div className="mt-0.5 italic">
-                    &quot;Attention is a form of devotion. Choosing where to put
-                    it is choosing what to make real.&quot;
+                    &quot;{t("features.askDemoCite2Quote")}&quot;
                   </div>
                 </div>
               </div>
@@ -306,15 +271,13 @@ function AskSection() {
   );
 }
 
-function BuilderNote() {
-  const t = useT();
+function BuilderNote({ t }: { t: Copy }) {
   return (
     <div className="mx-auto flex max-w-2xl flex-col items-center px-0 py-6 pb-2 text-center">
       <blockquote className="m-0 mb-4 font-serif text-xl leading-snug text-pretty text-foreground italic">
-        &quot;I wanted one place. A library that felt like mine. Not a social
-        feed, not a generic note app. Something where I could later ask{" "}
-        <em>&apos;what did I think about X?&apos;</em> and get an answer from my
-        notes, not the internet.&quot;
+        &quot;{t("features.builderQuote1")}{" "}
+        <em>&apos;{t("features.builderQuoteAsk")}&apos;</em>{" "}
+        {t("features.builderQuote2")}&quot;
       </blockquote>
       <p className="m-0 mb-6 text-sm tracking-wide text-muted-foreground">
         — Andrés Bolívar
@@ -326,23 +289,24 @@ function BuilderNote() {
   );
 }
 
-export function LandingFeatures() {
+export function LandingFeatures({ locale }: { locale: Locale }) {
+  const t: Copy = (key, vars) => translate(locale, key, vars);
   return (
     <div className={LANDING_SECTION_GAP}>
       <section>
-        <Positioning />
+        <Positioning t={t} />
       </section>
       <section>
-        <LibrarySection />
+        <LibrarySection t={t} />
       </section>
       <section>
-        <NotesSection />
+        <NotesSection t={t} />
       </section>
       <section>
-        <AskSection />
+        <AskSection t={t} />
       </section>
       <section>
-        <BuilderNote />
+        <BuilderNote t={t} />
       </section>
     </div>
   );

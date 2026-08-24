@@ -12,7 +12,7 @@ import { SORTS } from "./constants";
 import type { ShelfBook, SortDir, SortKey, StatusFilter } from "./types";
 import { sortBooks } from "./utils";
 
-const SHELF_SNAPSHOT_KEY = "albuc:shelf-books";
+const SHELF_SNAPSHOT_KEY = "albuc:shelf-books:v1";
 
 function useRafResizeObserver(
   ref: RefObject<HTMLElement | null>,
@@ -67,29 +67,37 @@ export function useElementHeight(fallback = 600) {
   return [ref, h] as const;
 }
 
-/** Instant shelf on revisit: show cached books before server data reconciles. */
+function shelfSignature(books: ShelfBook[]) {
+  return books
+    .map((book) => `${book.id}:${book.status}:${book.rating}`)
+    .join("|");
+}
+
+/** Instant shelf on revisit: overlay a cached snapshot until server data paints. */
 export function useShelfBooksSnapshot(serverBooks: ShelfBook[]): ShelfBook[] {
-  const [books, setBooks] = useState(serverBooks);
-  const hydratedFromCache = useRef(false);
+  const [cacheOverride, setCacheOverride] = useState<ShelfBook[] | null>(null);
+  const signature = shelfSignature(serverBooks);
+  const [prevSignature, setPrevSignature] = useState(signature);
+
+  if (signature !== prevSignature) {
+    setPrevSignature(signature);
+    setCacheOverride(null);
+  }
 
   useLayoutEffect(() => {
-    if (hydratedFromCache.current) return;
     try {
       const raw = localStorage.getItem(SHELF_SNAPSHOT_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as ShelfBook[];
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setBooks(parsed);
-        }
+      if (!raw) return;
+      const parsed = JSON.parse(raw) as ShelfBook[];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        setCacheOverride(parsed);
       }
     } catch {
       // ignore corrupt snapshot
     }
-    hydratedFromCache.current = true;
   }, []);
 
   useEffect(() => {
-    setBooks(serverBooks);
     try {
       localStorage.setItem(SHELF_SNAPSHOT_KEY, JSON.stringify(serverBooks));
     } catch {
@@ -97,7 +105,7 @@ export function useShelfBooksSnapshot(serverBooks: ShelfBook[]): ShelfBook[] {
     }
   }, [serverBooks]);
 
-  return books;
+  return cacheOverride ?? serverBooks;
 }
 
 export function useLibrary(allBooks: ShelfBook[]) {

@@ -43,7 +43,7 @@ function BookCover({
   );
 }
 
-export function CitationCard({
+function CitationCard({
   source,
   className,
 }: {
@@ -76,6 +76,7 @@ export function CitationCard({
           )}
           <Link
             href={`/library/${source.bookId}`}
+            prefetch
             className="mt-2 inline-flex items-center gap-0.5 text-[12px] font-medium text-foreground/80 transition-colors hover:text-foreground"
           >
             Open book
@@ -137,6 +138,7 @@ export function SourceBooks({ sources }: { sources: AskSource[] }) {
         <Link
           key={source.bookId}
           href={`/library/${source.bookId}`}
+          prefetch
           className="inline-flex items-center gap-2 rounded-full border border-border bg-background py-1 pr-2.5 pl-2.5 transition-colors hover:border-foreground/20"
         >
           <BookCover source={source} className="h-6 w-4 rounded-[2px]" />

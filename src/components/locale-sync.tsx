@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef } from "react";
-import { setPreferredLocaleAction } from "@/lib/i18n/actions";
 import type { Locale } from "@/lib/i18n/config";
+import { persistLocaleCookies } from "@/lib/i18n/persist-cookie";
 
 export function LocaleSync({
   userLocale,
@@ -21,7 +21,7 @@ export function LocaleSync({
       .find((part) => part.startsWith("albuc_locale="))
       ?.split("=")[1];
     if (cookie === userLocale) return;
-    void setPreferredLocaleAction(userLocale);
+    persistLocaleCookies(userLocale);
   }, [localeLocked, userLocale]);
 
   return null;

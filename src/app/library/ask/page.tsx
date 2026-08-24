@@ -3,10 +3,8 @@ import { getAIUsageAction } from "../ai-actions";
 import { AskContainer } from "./ask-container";
 
 export default async function AskPage() {
-  // Fetch initial usage data on the server
   const usageResult = await getAIUsageAction();
 
-  // If no usage data (not authenticated), redirect to login
   if (!usageResult?.data) {
     redirect("/sign-in");
   }

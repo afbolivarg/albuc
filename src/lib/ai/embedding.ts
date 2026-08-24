@@ -69,14 +69,6 @@ export async function generateEmbeddingResult(
   }
 }
 
-export async function generateEmbedding(
-  text: string,
-  taskType: EmbeddingTaskType = "RETRIEVAL_QUERY",
-): Promise<number[]> {
-  const { embedding } = await generateEmbeddingResult(text, taskType);
-  return embedding;
-}
-
 export async function generateEmbeddings(
   texts: string[],
 ): Promise<{ embeddings: number[][]; tokens: number }> {
@@ -84,12 +76,11 @@ export async function generateEmbeddings(
     return { embeddings: [], tokens: 0 };
   }
 
-  const embeddings: number[][] = [];
-  let tokens = 0;
-  for (const text of texts) {
-    const result = await generateEmbeddingResult(text, "RETRIEVAL_DOCUMENT");
-    embeddings.push(result.embedding);
-    tokens += result.tokens;
-  }
-  return { embeddings, tokens };
+  const results = await Promise.all(
+    texts.map((text) => generateEmbeddingResult(text, "RETRIEVAL_DOCUMENT")),
+  );
+  return {
+    embeddings: results.map((result) => result.embedding),
+    tokens: results.reduce((sum, result) => sum + result.tokens, 0),
+  };
 }

@@ -1,6 +1,7 @@
 "use client";
 
 import { Check, Globe, Link2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -11,13 +12,12 @@ import { togglePublicNoteAction } from "./actions";
 
 export function NoteShareControls({ book }: { book: Book }) {
   const t = useT();
-  const [visibility, setVisibility] = useState(book.visibility);
-  const [slug, setSlug] = useState(book.shareSlug);
+  const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [pending, setPending] = useState(false);
 
-  const url = slug ? publicNoteUrl(slug) : null;
-  const isPublic = visibility === "public";
+  const url = book.shareSlug ? publicNoteUrl(book.shareSlug) : null;
+  const isPublic = book.visibility === "public";
 
   return (
     <div className="flex items-center gap-1">
@@ -47,11 +47,11 @@ export function NoteShareControls({ book }: { book: Book }) {
         thumb={<Globe aria-hidden strokeWidth={2.25} />}
         onCheckedChange={async (checked) => {
           setPending(true);
-          const result = await togglePublicNoteAction(book.id, checked);
-          setPending(false);
-          if ("visibility" in result && result.visibility) {
-            setVisibility(result.visibility);
-            setSlug(result.shareSlug ?? slug);
+          try {
+            await togglePublicNoteAction(book.id, checked);
+            router.refresh();
+          } finally {
+            setPending(false);
           }
         }}
       />

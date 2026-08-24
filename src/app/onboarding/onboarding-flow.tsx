@@ -18,9 +18,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type { User } from "@/lib/db/schema";
-import { useT } from "@/lib/i18n/client";
-import { MIN_SEARCH_QUERY_LENGTH } from "@/lib/open-library";
-import { type BookSearchResult, getCoverUrl } from "@/lib/open-library.shared";
+import { useActionMessage, useT } from "@/lib/i18n/client";
+import {
+  type BookSearchResult,
+  getCoverUrl,
+  MIN_SEARCH_QUERY_LENGTH,
+} from "@/lib/open-library.shared";
 import { cn } from "@/lib/utils";
 import { addBookAction, searchBooksAction } from "../library/actions";
 import { completeOnboardingAction, saveOnboardingNameAction } from "./actions";
@@ -63,13 +66,16 @@ export function OnboardingFlow({ user }: { user: User }) {
   const handleNameContinue = async () => {
     setSavingName(true);
     setNameError(null);
-    const result = await saveOnboardingNameAction({ firstName, lastName });
-    setSavingName(false);
-    if (!result.success) {
-      setNameError(result.error ?? "Could not save your name.");
-      return;
+    try {
+      const result = await saveOnboardingNameAction({ firstName, lastName });
+      if (!result.success) {
+        setNameError(result.error ?? "errors.saveName");
+        return;
+      }
+      setStep("book");
+    } finally {
+      setSavingName(false);
     }
-    setStep("book");
   };
 
   const handleFinish = async () => {
@@ -150,6 +156,7 @@ function NameStep({
   onContinue: () => void;
 }) {
   const t = useT();
+  const actionMessage = useActionMessage();
   const canContinue = firstName.trim().length > 0 && lastName.trim().length > 0;
 
   return (
@@ -192,7 +199,9 @@ function NameStep({
             className="h-11 bg-background"
           />
         </div>
-        {error && <p className="text-sm text-destructive">{error}</p>}
+        {error && (
+          <p className="text-sm text-destructive">{actionMessage(error)}</p>
+        )}
         <Button
           type="submit"
           disabled={!canContinue || saving}
@@ -219,6 +228,7 @@ function BookStep({
   onAdded: () => void;
 }) {
   const t = useT();
+  const actionMessage = useActionMessage();
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<BookSearchResult[]>([]);
   const [isSearching, setIsSearching] = useState(false);
@@ -250,7 +260,7 @@ function BookStep({
       } catch {
         if (latestQuery.current !== trimmed) return;
         setResults([]);
-        setSearchError("Could not reach the catalog. Try again in a moment.");
+        setSearchError("errors.catalogUnreachable");
       } finally {
         if (latestQuery.current === trimmed) setIsSearching(false);
       }
@@ -284,7 +294,7 @@ function BookStep({
       return;
     }
 
-    setAddError(result.error ?? "Could not add that book.");
+    setAddError(result.error ?? "errors.addBookFailed");
   };
 
   return (
@@ -365,7 +375,8 @@ function BookStep({
           </ul>
         ) : query.trim().length >= MIN_SEARCH_QUERY_LENGTH ? (
           <p className="py-10 text-center text-sm text-muted-foreground">
-            {searchError ?? "No books found. Try another title."}
+            {actionMessage(searchError, { n: MIN_SEARCH_QUERY_LENGTH }) ??
+              t("add.noResults")}
           </p>
         ) : (
           <p className="py-10 text-center font-serif text-[16px] text-neutral-400 italic">
@@ -374,7 +385,11 @@ function BookStep({
         )}
       </div>
 
-      {addError && <p className="mt-2 text-sm text-destructive">{addError}</p>}
+      {addError && (
+        <p className="mt-2 text-sm text-destructive">
+          {actionMessage(addError)}
+        </p>
+      )}
 
       <button
         type="button"

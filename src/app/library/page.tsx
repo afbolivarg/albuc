@@ -10,8 +10,5 @@ export default async function LibraryPage() {
     redirect("/sign-in");
   }
 
-  const baseBooks = user.books.map(adaptBook);
-  const books = baseBooks;
-
-  return <LitDockLibrary books={books} user={user} />;
+  return <LitDockLibrary books={user.books.map(adaptBook)} user={user} />;
 }

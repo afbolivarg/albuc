@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { AlbucLogo } from "@/components/albuc-logo";
 import { Button } from "@/components/ui/button";
+import { t } from "@/lib/i18n/server";
 
-export default function NotFound() {
+export default async function NotFound() {
   return (
-    <div className="min-h-screen bg-background flex items-center justify-center px-4">
-      <div className="text-center space-y-8 max-w-md mx-auto">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4">
+      <main className="mx-auto max-w-md space-y-8 text-center">
         <div className="flex justify-center">
           <AlbucLogo
             showText={false}
@@ -14,21 +15,21 @@ export default function NotFound() {
         </div>
 
         <div className="space-y-4">
-          <h1 className="text-6xl md:text-8xl font-bold text-primary font-serif">
+          <h1 className="font-serif text-6xl font-bold text-primary md:text-8xl">
             404
           </h1>
-          <h2 className="text-2xl md:text-3xl font-semibold text-foreground">
-            Page Not Found
+          <h2 className="text-2xl font-semibold text-foreground md:text-3xl">
+            {await t("notFound.title")}
           </h2>
-          <p className="text-muted-foreground text-lg">
-            Sorry, we couldn&apos;t find the page you&apos;re looking for.
+          <p className="text-lg text-muted-foreground">
+            {await t("notFound.body")}
           </p>
         </div>
 
         <Button asChild size="lg" className="mt-8">
-          <Link href="/">Return Home</Link>
+          <Link href="/">{await t("notFound.home")}</Link>
         </Button>
-      </div>
+      </main>
     </div>
   );
 }

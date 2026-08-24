@@ -1,19 +1,15 @@
 import type { MetadataRoute } from "next";
-import { getRequestLocale } from "@/lib/i18n/server";
-import {
-  APP_BACKGROUND_COLOR,
-  APP_DESCRIPTION,
-  APP_NAME,
-  APP_THEME_COLOR,
-} from "@/lib/pwa";
+import { getRequestLocale, t } from "@/lib/i18n/server";
+import { APP_BACKGROUND_COLOR, APP_NAME, APP_THEME_COLOR } from "@/lib/pwa";
 
 export default async function manifest(): Promise<MetadataRoute.Manifest> {
   const locale = await getRequestLocale();
+  const description = await t("home.metaDescription");
   return {
     id: "/",
     name: APP_NAME,
     short_name: APP_NAME,
-    description: APP_DESCRIPTION,
+    description,
     start_url: "/",
     scope: "/",
     display: "standalone",
@@ -27,16 +23,16 @@ export default async function manifest(): Promise<MetadataRoute.Manifest> {
     prefer_related_applications: false,
     shortcuts: [
       {
-        name: "Library",
-        short_name: "Library",
-        description: "Open your personal library",
+        name: await t("nav.library"),
+        short_name: await t("nav.library"),
+        description: await t("nav.library"),
         url: "/library",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
       },
       {
-        name: "Ask",
-        short_name: "Ask",
-        description: "Ask questions about your books",
+        name: await t("nav.ask"),
+        short_name: await t("nav.ask"),
+        description: await t("ask.empty"),
         url: "/library/ask",
         icons: [{ src: "/icons/icon-192.png", sizes: "192x192" }],
       },

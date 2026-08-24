@@ -14,10 +14,6 @@ export type AskMessage = UIMessage<{
   sources: AskSource[];
 }>;
 
-export function stripBlockedMarkers(text: string): string {
-  return text.replace(/\[blocked\]/gi, "");
-}
-
 export function uniqueSourcesByBook(sources: AskSource[]): AskSource[] {
   const seen = new Set<string>();
   const unique: AskSource[] = [];

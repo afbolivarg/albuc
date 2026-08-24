@@ -1,27 +1,25 @@
-import { MONTHLY_BUDGET_MESSAGE } from "@/lib/ai/usage.shared";
+import type { MessageKey } from "@/lib/i18n/en";
+import { isMessageKey } from "@/lib/i18n/translate";
 
-export const DEFAULT_CHAT_ERROR_MESSAGE =
-  "We're experiencing issues. Please report this and try again later.";
-
-export const MONTHLY_BUDGET_CHAT_MESSAGE = MONTHLY_BUDGET_MESSAGE;
-
-export function getChatErrorMessage(error?: Error | null): string {
+export function getChatErrorKey(error?: Error | null): MessageKey {
   const message = error?.message ?? "";
+  if (isMessageKey(message)) return message;
   if (
     message.includes("Ask budget") ||
     message.includes("402") ||
-    message.toLowerCase().includes("payment")
+    message.toLowerCase().includes("payment") ||
+    message.includes("ask.hardCap")
   ) {
-    return MONTHLY_BUDGET_CHAT_MESSAGE;
+    return "ask.hardCap";
   }
-  return DEFAULT_CHAT_ERROR_MESSAGE;
+  return "ask.error";
 }
 
 export function createChatErrorResponse(
   status: number,
-  message = DEFAULT_CHAT_ERROR_MESSAGE,
+  key: MessageKey = "ask.error",
 ): Response {
-  return new Response(JSON.stringify({ error: message }), {
+  return new Response(JSON.stringify({ error: key }), {
     status,
     headers: { "Content-Type": "application/json" },
   });

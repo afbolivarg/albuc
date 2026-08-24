@@ -2,6 +2,10 @@ import type { Locale } from "./config";
 import { en, type MessageKey } from "./en";
 import { es } from "./es";
 
+export function isMessageKey(value: string): value is MessageKey {
+  return Object.hasOwn(en, value);
+}
+
 const dictionaries: Record<Locale, Record<MessageKey, string>> = { en, es };
 
 export function translate(

@@ -1,6 +1,6 @@
 import { baseUrl } from "@/app/sitemap";
 
-const excludedRoutes = ["/library", "/~offline", "/serwist"];
+const excludedRoutes = ["/library", "/serwist"];
 
 export default function robots() {
   const fullDisallowList = excludedRoutes.flatMap((route) => [

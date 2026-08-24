@@ -39,6 +39,9 @@ export function BookSidebar({ book }: { book: Book }) {
               alt={book.title}
               className="h-full w-full object-cover"
               height={240}
+              loading="eager"
+              priority
+              sizes="(min-width: 768px) 160px, 80px"
               src={coverUrl}
               width={160}
             />

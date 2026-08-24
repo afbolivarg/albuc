@@ -13,8 +13,6 @@ export const getAIUsageAction = authenticatedAction.action(
       queriesUsed: usageCheck.queriesUsed,
       queryLimit: usageCheck.queryLimit,
       tokensUsed: usageCheck.tokensUsed,
-      tokenLimit: usageCheck.tokenLimit,
-      reason: usageCheck.reason,
     };
   },
 );

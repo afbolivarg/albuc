@@ -1,50 +1,64 @@
 import type { Metadata } from "next";
+import { cacheLife, cacheTag } from "next/cache";
+import type { Locale } from "@/lib/i18n/config";
+import type { MessageKey } from "@/lib/i18n/en";
+import { getRequestLocale, t } from "@/lib/i18n/server";
+import { translate } from "@/lib/i18n/translate";
 
-export const metadata: Metadata = {
-  title: "Terms",
-  description: "Terms of use for Albuc.",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  return {
+    title: await t("terms.title"),
+    description: await t("terms.metaDescription"),
+  };
+}
 
-export default function TermsPage() {
+function TermsView({ locale }: { locale: Locale }) {
+  const copy = (key: MessageKey) => translate(locale, key);
   return (
-    <article className="mx-auto max-w-prose space-y-6 pt-10 pb-12 md:pt-12 md:pb-20 text-foreground">
-      <h1 className="text-3xl font-serif font-bold tracking-tight">Terms</h1>
-
-      <p className="text-muted-foreground leading-relaxed">
-        Albuc is a free service for managing your personal book library and
-        notes. By using it, you agree to these simple terms.
+    <article className="mx-auto max-w-prose space-y-6 pt-10 pb-12 text-foreground md:pt-12 md:pb-20">
+      <h1 className="font-serif text-3xl font-bold tracking-tight">
+        {copy("terms.title")}
+      </h1>
+      <p className="leading-relaxed text-muted-foreground">
+        {copy("terms.intro")}
       </p>
-
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Use it responsibly</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          Don&apos;t abuse the service, spam signups, or try to break it.
-          Don&apos;t upload illegal content. Your account is for your personal
-          use.
+        <h2 className="text-lg font-semibold">
+          {copy("terms.responsibleTitle")}
+        </h2>
+        <p className="leading-relaxed text-muted-foreground">
+          {copy("terms.responsibleBody")}
         </p>
       </section>
-
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">No guarantees</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          Albuc is provided as-is. I do my best to keep it running, but
-          there&apos;s no uptime guarantee. AI answers may be wrong — always
-          trust your own reading over what Ask returns.
+        <h2 className="text-lg font-semibold">
+          {copy("terms.guaranteesTitle")}
+        </h2>
+        <p className="leading-relaxed text-muted-foreground">
+          {copy("terms.guaranteesBody")}
         </p>
       </section>
-
       <section className="space-y-3">
-        <h2 className="text-lg font-semibold">Accounts</h2>
-        <p className="text-muted-foreground leading-relaxed">
-          I may suspend or remove accounts that violate these terms or abuse the
-          service. The service may change or shut down — I&apos;ll try to give
-          reasonable notice if that ever happens.
+        <h2 className="text-lg font-semibold">{copy("terms.accountsTitle")}</h2>
+        <p className="leading-relaxed text-muted-foreground">
+          {copy("terms.accountsBody")}
         </p>
       </section>
-
-      <p className="text-muted-foreground leading-relaxed">
-        That&apos;s it. Read books, take notes, build ideas.
+      <p className="leading-relaxed text-muted-foreground">
+        {copy("terms.closing")}
       </p>
     </article>
   );
+}
+
+async function CachedTerms({ locale }: { locale: Locale }) {
+  "use cache";
+  cacheTag("landing", `landing-terms-${locale}`);
+  cacheLife("weeks");
+  return <TermsView locale={locale} />;
+}
+
+export default async function TermsPage() {
+  const locale = await getRequestLocale();
+  return <CachedTerms locale={locale} />;
 }

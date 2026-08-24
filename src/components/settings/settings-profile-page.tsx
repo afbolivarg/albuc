@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useT } from "@/lib/i18n/client";
+import { useActionMessage, useT } from "@/lib/i18n/client";
 import { normalizeHandle } from "@/lib/sharing";
 
 export function SettingsProfilePage({
@@ -29,6 +29,7 @@ export function SettingsProfilePage({
   onSaved: (handle: string, publicProfile: boolean) => void;
 }) {
   const t = useT();
+  const actionMessage = useActionMessage();
 
   return (
     <form
@@ -72,7 +73,9 @@ export function SettingsProfilePage({
           thumb={<Globe aria-hidden strokeWidth={2.25} />}
         />
       </div>
-      {error ? <p className="text-sm text-destructive">{error}</p> : null}
+      {error ? (
+        <p className="text-sm text-destructive">{actionMessage(error)}</p>
+      ) : null}
       <Button disabled={!canSave} type="submit">
         {t("profile.save")}
       </Button>

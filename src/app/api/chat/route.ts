@@ -1,11 +1,9 @@
 import { convertToModelMessages, streamText, type UIMessage } from "ai";
 import { after } from "next/server";
-import {
-  createChatErrorResponse,
-  MONTHLY_BUDGET_CHAT_MESSAGE,
-} from "@/lib/ai/chat-errors";
+import { createChatErrorResponse } from "@/lib/ai/chat-errors";
 import type { AskSource } from "@/lib/ai/citations";
 import { generateEmbeddingResult } from "@/lib/ai/embedding";
+import { joinTextParts } from "@/lib/ai/message-text";
 import { getChatModel } from "@/lib/ai/provider";
 import { selectContextChunks, toAskSources } from "@/lib/ai/retrieve";
 import { checkAIUsageAllowed, recordAIUsage } from "@/lib/ai/usage";
@@ -95,11 +93,7 @@ export async function POST(req: Request) {
     }
 
     const lastMessage = messages[messages.length - 1];
-    const question = lastMessage.parts
-      .filter((part) => part.type === "text")
-      .map((part) => part.text)
-      .join(" ")
-      .trim();
+    const question = joinTextParts(lastMessage.parts, " ").trim();
 
     if (!question) {
       return createChatErrorResponse(400);
@@ -107,7 +101,7 @@ export async function POST(req: Request) {
 
     const usageCheck = await checkAIUsageAllowed(user.id);
     if (!usageCheck.allowed) {
-      return createChatErrorResponse(402, MONTHLY_BUDGET_CHAT_MESSAGE);
+      return createChatErrorResponse(402, "ask.hardCap");
     }
 
     const [queryEmbedding, library] = await Promise.all([

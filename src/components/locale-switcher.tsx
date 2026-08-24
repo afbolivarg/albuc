@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { setPreferredLocaleAction } from "@/lib/i18n/actions";
 import { useLocale, useT } from "@/lib/i18n/client";
 import type { Locale } from "@/lib/i18n/config";
+import { persistLocaleCookies } from "@/lib/i18n/persist-cookie";
 import { cn } from "@/lib/utils";
 
 export function LocaleSwitcher({
@@ -19,8 +20,9 @@ export function LocaleSwitcher({
 
   const choose = async (next: Locale) => {
     if (next === locale) return;
-    await setPreferredLocaleAction(next);
+    persistLocaleCookies(next);
     router.refresh();
+    void setPreferredLocaleAction(next);
   };
 
   return (
@@ -41,7 +43,7 @@ export function LocaleSwitcher({
                 ? "bg-primary-foreground/15 text-primary-foreground"
                 : "bg-foreground text-background"
               : tone === "onDark"
-                ? "text-primary-foreground/70 hover:text-primary-foreground"
+                ? "text-primary-foreground/90 hover:text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",
           )}
         >

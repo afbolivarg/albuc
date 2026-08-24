@@ -21,12 +21,12 @@ export async function saveOnboardingNameAction(input: {
 }): Promise<{ success: boolean; error?: string }> {
   const user = await getUser();
   if (!user) {
-    return { success: false, error: "Please sign in again." };
+    return { success: false, error: "errors.signInAgain" };
   }
 
   const parsed = nameSchema.safeParse(input);
   if (!parsed.success) {
-    return { success: false, error: "Enter your first and last name." };
+    return { success: false, error: "errors.nameRequired" };
   }
 
   await updateUserProfile(user.id, parsed.data);
@@ -39,11 +39,11 @@ export async function completeOnboardingAction(): Promise<{
 }> {
   const user = await getUser();
   if (!user) {
-    return { success: false, error: "Please sign in again." };
+    return { success: false, error: "errors.signInAgain" };
   }
 
   if (!user.firstName?.trim() || !user.lastName?.trim()) {
-    return { success: false, error: "Add your name first." };
+    return { success: false, error: "errors.addNameFirst" };
   }
 
   await updateUserProfile(user.id, {

@@ -1,18 +1,23 @@
-import { unstable_cache } from "next/cache";
+import { cacheLife, cacheTag } from "next/cache";
+import { OPEN_LIBRARY_SEARCH_TAG } from "@/lib/cache-tags";
 import { env } from "@/lib/env";
 import { createLogger, toError } from "@/lib/logger";
-import type { BookSearchResult } from "@/lib/open-library.shared";
+import {
+  type BookSearchResult,
+  MIN_SEARCH_QUERY_LENGTH,
+  SEARCH_RESULT_LIMIT,
+} from "@/lib/open-library.shared";
 
 export type { BookSearchResult } from "@/lib/open-library.shared";
+export {
+  MIN_SEARCH_QUERY_LENGTH,
+  SEARCH_RESULT_LIMIT,
+} from "@/lib/open-library.shared";
 
 const log = createLogger("open-library");
 
 const OPEN_LIBRARY_BASE_URL = "https://openlibrary.org";
-const SEARCH_CACHE_SECONDS = 3600;
 const SEARCH_TIMEOUT_MS = 8000;
-
-export const SEARCH_RESULT_LIMIT = 20;
-export const MIN_SEARCH_QUERY_LENGTH = 3;
 
 interface OpenLibrarySearchResult {
   key: string;
@@ -163,12 +168,16 @@ export async function searchBooks(
     return { results: [], total: 0, page };
   }
 
-  const cacheKey = normalizedQuery.toLowerCase();
-  const cachedSearch = unstable_cache(
-    () => searchBooksUncached(normalizedQuery, page, limit),
-    ["open-library-search", cacheKey, String(page), String(limit)],
-    { revalidate: SEARCH_CACHE_SECONDS, tags: ["open-library-search"] },
-  );
+  return cachedSearch(normalizedQuery, page, limit);
+}
 
-  return cachedSearch();
+async function cachedSearch(
+  query: string,
+  page: number,
+  limit: number,
+): Promise<{ results: BookSearchResult[]; total: number; page: number }> {
+  "use cache";
+  cacheTag(OPEN_LIBRARY_SEARCH_TAG);
+  cacheLife("hours");
+  return searchBooksUncached(query, page, limit);
 }

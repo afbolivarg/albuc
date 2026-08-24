@@ -3,9 +3,7 @@ import { getUser } from "@/lib/db/queries";
 
 export const unauthenticatedAction = createSafeActionClient({
   handleServerError() {
-    return {
-      error: "Something went wrong.",
-    };
+    return { error: "errors.generic" };
   },
 });
 

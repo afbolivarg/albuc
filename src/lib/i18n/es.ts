@@ -10,8 +10,6 @@ export const es: Record<MessageKey, string> = {
   "nav.add": "Añadir",
   "nav.ask": "Preguntar",
   "common.error": "Error",
-  "common.save": "Guardar",
-  "common.cancel": "Cancelar",
   "common.language": "Idioma",
   "lang.en": "English",
   "lang.es": "Español",
@@ -65,6 +63,8 @@ export const es: Record<MessageKey, string> = {
   "library.ok": "OK",
   "add.title": "Añadir un libro",
   "add.toLibrary": "Añadir a la biblioteca",
+  "add.searchRetry": "Prueba otras palabras o revisa la ortografía.",
+  "add.noResults": "No hay libros. Prueba con otro título.",
   "ask.empty": "Pregúntame lo que sea sobre tu biblioteca y notas",
   "ask.placeholder": "Haz una pregunta sobre tu biblioteca...",
   "ask.searching": "Buscando en tu biblioteca…",
@@ -114,21 +114,130 @@ export const es: Record<MessageKey, string> = {
   "onboarding.three": "Tres cosas, y eso es todo el producto.",
   "onboarding.start": "Empezar a leer",
   "privacy.title": "Privacidad",
+  "privacy.metaDescription": "Cómo Albuc trata tus datos.",
   "privacy.intro":
     "Albuc guarda lo que le das: tu correo, tu biblioteca y tus notas. Eso es todo.",
   "privacy.whatTitle": "Qué guardamos",
+  "privacy.itemEmail": "El correo de tu cuenta",
+  "privacy.itemBooks":
+    "Los libros que añades y sus datos (título, autor, portada)",
+  "privacy.itemNotes": "Las notas que escribes para cada libro",
+  "privacy.itemAsk":
+    "Cuántas veces usas Preguntar (solo para estadísticas básicas)",
   "privacy.whoTitle": "Quién ve tus datos",
   "privacy.whoBody":
     "Tu biblioteca y tus notas son privadas salvo que decidas compartirlas. Cuando usas Preguntar, tu pregunta y extractos de notas se envían a un proveedor de IA. Usamos Supabase para autenticación y base de datos. Si activas un perfil público o una nota pública, ese estante o esa nota es visible para quien tenga el enlace.",
   "privacy.analyticsTitle": "Analítica del sitio",
+  "privacy.analyticsBody":
+    "Usamos Vercel Analytics para entender el uso básico — visitas, de dónde llega la gente, ese tipo de cosas. Sin rastreo publicitario, sin vender esos datos.",
   "privacy.dontTitle": "Qué no hacemos",
   "privacy.dontBody":
     "No vendemos tus datos. No mostramos anuncios. Las notas privadas siguen privadas hasta que las publiques.",
   "terms.title": "Términos",
+  "terms.metaDescription": "Términos de uso de Albuc.",
+  "terms.intro":
+    "Albuc es un servicio gratuito para tu biblioteca personal y tus notas. Al usarlo, aceptas estos términos simples.",
+  "terms.responsibleTitle": "Úsalo con responsabilidad",
+  "terms.responsibleBody":
+    "No abuses del servicio, no crees cuentas en masa ni intentes romperlo. No subas contenido ilegal. Tu cuenta es para uso personal.",
+  "terms.guaranteesTitle": "Sin garantías",
+  "terms.guaranteesBody":
+    "Albuc se ofrece tal cual. Hago lo posible por mantenerlo en marcha, pero no hay garantía de disponibilidad. Las respuestas de la IA pueden fallar: confía siempre en tu propia lectura por encima de lo que devuelve Preguntar.",
+  "terms.accountsTitle": "Cuentas",
+  "terms.accountsBody":
+    "Puedo suspender o eliminar cuentas que violen estos términos o abusen del servicio. El producto puede cambiar o cerrar: si eso pasa, intentaré avisar con tiempo razonable.",
+  "terms.closing": "Eso es todo. Lee, toma notas, construye ideas.",
   "public.from": "de la biblioteca de {handle}",
   "public.back": "Volver",
   "public.shelfTitle": "La biblioteca de {handle}",
-  "public.privateNotes": "Las notas de este estante siguen privadas.",
-  "public.notFound": "Esta página no es pública.",
   "why.title": "Por qué existe Albuc",
+  "why.metaTitle": "Por qué Albuc",
+  "why.metaDescription":
+    "La historia detrás de Albuc, una biblioteca personal y un lugar para las notas de quien lee.",
+  "why.p1":
+    "Leo mucho. O al menos lo intento. Y cada vez que terminaba un libro pasaba lo mismo: las ideas se iban. Los subrayados vivían en tres apps distintas. Las notas estaban entre las páginas del libro, mis cuadernos, Notion y Notas. Goodreads sabía qué leí, pero no qué pensé.",
+  "why.p2":
+    "Quería un solo lugar: una biblioteca que se sintiera mía. No un feed social, no una app de notas genérica. Algo donde cada libro tuviera un estante, un estado, una calificación y espacio para mis palabras. Algo donde después pudiera preguntar “¿qué pensé sobre X?” y recibir una respuesta de mis notas, no de internet.",
+  "why.p3":
+    "Goodreads te da el catálogo. Notion te da la página en blanco. Ninguno te da las dos cosas, unidas a los libros que de verdad leíste. Ese hueco es el que llena Albuc.",
+  "why.freeTitle": "Por qué es gratis",
+  "why.freeBody":
+    "Lo construí porque lo necesitaba. Soy desarrollador, y esta es la herramienta que ojalá hubiera existido. El hosting me cuesta un poco, no mucho, y la alegría de que otras personas lean con algo que hice vale más que cobrarlo. Sin muro de pago, sin plan premium. Entras y lo usas.",
+  "why.codeBefore": "El código está abierto en",
+  "why.codeAfter":
+    "si te da curiosidad cómo funciona. Pero no hace falta que lo ejecutes tú. Ven a leer, toma notas y construye sobre lo que aprendes.",
+  "why.cta": "Empieza tu biblioteca",
+  "home.metaDescription":
+    "Tu biblioteca personal y tus notas, organizadas con belleza.",
+  "a11y.skip": "Saltar al contenido",
+  "footer.builtBy": "Hecho por",
+  "features.poweredBy": "Con datos de",
+  "features.openLibraryLede1": "Millones de títulos. Una búsqueda.",
+  "features.openLibraryLede2": "Tu estante, no el algoritmo de otro.",
+  "features.shelfAria":
+    "Ilustración de un estante con los lomos de muchos libros.",
+  "features.edit": "Editar",
+  "features.preview": "Vista previa",
+  "features.savedAgo": "Guardado · hace 2 min",
+  "features.notesDemoOn": "Sobre {book}",
+  "features.notesDemoSource":
+    '# Sobre {book}\n\nEl marco 0 → 1 de Thiel: el progreso de verdad es crear algo nuevo — no competir en mercados saturados.\n\n> "Cada momento en los negocios ocurre una sola vez."',
+  "features.notesDemoBody":
+    "El marco 0 → 1 de Thiel: el progreso de verdad es crear algo nuevo — no competir en mercados saturados.",
+  "features.notesDemoQuote":
+    "Cada momento en los negocios ocurre una sola vez.",
+  "features.askDemoQuestion": "¿Qué pensé sobre {book}?",
+  "features.askDemoAnswer":
+    "Escribiste que el marco 0 → 1 de Thiel es el hilo — el progreso de verdad es crear algo nuevo, no competir en mercados saturados. Lo relacionaste con {book2}: prestar atención de cerca es elegir qué hacer real.",
+  "features.askDemoCite2Quote":
+    "La atención es una forma de devoción. Elegir dónde ponerla es elegir qué hacer real.",
+  "features.builderQuote1":
+    "Quería un solo lugar. Una biblioteca que se sintiera mía. No un feed social, no una app de notas genérica. Algo donde después pudiera preguntar",
+  "features.builderQuoteAsk": "¿qué pensé sobre X?",
+  "features.builderQuote2":
+    "y recibir una respuesta de mis notas, no de internet.",
+  "offline.title": "Estás sin conexión",
+  "offline.body":
+    "Albuc necesita red para esta página. Revisa tu conexión e inténtalo de nuevo.",
+  "offline.retry": "Reintentar",
+  "notFound.title": "Página no encontrada",
+  "notFound.body": "No encontramos la página que buscas.",
+  "notFound.home": "Volver al inicio",
+  "error.oops": "¡Uy!",
+  "error.title": "Algo salió mal",
+  "error.body": "Perdón, ocurrió algo inesperado.",
+  "auth.invalidEmail": "Escribe un correo válido.",
+  "auth.sendFailed": "No se pudo enviar el enlace. Inténtalo de nuevo.",
+  "auth.emailRequired": "El correo es obligatorio.",
+  "auth.checkEmail": "Revisa tu correo para el enlace de acceso.",
+  "auth.genericError": "Algo salió mal. Inténtalo de nuevo.",
+  "auth.linkInvalid": "El enlace no es válido o caducó. Inténtalo de nuevo.",
+  "auth.userCreateFailed":
+    "No se pudo terminar de crear tu cuenta. Inténtalo de nuevo.",
+  "errors.generic": "Algo salió mal.",
+  "errors.signInAgain": "Vuelve a iniciar sesión.",
+  "errors.authRequired": "Tienes que iniciar sesión.",
+  "errors.missingFields": "Faltan datos obligatorios",
+  "errors.bookNotFound": "Libro no encontrado",
+  "errors.updateFailed": "No se pudo actualizar el libro",
+  "errors.statusUpdateFailed": "No se pudo actualizar el estado",
+  "errors.ratingInvalid": "La nota debe ser un número entero de 0 a 5",
+  "errors.ratingUpdateFailed": "No se pudo actualizar la nota",
+  "errors.notesUpdateFailed": "No se pudieron guardar las notas",
+  "errors.sharingUpdateFailed": "No se pudo actualizar el enlace público",
+  "errors.searchFailed": "No se pudo buscar",
+  "errors.searchSignIn": "Vuelve a iniciar sesión para buscar.",
+  "errors.searchMin": "Escribe al menos {n} caracteres para buscar.",
+  "errors.addBookFailed": "No se pudo añadir el libro",
+  "errors.bookExists": "Ese libro ya está en tu biblioteca",
+  "errors.catalogUnreachable":
+    "No se pudo alcanzar el catálogo. Inténtalo en un momento.",
+  "errors.saveName": "No se pudo guardar tu nombre.",
+  "errors.nameRequired": "Escribe tu nombre y apellido.",
+  "errors.addNameFirst": "Añade tu nombre primero.",
+  "errors.handleFormat": "Usa 3–24 letras, números o guiones.",
+  "errors.handleRequired": "Elige un handle antes de hacer público tu estante.",
+  "errors.handleTaken": "Ese handle ya está en uso.",
+  "errors.localeInvalid": "Idioma no válido",
+  "ask.error": "Hay un problema. Avísanos e inténtalo de nuevo más tarde.",
 };

@@ -2,6 +2,10 @@
 
 import { revalidatePath } from "next/cache";
 import { processBookEmbeddingsAsync } from "@/lib/ai/embedding-pipeline";
+import {
+  revalidatePublicNote,
+  revalidatePublicProfile,
+} from "@/lib/cache-revalidate";
 import { getUser, getUserBook, updateBook } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 import {
@@ -24,18 +28,18 @@ export async function updateBookStatusAction(
     | "READ";
 
   if (!bookId || !status) {
-    return { error: "Missing required fields" };
+    return { error: "errors.missingFields" };
   }
 
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Authentication required" };
+      return { error: "errors.authRequired" };
     }
 
     const currentBook = await getUserBook(user.id, bookId);
     if (!currentBook) {
-      return { error: "Book not found" };
+      return { error: "errors.bookNotFound" };
     }
 
     const updatedBook = await updateBook({
@@ -45,7 +49,7 @@ export async function updateBookStatusAction(
     });
 
     if (!updatedBook || updatedBook.length === 0) {
-      return { error: "Failed to update book" };
+      return { error: "errors.updateFailed" };
     }
 
     revalidatePath("/library");
@@ -53,7 +57,7 @@ export async function updateBookStatusAction(
     return { success: true };
   } catch (error) {
     log.error("updateBookStatusAction failed", toError(error), { bookId });
-    return { error: "Failed to update status" };
+    return { error: "errors.statusUpdateFailed" };
   }
 }
 
@@ -65,23 +69,23 @@ export async function updateBookRatingAction(
   const rating = parseFloat(formData.get("rating") as string);
 
   if (!bookId || Number.isNaN(rating)) {
-    return { error: "Missing required fields" };
+    return { error: "errors.missingFields" };
   }
 
   if (rating < 0 || rating > 5 || !Number.isInteger(rating)) {
-    return { error: "Rating must be a whole number from 0 to 5" };
+    return { error: "errors.ratingInvalid" };
   }
 
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Authentication required" };
+      return { error: "errors.authRequired" };
     }
 
     // Get the current book data
     const currentBook = await getUserBook(user.id, bookId);
     if (!currentBook) {
-      return { error: "Book not found" };
+      return { error: "errors.bookNotFound" };
     }
 
     // Update the book with new rating
@@ -92,7 +96,7 @@ export async function updateBookRatingAction(
     });
 
     if (!updatedBook || updatedBook.length === 0) {
-      return { error: "Failed to update book" };
+      return { error: "errors.updateFailed" };
     }
 
     revalidatePath("/library");
@@ -100,7 +104,7 @@ export async function updateBookRatingAction(
     return { success: true };
   } catch (error) {
     log.error("updateBookRatingAction failed", toError(error), { bookId });
-    return { error: "Failed to update rating" };
+    return { error: "errors.ratingUpdateFailed" };
   }
 }
 
@@ -112,19 +116,19 @@ export async function updateBookNotesAction(
   const noteMarkdown = formData.get("noteMarkdown") as string;
 
   if (!bookId) {
-    return { error: "Missing required fields" };
+    return { error: "errors.missingFields" };
   }
 
   try {
     const user = await getUser();
     if (!user) {
-      return { error: "Authentication required" };
+      return { error: "errors.authRequired" };
     }
 
     // Get the current book data
     const currentBook = await getUserBook(user.id, bookId);
     if (!currentBook) {
-      return { error: "Book not found" };
+      return { error: "errors.bookNotFound" };
     }
 
     // Update the book with new notes
@@ -135,7 +139,7 @@ export async function updateBookNotesAction(
     });
 
     if (!updatedBook || updatedBook.length === 0) {
-      return { error: "Failed to update book" };
+      return { error: "errors.updateFailed" };
     }
 
     // Trigger embedding pipeline asynchronously (Stage 2)
@@ -147,7 +151,7 @@ export async function updateBookNotesAction(
     return { success: true };
   } catch (error) {
     log.error("updateBookNotesAction failed", toError(error), { bookId });
-    return { error: "Failed to update notes" };
+    return { error: "errors.notesUpdateFailed" };
   }
 }
 
@@ -156,9 +160,9 @@ export async function togglePublicNoteAction(
   makePublic: boolean,
 ) {
   const user = await getUser();
-  if (!user) return { error: "Authentication required" };
+  if (!user) return { error: "errors.authRequired" };
   const currentBook = await getUserBook(user.id, bookId);
-  if (!currentBook) return { error: "Book not found" };
+  if (!currentBook) return { error: "errors.bookNotFound" };
 
   const shareSlug = currentBook.shareSlug ?? createShareSlug();
   const updated = await updateBook({
@@ -167,9 +171,13 @@ export async function togglePublicNoteAction(
     shareSlug,
     updatedAt: new Date(),
   });
-  if (!updated?.[0]) return { error: "Failed to update sharing" };
+  if (!updated?.[0]) return { error: "errors.sharingUpdateFailed" };
   revalidatePath(`/library/${bookId}`);
-  if (user.handle) revalidatePath(publicProfilePath(user.handle));
+  revalidatePublicNote(shareSlug);
+  if (user.handle) {
+    revalidatePath(publicProfilePath(user.handle));
+    revalidatePublicProfile(user.handle);
+  }
   return {
     success: true as const,
     visibility: updated[0].visibility,

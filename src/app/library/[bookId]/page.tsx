@@ -9,7 +9,6 @@ export default async function BookDetailPage({
   params: Promise<{ bookId: string }>;
 }) {
   const { bookId } = await params;
-
   const user = await getUserWithBook(bookId);
 
   if (!user) {

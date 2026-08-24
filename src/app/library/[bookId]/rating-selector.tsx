@@ -7,6 +7,7 @@ import {
   useOptimistic,
 } from "react";
 import { StarRating } from "@/components/star-rating";
+import { useActionMessage, useT } from "@/lib/i18n/client";
 import { updateBookRatingAction } from "./actions";
 
 interface RatingSelectorProps {
@@ -15,6 +16,8 @@ interface RatingSelectorProps {
 }
 
 export function RatingSelector({ bookId, currentRating }: RatingSelectorProps) {
+  const t = useT();
+  const actionMessage = useActionMessage();
   const [state, formAction, isPending] = useActionState(
     updateBookRatingAction,
     null,
@@ -55,7 +58,9 @@ export function RatingSelector({ bookId, currentRating }: RatingSelectorProps) {
         )}
       </div>
       {state?.error && (
-        <div className="text-xs text-destructive">Error: {state.error}</div>
+        <div className="text-xs text-destructive">
+          {t("common.error")}: {actionMessage(state.error)}
+        </div>
       )}
     </div>
   );

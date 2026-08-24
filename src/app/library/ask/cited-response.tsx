@@ -34,13 +34,16 @@ function replaceCiteText(
   const parts = cleaned.split(/(\[\d+\])/g);
   if (parts.length === 1) return cleaned;
 
-  return parts.map((part, index) => {
+  const seen = new Map<number, number>();
+  return parts.map((part) => {
     const match = part.match(/^\[(\d+)\]$/);
     if (!match) return part;
     const n = Number(match[1]);
+    const occurrence = (seen.get(n) ?? 0) + 1;
+    seen.set(n, occurrence);
     return (
       <CitationChip
-        key={`${keyPrefix}-cite-${n}-${index}`}
+        key={`${keyPrefix}-cite-${n}-${occurrence}`}
         n={n}
         source={sources.get(n)}
       />
