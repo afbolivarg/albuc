@@ -1,77 +1,15 @@
 "use client";
 
-import { ChevronLeft, ChevronRight, MessageSquare, Plus } from "lucide-react";
+import { MessageSquare, Plus } from "lucide-react";
 import Link from "next/link";
-import { useMemo, useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
 import type { User } from "@/lib/db/schema";
 import { useT } from "@/lib/i18n/client";
-import { cn } from "@/lib/utils";
 import { UserMenu } from "../user-menu";
-import { GAP } from "./constants";
+import { Book3d } from "./book-3d";
 import { EmptyShelf, FilterBar } from "./filter-bar";
-import {
-  useElementHeight,
-  useElementWidth,
-  useLibrary,
-  useShelfBooksSnapshot,
-} from "./hooks";
-import { SpineBook } from "./spine-book";
+import { useElementWidth, useLibrary, useShelfBooksSnapshot } from "./hooks";
 import type { ShelfBook } from "./types";
-import { useShelfPeek } from "./use-shelf-peek";
-import { packShelvesFill } from "./utils";
-
-const SHELF_GAP = 42;
-const ROW_H = 226 + 11 + SHELF_GAP;
-
-type PageArrowProps = {
-  side: "left" | "right";
-  disabled: boolean;
-  onClick: () => void;
-  size: number;
-  offset: number;
-  iconSize: number;
-};
-
-function PageArrow({
-  side,
-  disabled,
-  onClick,
-  size,
-  offset,
-  iconSize,
-}: PageArrowProps) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      aria-label={side === "left" ? "Previous page" : "Next page"}
-      className={cn(
-        "absolute top-[47%] z-[25] flex -translate-y-1/2 items-center justify-center rounded-full border border-border bg-background text-foreground shadow-[0_4px_14px_-6px_rgba(35,26,14,.2)] transition-[background,opacity] duration-[140ms]",
-        disabled
-          ? "cursor-default opacity-[0.32]"
-          : "cursor-pointer opacity-100 hover:bg-accent",
-        side === "left"
-          ? "left-[var(--arrow-offset)]"
-          : "right-[var(--arrow-offset)]",
-      )}
-      style={
-        {
-          width: size,
-          height: size,
-          "--arrow-offset": `${offset}px`,
-        } as React.CSSProperties
-      }
-    >
-      {side === "left" ? (
-        <ChevronLeft style={{ width: iconSize, height: iconSize }} />
-      ) : (
-        <ChevronRight style={{ width: iconSize, height: iconSize }} />
-      )}
-    </button>
-  );
-}
 
 type LitDockLibraryProps = {
   books: ShelfBook[];
@@ -85,119 +23,24 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
   const [rootRef, rootW] = useElementWidth(1112);
   const mobile = rootW < 560;
   const pad = mobile ? 20 : 40;
-  const aSz = mobile ? 30 : 44;
-  const aOff = mobile ? 10 : 14;
-  const aIcon = mobile ? 16 : 20;
-  const gutter = aOff + aSz + (mobile ? 10 : 14);
-  const toolbarPadX = mobile ? 18 : gutter;
-  const [shelfRef, shelfW] = useElementWidth(1112);
-  const maxW = Math.max(120, shelfW - pad * 2);
-  const allRows = useMemo(
-    () => packShelvesFill(lib.books, maxW, GAP),
-    [lib.books, maxW],
-  );
-  const [scrollRef, scrollH] = useElementHeight(600);
-  const usableH = Math.max(0, scrollH - 100);
-  const per = Math.max(1, Math.floor((usableH + SHELF_GAP) / ROW_H));
-  const pageCount = Math.max(1, Math.ceil(allRows.length / per));
-  const filterKey = `${lib.status}|${lib.query}|${lib.sort}|${lib.dir}`;
-  const [pageState, setPageState] = useState({ filterKey, page: 0 });
-  const page = pageState.filterKey === filterKey ? pageState.page : 0;
-  const setPage = (next: number | ((prev: number) => number)) => {
-    setPageState((prev) => {
-      const current = prev.filterKey === filterKey ? prev.page : 0;
-      const page = typeof next === "function" ? next(current) : next;
-      return { filterKey, page };
-    });
-  };
-
-  const cur = Math.min(page, pageCount - 1);
-  const rows = allRows.slice(cur * per, cur * per + per);
-  const multi = pageCount > 1;
-  const peek = useShelfPeek();
 
   return (
     <div
       ref={rootRef}
-      className="relative flex h-full flex-col overflow-hidden bg-background font-sans text-foreground"
+      className="relative h-full overflow-hidden bg-background font-sans text-foreground"
     >
-      <div
-        className="shrink-0"
-        style={{
-          paddingTop: "max(16px, env(safe-area-inset-top, 0px))",
-          paddingLeft: toolbarPadX,
-          paddingRight: toolbarPadX,
-          paddingBottom: 16,
-        }}
-      >
-        <FilterBar lib={lib} />
-      </div>
-
-      <div
-        ref={scrollRef}
-        className="flex min-h-0 flex-1 flex-col justify-center overflow-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
-        style={{
-          padding: `8px ${gutter}px calc(92px + env(safe-area-inset-bottom, 0px))`,
-          touchAction: "pan-y",
-        }}
-        onPointerDown={peek.onPointerDown}
-        onPointerMove={peek.onPointerMove}
-        onPointerUp={(event) =>
-          peek.onPointerUp(event, {
-            page: cur,
-            pageCount,
-            setPage,
-          })
-        }
-        onPointerCancel={(event) =>
-          peek.onPointerUp(event, {
-            page: cur,
-            pageCount,
-            setPage,
-          })
-        }
-      >
+      <div className="h-full overflow-y-auto overscroll-contain">
         <div
-          ref={shelfRef}
-          className="flex flex-col justify-center"
-          style={{ gap: SHELF_GAP }}
+          className="grid w-full grid-cols-[repeat(auto-fill,minmax(min(100%,160px),1fr))] gap-x-6 gap-y-10"
+          style={{
+            paddingLeft: pad,
+            paddingRight: pad,
+            paddingTop: "calc(88px + env(safe-area-inset-top, 0px))",
+            paddingBottom: "calc(108px + env(safe-area-inset-bottom, 0px))",
+          }}
         >
-          {rows.map((row) => (
-            <div
-              key={`${cur}-${row.map((b) => b.id).join("-")}`}
-              className="relative [perspective:1200px]"
-            >
-              <div className="relative w-full">
-                <div
-                  className="pointer-events-none absolute bottom-1 left-1/2 h-[80px] w-[94%] -translate-x-1/2"
-                  style={{
-                    background:
-                      "radial-gradient(62% 70% at 50% 100%, rgba(45,34,20,.06), rgba(45,34,20,0) 72%)",
-                  }}
-                />
-                <div
-                  className="relative flex items-end justify-center"
-                  style={{ gap: GAP, padding: `0 ${pad}px` }}
-                >
-                  {row.map((b) => (
-                    <SpineBook
-                      key={b.id}
-                      book={b}
-                      peeked={peek.peekedId === b.id}
-                      onNavigate={peek.onBookClick}
-                    />
-                  ))}
-                </div>
-                <div
-                  className="h-[11px] w-full rounded-[7px]"
-                  style={{
-                    background: "linear-gradient(180deg,#ffffff,#e4e1d9)",
-                    boxShadow:
-                      "0 12px 20px -10px rgba(35,26,14,.22), inset 0 1px 0 rgba(255,255,255,.9)",
-                  }}
-                />
-              </div>
-            </div>
+          {lib.books.map((book) => (
+            <Book3d key={book.id} book={book} />
           ))}
         </div>
         {lib.books.length === 0 && (
@@ -205,70 +48,49 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
         )}
       </div>
 
-      {multi && (
-        <PageArrow
-          side="left"
-          disabled={cur === 0}
-          onClick={() => setPage(Math.max(0, cur - 1))}
-          size={aSz}
-          offset={aOff}
-          iconSize={aIcon}
-        />
-      )}
-      {multi && (
-        <PageArrow
-          side="right"
-          disabled={cur >= pageCount - 1}
-          onClick={() => setPage(Math.min(pageCount - 1, cur + 1))}
-          size={aSz}
-          offset={aOff}
-          iconSize={aIcon}
-        />
-      )}
-
-      {peek.showHint && (
-        <div
-          className="absolute left-1/2 z-20 flex w-[min(340px,calc(100%-32px))] -translate-x-1/2 items-center justify-between gap-3 rounded-full border border-border bg-background/95 px-4 py-2.5 text-[13px] text-muted-foreground shadow-[0_3px_12px_-4px_rgba(35,26,14,.16)]"
-          style={{
-            bottom: "calc(66px + max(12px, env(safe-area-inset-bottom, 0px)))",
-          }}
-        >
-          <span>{t("library.slideHint")}</span>
-          <button
-            type="button"
-            onClick={peek.dismissHint}
-            className="shrink-0 text-[12px] font-medium text-foreground"
-          >
-            {t("library.ok")}
-          </button>
-        </div>
-      )}
-
       <div
-        className="absolute left-1/2 z-20 flex -translate-x-1/2 items-center gap-3.5 rounded-full border border-border bg-background px-3 py-[9px] pl-[18px] shadow-[0_3px_12px_-4px_rgba(35,26,14,.16)]"
+        className="pointer-events-none absolute inset-x-0 top-0 z-20"
         style={{
-          bottom: "max(12px, env(safe-area-inset-bottom, 0px))",
+          paddingTop: "max(16px, env(safe-area-inset-top, 0px))",
+          paddingLeft: pad,
+          paddingRight: pad,
+          paddingBottom: 56,
+          backgroundImage:
+            "linear-gradient(to bottom, var(--background) 0%, color-mix(in srgb, var(--background) 70%, transparent) 42%, color-mix(in srgb, var(--background) 28%, transparent) 72%, transparent 100%)",
         }}
       >
-        <Link href="/library" aria-label="Go to Library">
-          <AlbucLogo iconClassName="size-5" className="text-xl" />
-        </Link>
-        <span className="h-6 w-px bg-border" />
-        <Link
-          href="/library/add"
-          className="inline-flex h-9 cursor-pointer items-center gap-[7px] rounded-full border border-border bg-background px-3.5 text-[13.5px] font-medium text-foreground transition-colors hover:bg-accent"
-        >
-          <Plus className="size-[15px]" />
-          {t("nav.add")}
-        </Link>
-        <Link
-          href="/library/ask"
-          className="inline-flex h-9 cursor-pointer items-center gap-[7px] rounded-full border-none bg-foreground px-3.5 text-[13.5px] font-medium text-background"
-        >
-          <MessageSquare className="size-[15px]" />
-          {t("nav.ask")}
-        </Link>
-        <UserMenu user={user} avatarSize={36} />
+        <div className="pointer-events-auto">
+          <FilterBar lib={lib} />
+        </div>
+      </div>
+
+      <div
+        className="pointer-events-none absolute inset-x-0 bottom-0 z-20 flex justify-center px-3"
+        style={{
+          paddingBottom: "max(12px, env(safe-area-inset-bottom, 0px))",
+        }}
+      >
+        <div className="pointer-events-auto flex items-center gap-3.5 rounded-full border border-border bg-background px-3 py-[9px] pl-[18px] shadow-[0_3px_12px_-4px_rgba(35,26,14,.16)]">
+          <Link href="/library" aria-label="Go to Library">
+            <AlbucLogo iconClassName="size-5" className="text-xl" />
+          </Link>
+          <span className="h-6 w-px bg-border" />
+          <Link
+            href="/library/add"
+            className="inline-flex h-9 cursor-pointer items-center gap-[7px] rounded-full border border-border bg-background px-3.5 text-[13.5px] font-medium text-foreground transition-colors hover:bg-accent"
+          >
+            <Plus className="size-[15px]" />
+            {t("nav.add")}
+          </Link>
+          <Link
+            href="/library/ask"
+            className="inline-flex h-9 cursor-pointer items-center gap-[7px] rounded-full border-none bg-foreground px-3.5 text-[13.5px] font-medium text-background"
+          >
+            <MessageSquare className="size-[15px]" />
+            {t("nav.ask")}
+          </Link>
+          <UserMenu user={user} avatarSize={36} />
+        </div>
       </div>
     </div>
   );

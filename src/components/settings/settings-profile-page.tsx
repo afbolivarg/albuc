@@ -1,13 +1,13 @@
 "use client";
 
-import { Globe } from "lucide-react";
+import { ArrowUpRight, Globe } from "lucide-react";
 import { updatePublicProfileAction } from "@/app/library/profile-actions";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { useActionMessage, useT } from "@/lib/i18n/client";
-import { normalizeHandle } from "@/lib/sharing";
+import { normalizeHandle, publicProfilePath } from "@/lib/sharing";
 
 export function SettingsProfilePage({
   handle,
@@ -30,6 +30,7 @@ export function SettingsProfilePage({
 }) {
   const t = useT();
   const actionMessage = useActionMessage();
+  const normalized = normalizeHandle(handle);
 
   return (
     <form
@@ -56,11 +57,24 @@ export function SettingsProfilePage({
           placeholder="@andres"
           value={handle}
         />
-        <p className="text-xs text-muted-foreground">
-          {t("profile.handleHint", {
-            handle: normalizeHandle(handle) || t("profile.handleExample"),
-          })}
-        </p>
+        <div className="flex items-center gap-1">
+          <p className="min-w-0 flex-1 text-xs text-muted-foreground">
+            {t("profile.handleHint", {
+              handle: normalized || t("profile.handleExample"),
+            })}
+          </p>
+          {normalized ? (
+            <a
+              href={publicProfilePath(normalized)}
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label={t("profile.open")}
+              className="inline-flex size-6 shrink-0 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              <ArrowUpRight className="size-3.5" />
+            </a>
+          ) : null}
+        </div>
       </div>
       <div className="flex items-center justify-between gap-4">
         <Label className="font-normal" htmlFor="publicProfile">

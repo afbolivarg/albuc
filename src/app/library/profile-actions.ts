@@ -3,9 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { revalidatePublicProfile } from "@/lib/cache-revalidate";
 import { getUser, updateUserProfile } from "@/lib/db/queries";
-import { normalizeHandle, publicProfilePath } from "@/lib/sharing";
-
-const HANDLE_RE = /^[a-z0-9](?:[a-z0-9-]{1,22}[a-z0-9])?$/;
+import { HANDLE_RE, normalizeHandle, publicProfilePath } from "@/lib/sharing";
 
 export async function updatePublicProfileAction(formData: FormData) {
   const user = await getUser();

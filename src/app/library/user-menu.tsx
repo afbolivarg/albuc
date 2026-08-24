@@ -1,6 +1,6 @@
 "use client";
 
-import { LogOut, Settings } from "lucide-react";
+import { ArrowUpRight, LogOut, Settings } from "lucide-react";
 import { useState } from "react";
 import { SettingsDialog } from "@/components/settings/settings-dialog";
 import {
@@ -13,7 +13,8 @@ import {
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/lib/db/schema";
 import { useT } from "@/lib/i18n/client";
-import { userDisplayName, userInitial } from "@/lib/user-profile";
+import { userInitial } from "@/lib/user-profile";
+import { publicProfilePath } from "@/lib/sharing";
 import { signOut } from "./actions";
 
 function UserAvatar({ user, size = 32 }: { user: User; size?: number }) {
@@ -63,12 +64,28 @@ export function UserMenu({
             <div className="flex items-center gap-3 px-2 py-2 text-left text-sm">
               <UserAvatar user={user} size={avatarSize} />
               <div className="min-w-0">
-                <p className="truncate font-medium">{userDisplayName(user)}</p>
-                {user.firstName && (
+                <p className="flex min-w-0 items-center gap-0.5 font-medium">
+                  <span className="truncate">
+                    {user.handle ? `@${user.handle}` : user.email}
+                  </span>
+                  {user.handle ? (
+                    <a
+                      href={publicProfilePath(user.handle)}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      aria-label={t("profile.open")}
+                      className="inline-flex shrink-0 text-muted-foreground transition-colors hover:text-foreground"
+                      onClick={(event) => event.stopPropagation()}
+                    >
+                      <ArrowUpRight className="size-3.5" />
+                    </a>
+                  ) : null}
+                </p>
+                {user.handle ? (
                   <p className="truncate text-xs text-muted-foreground">
                     {user.email}
                   </p>
-                )}
+                ) : null}
               </div>
             </div>
           </DropdownMenuLabel>

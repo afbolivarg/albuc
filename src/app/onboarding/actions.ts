@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { getUser, updateUserProfile } from "@/lib/db/queries";
+import { HANDLE_RE, normalizeHandle } from "@/lib/sharing";
 
 const namePart = z
   .string()
@@ -33,6 +34,27 @@ export async function saveOnboardingNameAction(input: {
   return { success: true };
 }
 
+export async function saveOnboardingHandleAction(input: {
+  handle: string;
+}): Promise<{ success: boolean; error?: string }> {
+  const user = await getUser();
+  if (!user) {
+    return { success: false, error: "errors.signInAgain" };
+  }
+
+  const handle = normalizeHandle(input.handle);
+  if (!HANDLE_RE.test(handle)) {
+    return { success: false, error: "errors.handleFormat" };
+  }
+
+  try {
+    await updateUserProfile(user.id, { handle });
+    return { success: true };
+  } catch {
+    return { success: false, error: "errors.handleTaken" };
+  }
+}
+
 export async function completeOnboardingAction(): Promise<{
   success: boolean;
   error?: string;
@@ -44,6 +66,10 @@ export async function completeOnboardingAction(): Promise<{
 
   if (!user.firstName?.trim() || !user.lastName?.trim()) {
     return { success: false, error: "errors.addNameFirst" };
+  }
+
+  if (!user.handle?.trim()) {
+    return { success: false, error: "errors.addHandleFirst" };
   }
 
   await updateUserProfile(user.id, {

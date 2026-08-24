@@ -24,13 +24,18 @@ import {
   getCoverUrl,
   MIN_SEARCH_QUERY_LENGTH,
 } from "@/lib/open-library.shared";
+import { normalizeHandle } from "@/lib/sharing";
 import { cn } from "@/lib/utils";
 import { addBookAction, searchBooksAction } from "../library/actions";
-import { completeOnboardingAction, saveOnboardingNameAction } from "./actions";
+import {
+  completeOnboardingAction,
+  saveOnboardingHandleAction,
+  saveOnboardingNameAction,
+} from "./actions";
 
-type Step = "name" | "book" | "tour";
+type Step = "name" | "username" | "book" | "tour";
 
-const STEPS: Step[] = ["name", "book", "tour"];
+const STEPS: Step[] = ["name", "username", "book", "tour"];
 
 const TOUR = [
   {
@@ -52,13 +57,18 @@ const TOUR = [
 
 export function OnboardingFlow({ user }: { user: User }) {
   const router = useRouter();
-  const [step, setStep] = useState<Step>(
-    user.firstName && user.lastName ? "book" : "name",
-  );
+  const [step, setStep] = useState<Step>(() => {
+    if (!user.firstName?.trim() || !user.lastName?.trim()) return "name";
+    if (!user.handle?.trim()) return "username";
+    return "book";
+  });
   const [firstName, setFirstName] = useState(user.firstName ?? "");
   const [lastName, setLastName] = useState(user.lastName ?? "");
+  const [handle, setHandle] = useState(user.handle ?? "");
   const [nameError, setNameError] = useState<string | null>(null);
+  const [handleError, setHandleError] = useState<string | null>(null);
   const [savingName, setSavingName] = useState(false);
+  const [savingHandle, setSavingHandle] = useState(false);
   const [finishing, setFinishing] = useState(false);
 
   const stepIndex = STEPS.indexOf(step);
@@ -72,9 +82,24 @@ export function OnboardingFlow({ user }: { user: User }) {
         setNameError(result.error ?? "errors.saveName");
         return;
       }
-      setStep("book");
+      setStep("username");
     } finally {
       setSavingName(false);
+    }
+  };
+
+  const handleUsernameContinue = async () => {
+    setSavingHandle(true);
+    setHandleError(null);
+    try {
+      const result = await saveOnboardingHandleAction({ handle });
+      if (!result.success) {
+        setHandleError(result.error ?? "errors.handleFormat");
+        return;
+      }
+      setStep("book");
+    } finally {
+      setSavingHandle(false);
     }
   };
 
@@ -121,6 +146,15 @@ export function OnboardingFlow({ user }: { user: User }) {
             onFirstName={setFirstName}
             onLastName={setLastName}
             onContinue={handleNameContinue}
+          />
+        )}
+        {step === "username" && (
+          <UsernameStep
+            handle={handle}
+            error={handleError}
+            saving={savingHandle}
+            onHandle={setHandle}
+            onContinue={handleUsernameContinue}
           />
         )}
         {step === "book" && (
@@ -198,6 +232,78 @@ function NameStep({
             autoComplete="family-name"
             className="h-11 bg-background"
           />
+        </div>
+        {error && (
+          <p className="text-sm text-destructive">{actionMessage(error)}</p>
+        )}
+        <Button
+          type="submit"
+          disabled={!canContinue || saving}
+          className="mt-2 h-11 w-full text-[15px]"
+        >
+          {saving ? (
+            <Loader className="size-4 animate-spin" />
+          ) : (
+            t("onboarding.continue")
+          )}
+        </Button>
+      </form>
+    </div>
+  );
+}
+
+function UsernameStep({
+  handle,
+  error,
+  saving,
+  onHandle,
+  onContinue,
+}: {
+  handle: string;
+  error: string | null;
+  saving: boolean;
+  onHandle: (value: string) => void;
+  onContinue: () => void;
+}) {
+  const t = useT();
+  const actionMessage = useActionMessage();
+  const canContinue = normalizeHandle(handle).length > 0;
+
+  return (
+    <div>
+      <p className="mb-3 text-[11px] font-medium tracking-[0.14em] text-muted-foreground uppercase">
+        {t("onboarding.username")}
+      </p>
+      <h1 className="font-serif text-[34px] leading-[1.1] font-semibold tracking-tight">
+        {t("onboarding.usernameTitle")}
+      </h1>
+      <p className="mt-3 text-[15px] leading-relaxed text-muted-foreground">
+        {t("onboarding.usernameLede")}
+      </p>
+
+      <form
+        className="mt-8 space-y-4"
+        onSubmit={(event) => {
+          event.preventDefault();
+          if (canContinue && !saving) onContinue();
+        }}
+      >
+        <div className="space-y-2">
+          <Label htmlFor="handle">{t("onboarding.username")}</Label>
+          <Input
+            id="handle"
+            value={handle}
+            onChange={(event) => onHandle(event.target.value)}
+            autoComplete="username"
+            autoFocus
+            placeholder={t("onboarding.usernamePlaceholder")}
+            className="h-11 bg-background"
+          />
+          <p className="text-xs text-muted-foreground">
+            {t("profile.handleHint", {
+              handle: normalizeHandle(handle) || t("profile.handleExample"),
+            })}
+          </p>
         </div>
         {error && (
           <p className="text-sm text-destructive">{actionMessage(error)}</p>
