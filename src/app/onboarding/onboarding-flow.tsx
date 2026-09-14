@@ -9,10 +9,10 @@ import {
   NotebookPen,
   Search,
 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
+import { Book3dCover } from "@/components/book-3d-cover";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -446,21 +446,16 @@ function BookStep({
                     type="button"
                     onClick={() => handleAdd(book)}
                     disabled={addingKey !== null}
-                    className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-background disabled:opacity-60"
+                    className="bk3d-hover flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-background disabled:opacity-60"
                   >
-                    <div className="flex h-11 w-[30px] shrink-0 items-center justify-center overflow-hidden rounded-[3px] bg-muted">
-                      {cover ? (
-                        <Image
-                          src={cover}
-                          alt=""
-                          width={30}
-                          height={44}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <BookOpen className="size-4 text-muted-foreground" />
-                      )}
-                    </div>
+                    <Book3dCover
+                      src={cover}
+                      title={book.title}
+                      className="w-[30px] shrink-0"
+                      width={30}
+                      height={44}
+                      sizes="30px"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-serif text-[14px] font-semibold">
                         {book.title}

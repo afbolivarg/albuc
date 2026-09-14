@@ -415,7 +415,6 @@
   --bw: 100%;
   position: relative;
   display: block;
-  width: 100%;
   aspect-ratio: 188 / 282;
 }
 
@@ -466,6 +465,7 @@
   inset: 0;
   z-index: 3;
   overflow: hidden;
+  background: var(--muted);
   border-radius: 2px 6px 6px 2px;
   box-shadow:
     0 2px 6px rgba(0, 0, 0, 0.08),
@@ -519,8 +519,8 @@
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .bk3d-cell:hover .bk3d-cover,
-  .bk3d-cell:focus-visible .bk3d-cover {
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible) .bk3d-cover,
+  .bk3d-scene:hover .bk3d-cover {
     will-change: transform;
     transform: perspective(2000px) translateX(calc(var(--bw) * -0.027))
       rotateY(-12deg) scaleX(0.96);
@@ -530,24 +530,26 @@
       40px 40px 60px rgba(0, 0, 0, 0.15);
   }
 
-  .bk3d-cell:hover .bk3d-light,
-  .bk3d-cell:focus-visible .bk3d-light {
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible) .bk3d-light,
+  .bk3d-scene:hover .bk3d-light {
     opacity: 0.1;
     transform: perspective(2000px) rotateY(-12deg);
   }
 
-  .bk3d-cell:hover .bk3d-effect,
-  .bk3d-cell:focus-visible .bk3d-effect {
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible) .bk3d-effect,
+  .bk3d-scene:hover .bk3d-effect {
     margin-left: 4.5%;
   }
 
-  .bk3d-cell:hover .bk3d-page:nth-child(1),
-  .bk3d-cell:focus-visible .bk3d-page:nth-child(1) {
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible)
+    .bk3d-page:nth-child(1),
+  .bk3d-scene:hover .bk3d-page:nth-child(1) {
     transform: translateX(calc(var(--bw) * 0.018));
   }
 
-  .bk3d-cell:hover .bk3d-page:nth-child(2),
-  .bk3d-cell:focus-visible .bk3d-page:nth-child(2) {
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible)
+    .bk3d-page:nth-child(2),
+  .bk3d-scene:hover .bk3d-page:nth-child(2) {
     transform: translateX(calc(var(--bw) * 0.009));
   }
 }
@@ -564,12 +566,12 @@
     transition: none;
   }
 
-  .bk3d-cell:hover .bk3d-cover,
-  .bk3d-cell:focus-visible .bk3d-cover,
-  .bk3d-cell:hover .bk3d-light,
-  .bk3d-cell:focus-visible .bk3d-light,
-  .bk3d-cell:hover .bk3d-page,
-  .bk3d-cell:focus-visible .bk3d-page {
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible) .bk3d-cover,
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible) .bk3d-light,
+  :is(.bk3d-cell, .bk3d-hover):is(:hover, :focus-visible) .bk3d-page,
+  .bk3d-scene:hover .bk3d-cover,
+  .bk3d-scene:hover .bk3d-light,
+  .bk3d-scene:hover .bk3d-page {
     transform: none;
   }
 }

@@ -17,31 +17,24 @@ import { addBookAction, searchBooksAction } from "../actions";
 import { AddBookDetail } from "./add-book-detail";
 import { AddBookResults } from "./add-book-results";
 import type { BookStatus, SavedShelfEntry } from "./add-book-types";
+import { preloadCover, preloadCovers } from "./cover-preload";
 
 const SEARCH_DEBOUNCE_MS = 350;
-const COVER_WARMUP_MS = 800;
-
-function preloadCover(src: string) {
-  return new Promise<void>((resolve) => {
-    const img = new window.Image();
-    img.onload = () => resolve();
-    img.onerror = () => resolve();
-    img.src = src;
-  });
-}
+const COVER_WARMUP_MS = 1600;
 
 async function warmupResultCovers(books: BookSearchResult[]) {
-  const urls = books
-    .map((book) => getCoverUrl(book.coverId, "S"))
-    .filter((url): url is string => Boolean(url));
-  if (urls.length === 0) return;
+  const small = books.map((book) => getCoverUrl(book.coverId, "S"));
+  const large = books.map((book) => getCoverUrl(book.coverId, "L"));
+  const largeWarmup = preloadCovers(large);
 
   await Promise.race([
-    Promise.all(urls.map(preloadCover)),
+    preloadCovers(small),
     new Promise<void>((resolve) => {
       window.setTimeout(resolve, COVER_WARMUP_MS);
     }),
   ]);
+
+  void largeWarmup;
 }
 
 type AddBookViewProps = {
@@ -116,6 +109,8 @@ export function AddBookView({ savedBooks }: AddBookViewProps) {
   }, [query]);
 
   const handleSelect = (book: BookSearchResult) => {
+    const large = getCoverUrl(book.coverId, "L");
+    if (large) void preloadCover(large);
     setSelected(book);
     const saved = added[book.workKey];
     setStatus(saved?.status ?? "WANT");

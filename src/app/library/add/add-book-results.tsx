@@ -1,10 +1,11 @@
 "use client";
 
-import { BookOpen, Check, ChevronRight } from "lucide-react";
-import Image from "next/image";
+import { Check, ChevronRight } from "lucide-react";
+import { Book3dCover } from "@/components/book-3d-cover";
 import { getCoverUrl } from "@/lib/open-library.shared";
 import { cn } from "@/lib/utils";
 import type { AddBookResultsProps } from "./add-book-types";
+import { preloadCover } from "./cover-preload";
 
 export function AddBookResults({
   results,
@@ -30,31 +31,25 @@ export function AddBookResults({
             <button
               type="button"
               onClick={() => onSelect(book)}
+              onPointerEnter={() => {
+                const large = getCoverUrl(book.coverId, "L");
+                if (large) void preloadCover(large);
+              }}
               className={cn(
-                "mb-[3px] flex w-full items-center gap-[11px] rounded-[10px] border border-transparent px-[11px] py-2.5 text-left transition-colors",
+                "bk3d-hover mb-[3px] flex w-full items-center gap-[11px] rounded-[10px] border border-transparent px-[11px] py-2.5 text-left transition-colors",
                 isSelected ? "bg-foreground" : "hover:bg-muted",
               )}
             >
-              <div
-                className={cn(
-                  "flex h-11 w-[30px] flex-shrink-0 items-center justify-center overflow-hidden rounded-[3px] bg-muted",
-                  isSelected && "bg-neutral-700",
-                )}
-              >
-                {cover ? (
-                  <Image
-                    src={cover}
-                    alt={book.title}
-                    width={30}
-                    height={44}
-                    unoptimized
-                    loading="eager"
-                    className="h-full w-full object-cover"
-                  />
-                ) : (
-                  <BookOpen className="size-4 text-muted-foreground" />
-                )}
-              </div>
+              <Book3dCover
+                src={cover}
+                title={book.title}
+                className="w-[30px] shrink-0"
+                width={30}
+                height={44}
+                sizes="30px"
+                loading="eager"
+                revealOnLoad
+              />
 
               <div className="min-w-0 flex-1">
                 <div
