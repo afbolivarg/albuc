@@ -7,6 +7,7 @@ import {
   revalidatePublicProfile,
 } from "@/lib/cache-revalidate";
 import { getUser, getUserBook, updateBook } from "@/lib/db/queries";
+import { isLocale } from "@/lib/i18n/config";
 import { createLogger, toError } from "@/lib/logger";
 import {
   createShareSlug,
@@ -184,7 +185,10 @@ export async function togglePublicNoteAction(
     shareSlug: updated[0].shareSlug,
     url:
       makePublic && updated[0].shareSlug
-        ? publicNoteUrl(updated[0].shareSlug)
+        ? publicNoteUrl(
+            updated[0].shareSlug,
+            isLocale(user.locale) ? user.locale : undefined,
+          )
         : null,
   };
 }

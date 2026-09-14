@@ -6,17 +6,18 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import type { Book } from "@/lib/db/schema";
-import { useT } from "@/lib/i18n/client";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { publicNoteUrl } from "@/lib/sharing";
 import { togglePublicNoteAction } from "./actions";
 
 export function NoteShareControls({ book }: { book: Book }) {
   const t = useT();
+  const locale = useLocale();
   const router = useRouter();
   const [copied, setCopied] = useState(false);
   const [pending, setPending] = useState(false);
 
-  const url = book.shareSlug ? publicNoteUrl(book.shareSlug) : null;
+  const url = book.shareSlug ? publicNoteUrl(book.shareSlug, locale) : null;
   const isPublic = book.visibility === "public";
 
   return (

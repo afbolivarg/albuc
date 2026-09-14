@@ -1,27 +1,52 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { Suspense } from "react";
 import { setPreferredLocaleAction } from "@/lib/i18n/actions";
 import { useLocale, useT } from "@/lib/i18n/client";
-import type { Locale } from "@/lib/i18n/config";
+import { isLocale, type Locale } from "@/lib/i18n/config";
 import { persistLocaleCookies } from "@/lib/i18n/persist-cookie";
+import { LANG_PARAM } from "@/lib/sharing";
 import { cn } from "@/lib/utils";
 
-export function LocaleSwitcher({
+export function LocaleSwitcher(props: {
+  className?: string;
+  tone?: "default" | "onDark";
+}) {
+  return (
+    <Suspense fallback={null}>
+      <LocaleSwitcherInner {...props} />
+    </Suspense>
+  );
+}
+
+function LocaleSwitcherInner({
   className,
   tone = "default",
 }: {
   className?: string;
   tone?: "default" | "onDark";
 }) {
-  const locale = useLocale();
+  const cookieLocale = useLocale();
   const t = useT();
   const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+  const urlLang = searchParams.get(LANG_PARAM);
+  const locale = isLocale(urlLang) ? urlLang : cookieLocale;
+  const isPublicShare =
+    pathname.startsWith("/@") || /^\/n\/[^/]+$/.test(pathname);
 
   const choose = async (next: Locale) => {
     if (next === locale) return;
     persistLocaleCookies(next);
-    router.refresh();
+    if (isPublicShare) {
+      const nextParams = new URLSearchParams(searchParams.toString());
+      nextParams.set(LANG_PARAM, next);
+      router.replace(`${pathname}?${nextParams.toString()}`);
+    } else {
+      router.refresh();
+    }
     void setPreferredLocaleAction(next);
   };
 

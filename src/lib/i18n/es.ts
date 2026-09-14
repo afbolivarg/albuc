@@ -155,6 +155,14 @@ export const es: Record<MessageKey, string> = {
   "public.from": "de la biblioteca de {handle}",
   "public.back": "Volver",
   "public.shelfTitle": "La biblioteca de {handle}",
+  "public.notesOn": "Notas de {handle} sobre",
+  "public.metaNoteTitle": "Notas de {handle} sobre {title}",
+  "public.metaProfileDescription":
+    "La biblioteca pública de {handle} en Albuc.",
+  "public.metaNoteDescription":
+    "Notas sobre {title} de la biblioteca de {handle} en Albuc.",
+  "og.profileAlt": "La biblioteca de {handle} en Albuc",
+  "og.noteAlt": "Notas de {handle} sobre {title} — Albuc",
   "why.title": "Por qué existe Albuc",
   "why.metaTitle": "Por qué Albuc",
   "why.metaDescription":

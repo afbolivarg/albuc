@@ -150,6 +150,13 @@ export const en = {
   "public.from": "from {handle}'s library",
   "public.back": "Back",
   "public.shelfTitle": "{handle}'s library",
+  "public.notesOn": "{handle}'s notes on",
+  "public.metaNoteTitle": "{handle}'s notes on {title}",
+  "public.metaProfileDescription": "The public library of {handle} on Albuc.",
+  "public.metaNoteDescription":
+    "Notes on {title} from {handle}'s library on Albuc.",
+  "og.profileAlt": "{handle}'s library on Albuc",
+  "og.noteAlt": "{handle}'s notes on {title} — Albuc",
   "why.title": "Why Albuc exists",
   "why.metaTitle": "Why Albuc",
   "why.metaDescription":

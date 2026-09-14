@@ -12,9 +12,9 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import type { User } from "@/lib/db/schema";
-import { useT } from "@/lib/i18n/client";
-import { userInitial } from "@/lib/user-profile";
+import { useLocale, useT } from "@/lib/i18n/client";
 import { publicProfilePath } from "@/lib/sharing";
+import { userInitial } from "@/lib/user-profile";
 import { signOut } from "./actions";
 
 function UserAvatar({ user, size = 32 }: { user: User; size?: number }) {
@@ -41,6 +41,7 @@ export function UserMenu({
   avatarSize?: number;
 }) {
   const t = useT();
+  const locale = useLocale();
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   return (
@@ -70,7 +71,7 @@ export function UserMenu({
                   </span>
                   {user.handle ? (
                     <a
-                      href={publicProfilePath(user.handle)}
+                      href={publicProfilePath(user.handle, locale)}
                       target="_blank"
                       rel="noopener noreferrer"
                       aria-label={t("profile.open")}
