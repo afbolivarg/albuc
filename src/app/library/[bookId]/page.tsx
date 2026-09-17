@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import { hasFullAccess } from "@/lib/billing/entitlement";
 import { getUserWithBook } from "@/lib/db/queries";
 import { BookNotes } from "./book-notes";
 import { BookSidebar } from "./book-sidebar";
@@ -23,9 +24,9 @@ export default async function BookDetailPage({
 
   return (
     <div className="flex h-full flex-col overflow-y-auto overscroll-contain bg-background font-sans text-foreground md:flex-row md:overflow-hidden">
-      <BookSidebar book={book} />
+      <BookSidebar book={book} canWrite={hasFullAccess(user)} />
       <div className="md:min-h-0 md:flex-1 md:overflow-hidden">
-        <BookNotes book={book} />
+        <BookNotes book={book} canWrite={hasFullAccess(user)} />
       </div>
     </div>
   );

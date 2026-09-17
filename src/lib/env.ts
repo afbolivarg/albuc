@@ -28,6 +28,9 @@ const serverSchema = z.object({
   SUPABASE_SECRET_KEY: z.string().min(1),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
   OPENAI_API_KEY: z.string().min(1),
+  CREEM_API_KEY: z.string().optional().default(""),
+  CREEM_WEBHOOK_SECRET: z.string().optional().default(""),
+  CREEM_PRODUCT_ID: z.string().optional().default(""),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   LOG_PRETTY: z.preprocess((value) => {
     if (value === undefined || value === "") {

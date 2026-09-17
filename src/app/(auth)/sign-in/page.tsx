@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
+import { signedInPath } from "@/lib/billing/entitlement";
 import { getUser } from "@/lib/db/queries";
 import { t } from "@/lib/i18n/server";
-import { needsOnboarding } from "@/lib/user-profile";
 import { signIn } from "../actions";
 import { AuthField, AuthForm } from "../auth-form";
 
@@ -21,7 +21,7 @@ export default async function SignInPage({
   const user = await getUser();
 
   if (user) {
-    redirect(needsOnboarding(user) ? "/onboarding" : "/library");
+    redirect(signedInPath(user));
   }
 
   const { error } = await searchParams;

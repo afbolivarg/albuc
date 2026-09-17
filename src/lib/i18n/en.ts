@@ -20,11 +20,11 @@ export const en = {
   "home.heroTitle2": "Build ideas.",
   "home.heroLede":
     "Track your reading. Capture your thinking. Albuc blends Goodreads' structure with Notion's writing flow.",
-  "home.getStarted": "Get started — it's free",
+  "home.getStarted": "Start your library — $25 a year",
   "home.whyBuilt": "Why I built this",
   "home.ctaTitle": "From book to brain. Effortlessly.",
   "home.ctaLede":
-    "Turn your reading into a personal knowledge base. Start free, stay free.",
+    "Turn your reading into a personal knowledge base. $25 a year.",
   "features.positioning1": "Goodreads has the shelf.",
   "features.positioning2": "Notion has the page.",
   "features.positioning3": "Albuc has both.",
@@ -126,7 +126,7 @@ export const en = {
     "How often you use the Ask feature (for basic usage stats)",
   "privacy.whoTitle": "Who sees your data",
   "privacy.whoBody":
-    "Your library and notes are private to your account unless you choose to share. When you use Ask, your question and relevant note excerpts are sent to an AI provider to generate an answer. We use Supabase for auth and database hosting. If you turn on a public profile or a public note, that chosen shelf or note is visible to anyone with the link.",
+    "Your library and notes are private to your account unless you choose to share. When you use Ask, your question and relevant note excerpts are sent to an AI provider to generate an answer. We use Supabase for auth and database hosting. Payments are processed by Creem, who is the merchant of record. If you turn on a public profile or a public note, that chosen shelf or note is visible to anyone with the link while your subscription is active.",
   "privacy.analyticsTitle": "Site analytics",
   "privacy.analyticsBody":
     "We use Vercel Analytics to understand basic usage — page views, where visitors come from, that kind of thing. No ad tracking, no selling that data.",
@@ -136,20 +136,30 @@ export const en = {
   "terms.title": "Terms",
   "terms.metaDescription": "Terms of use for Albuc.",
   "terms.intro":
-    "Albuc is a free service for managing your personal book library and notes. By using it, you agree to these simple terms.",
+    "Albuc is a paid personal library. New accounts need a $25 USD yearly subscription, billed by Creem as merchant of record. By using Albuc, you agree to these terms.",
   "terms.responsibleTitle": "Use it responsibly",
   "terms.responsibleBody":
-    "Don't abuse the service, spam signups, or try to break it. Don't upload illegal content. Your account is for your personal use.",
+    "Don't abuse the service, spam signups, or try to break it. Don't upload illegal content. Your account is for your personal use. There is no monthly Ask quota. We rate-limit requests so the service stays up, and we may throttle or suspend obvious abuse.",
+  "terms.billingTitle": "Billing and refunds",
+  "terms.billingBody":
+    "The plan is $25 a year, one price worldwide, auto-renewing. You can cancel renewal at any time and keep full access until the period ends. If you request a refund within 14 days of the charge, Creem refunds the payment and access becomes limited immediately. Public shelves and notes are unpublished while a subscription is lapsed. Early accounts created before billing launched may stay complimentary.",
   "terms.guaranteesTitle": "No guarantees",
   "terms.guaranteesBody":
     "Albuc is provided as-is. I do my best to keep it running, but there's no uptime guarantee. AI answers may be wrong — always trust your own reading over what Ask returns.",
   "terms.accountsTitle": "Accounts",
   "terms.accountsBody":
-    "I may suspend or remove accounts that violate these terms or abuse the service. The service may change or shut down — I'll try to give reasonable notice if that ever happens.",
+    "I may suspend or remove accounts that violate these terms or abuse the service. The service may change or shut down — I'll try to give reasonable notice if that ever happens. Canceling does not delete your library.",
   "terms.closing": "That's it. Read books, take notes, build ideas.",
   "public.from": "from {handle}'s library",
   "public.back": "Back",
   "public.shelfTitle": "{handle}'s library",
+  "public.notesOn": "{handle}'s notes on",
+  "public.metaNoteTitle": "{handle}'s notes on {title}",
+  "public.metaProfileDescription": "The public library of {handle} on Albuc.",
+  "public.metaNoteDescription":
+    "Notes on {title} from {handle}'s library on Albuc.",
+  "og.profileAlt": "{handle}'s library on Albuc",
+  "og.noteAlt": "{handle}'s notes on {title} — Albuc",
   "why.title": "Why Albuc exists",
   "why.metaTitle": "Why Albuc",
   "why.metaDescription":
@@ -160,9 +170,9 @@ export const en = {
     "I wanted one place: a library that felt like mine. Not a social feed, not a generic note app. Something where each book had a shelf, a status, a rating, and room for my own words. Something where I could later ask “what did I think about X?” and get an answer from my notes, not the internet.",
   "why.p3":
     "Goodreads gives you the catalog. Notion gives you the blank page. Neither gives you both, tied to the books you actually read. That gap is what Albuc fills.",
-  "why.freeTitle": "Why it's free",
+  "why.freeTitle": "Why it's $25 a year",
   "why.freeBody":
-    "I built this because I needed it. I'm a developer, and this is the tool I wished existed. Hosting it costs me a little, but not much, and the joy of other readers using something I made is worth more than charging for it. No paywall, no premium tier. Just sign up and use it.",
+    "I built this because I needed it. Friends asked to pay. A year costs $25 — cheap enough that renewing should feel like a gift, not a bill. Early accounts stay complimentary.",
   "why.codeBefore": "The code is open on",
   "why.codeAfter":
     "if you're curious how it works. But you don't need to run anything yourself. Just come read, take notes, and build on what you learn.",
@@ -241,6 +251,42 @@ export const en = {
   "errors.localeInvalid": "Invalid locale",
   "ask.error":
     "We're experiencing issues. Please report this and try again later.",
+  "billing.metaTitle": "Subscribe",
+  "billing.metaDescription":
+    "Albuc is $25 a year. Your library, notes, and Ask.",
+  "billing.price": "$25",
+  "billing.perYear": "a year",
+  "billing.priceLine": "$25 a year",
+  "billing.lede":
+    "Your library, your notes, and Ask — one place that stays yours.",
+  "billing.featureLibrary": "Every book on one shelf.",
+  "billing.featureNotes": "Notes in your own words.",
+  "billing.featureAsk": "Ask, answered from what you wrote.",
+  "billing.refund": "14-day refund. Cancel renewal anytime; you keep the year.",
+  "billing.continuePayment": "Continue to payment",
+  "billing.confirming": "Confirming your payment…",
+  "billing.confirmingHint": "This usually takes a few seconds.",
+  "billing.confirmingSlow":
+    "Still waiting on the payment. Refresh this page, or try checkout again.",
+  "billing.legalUnder": "Payment is handled by Creem.",
+  "billing.subscribeCta": "Subscribe — $25 a year",
+  "billing.banner": "Albuc is $25 a year. Keep the library yours.",
+  "billing.teaserLede": "The rest of this note comes back when you subscribe.",
+  "billing.teaserEmpty": "Subscribe to write notes and keep this library.",
+  "billing.askLocked": "Ask is included with the year.",
+  "billing.addLocked": "Adding books is included with the year.",
+  "billing.settingsTitle": "Billing",
+  "billing.exempt": "Complimentary — you’re an early Albuc.",
+  "billing.renewsOn": "Renews on {date}.",
+  "billing.accessUntil": "Access until {date}.",
+  "billing.manage": "Manage subscription",
+  "billing.refundIntro": "To ask for a refund, email",
+  "billing.refundTermsBefore": "This only applies as described in the",
+  "billing.refundTermsAfter": "— within 14 days of the charge.",
+  "billing.publicGoneTitle": "This shelf isn’t public right now.",
+  "billing.publicGoneBody": "The owner’s library is private.",
+  "errors.subscribeRequired": "Subscribe to keep using this.",
+  "errors.rateLimited": "You’re going a bit fast. Try again in a minute.",
 } as const;
 
 export type MessageKey = keyof typeof en;

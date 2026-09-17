@@ -2,7 +2,7 @@
 
 Your personal library and book notes, with AI-powered Q&A over your notes.
 
-**Free to use at [albuc.com](https://albuc.com)**
+**$25 a year at [albuc.com](https://albuc.com)**
 
 ## Features
 

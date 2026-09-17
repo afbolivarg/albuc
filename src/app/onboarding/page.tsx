@@ -1,4 +1,9 @@
 import { redirect } from "next/navigation";
+import {
+  hasFullAccess,
+  hasGivenName,
+  signedInPath,
+} from "@/lib/billing/entitlement";
 import { getUser } from "@/lib/db/queries";
 import { needsOnboarding } from "@/lib/user-profile";
 import { OnboardingFlow } from "./onboarding-flow";
@@ -11,8 +16,14 @@ export default async function OnboardingPage() {
   }
 
   if (!needsOnboarding(user)) {
-    redirect("/library");
+    redirect(signedInPath(user));
   }
 
-  return <OnboardingFlow user={user} />;
+  if (hasGivenName(user) && !hasFullAccess(user)) {
+    redirect("/subscribe");
+  }
+
+  return (
+    <OnboardingFlow user={user} requiresSubscribe={!hasFullAccess(user)} />
+  );
 }

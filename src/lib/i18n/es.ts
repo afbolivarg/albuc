@@ -22,11 +22,11 @@ export const es: Record<MessageKey, string> = {
   "home.heroTitle2": "Construye ideas.",
   "home.heroLede":
     "Sigue tu lectura. Captura tu pensamiento. Albuc junta la estructura de Goodreads con el flujo de escritura de Notion.",
-  "home.getStarted": "Empieza — es gratis",
+  "home.getStarted": "Empieza tu biblioteca — $25 al año",
   "home.whyBuilt": "Por qué lo construí",
   "home.ctaTitle": "Del libro a la cabeza. Sin fricción.",
   "home.ctaLede":
-    "Convierte tu lectura en una base de conocimiento personal. Empieza gratis, sigue gratis.",
+    "Convierte tu lectura en una base de conocimiento personal. $25 al año.",
   "features.positioning1": "Goodreads tiene el estante.",
   "features.positioning2": "Notion tiene la página.",
   "features.positioning3": "Albuc tiene ambos.",
@@ -131,7 +131,7 @@ export const es: Record<MessageKey, string> = {
     "Cuántas veces usas Preguntar (solo para estadísticas básicas)",
   "privacy.whoTitle": "Quién ve tus datos",
   "privacy.whoBody":
-    "Tu biblioteca y tus notas son privadas salvo que decidas compartirlas. Cuando usas Preguntar, tu pregunta y extractos de notas se envían a un proveedor de IA. Usamos Supabase para autenticación y base de datos. Si activas un perfil público o una nota pública, ese estante o esa nota es visible para quien tenga el enlace.",
+    "Tu biblioteca y tus notas son privadas salvo que decidas compartirlas. Cuando usas Preguntar, tu pregunta y extractos de notas se envían a un proveedor de IA. Usamos Supabase para autenticación y base de datos. Los pagos los procesa Creem, que es el merchant of record. Si activas un perfil público o una nota pública, ese estante o esa nota es visible para quien tenga el enlace mientras tu suscripción esté activa.",
   "privacy.analyticsTitle": "Analítica del sitio",
   "privacy.analyticsBody":
     "Usamos Vercel Analytics para entender el uso básico — visitas, de dónde llega la gente, ese tipo de cosas. Sin rastreo publicitario, sin vender esos datos.",
@@ -141,20 +141,31 @@ export const es: Record<MessageKey, string> = {
   "terms.title": "Términos",
   "terms.metaDescription": "Términos de uso de Albuc.",
   "terms.intro":
-    "Albuc es un servicio gratuito para tu biblioteca personal y tus notas. Al usarlo, aceptas estos términos simples.",
+    "Albuc es una biblioteca personal de pago. Las cuentas nuevas necesitan una suscripción de $25 USD al año, cobrada por Creem como merchant of record. Al usar Albuc, aceptas estos términos.",
   "terms.responsibleTitle": "Úsalo con responsabilidad",
   "terms.responsibleBody":
-    "No abuses del servicio, no crees cuentas en masa ni intentes romperlo. No subas contenido ilegal. Tu cuenta es para uso personal.",
+    "No abuses del servicio, no crees cuentas en masa ni intentes romperlo. No subas contenido ilegal. Tu cuenta es para uso personal. No hay cupo mensual de Preguntar. Limitamos la frecuencia de peticiones para que el servicio aguante, y podemos frenar o suspender el abuso evidente.",
+  "terms.billingTitle": "Cobro y reembolsos",
+  "terms.billingBody":
+    "El plan es $25 al año, un solo precio en todo el mundo, con renovación automática. Puedes cancelar la renovación cuando quieras y sigues con acceso completo hasta que termine el período. Si pides un reembolso dentro de los 14 días del cobro, Creem devuelve el pago y el acceso se limita de inmediato. Los estantes y notas públicas se despublican mientras la suscripción esté vencida. Las cuentas tempranas, creadas antes de que existiera el cobro, pueden seguir siendo de cortesía.",
   "terms.guaranteesTitle": "Sin garantías",
   "terms.guaranteesBody":
     "Albuc se ofrece tal cual. Hago lo posible por mantenerlo en marcha, pero no hay garantía de disponibilidad. Las respuestas de la IA pueden fallar: confía siempre en tu propia lectura por encima de lo que devuelve Preguntar.",
   "terms.accountsTitle": "Cuentas",
   "terms.accountsBody":
-    "Puedo suspender o eliminar cuentas que violen estos términos o abusen del servicio. El producto puede cambiar o cerrar: si eso pasa, intentaré avisar con tiempo razonable.",
+    "Puedo suspender o eliminar cuentas que violen estos términos o abusen del servicio. El producto puede cambiar o cerrar: si eso pasa, intentaré avisar con tiempo razonable. Cancelar no borra tu biblioteca.",
   "terms.closing": "Eso es todo. Lee, toma notas, construye ideas.",
   "public.from": "de la biblioteca de {handle}",
   "public.back": "Volver",
   "public.shelfTitle": "La biblioteca de {handle}",
+  "public.notesOn": "Notas de {handle} sobre",
+  "public.metaNoteTitle": "Notas de {handle} sobre {title}",
+  "public.metaProfileDescription":
+    "La biblioteca pública de {handle} en Albuc.",
+  "public.metaNoteDescription":
+    "Notas sobre {title} de la biblioteca de {handle} en Albuc.",
+  "og.profileAlt": "La biblioteca de {handle} en Albuc",
+  "og.noteAlt": "Notas de {handle} sobre {title} — Albuc",
   "why.title": "Por qué existe Albuc",
   "why.metaTitle": "Por qué Albuc",
   "why.metaDescription":
@@ -165,9 +176,9 @@ export const es: Record<MessageKey, string> = {
     "Quería un solo lugar: una biblioteca que se sintiera mía. No un feed social, no una app de notas genérica. Algo donde cada libro tuviera un estante, un estado, una calificación y espacio para mis palabras. Algo donde después pudiera preguntar “¿qué pensé sobre X?” y recibir una respuesta de mis notas, no de internet.",
   "why.p3":
     "Goodreads te da el catálogo. Notion te da la página en blanco. Ninguno te da las dos cosas, unidas a los libros que de verdad leíste. Ese hueco es el que llena Albuc.",
-  "why.freeTitle": "Por qué es gratis",
+  "why.freeTitle": "Por qué son $25 al año",
   "why.freeBody":
-    "Lo construí porque lo necesitaba. Soy desarrollador, y esta es la herramienta que ojalá hubiera existido. El hosting me cuesta un poco, no mucho, y la alegría de que otras personas lean con algo que hice vale más que cobrarlo. Sin muro de pago, sin plan premium. Entras y lo usas.",
+    "Lo construí porque lo necesitaba. Unos amigos pidieron pagar. Un año cuesta $25 — lo bastante barato para que renovar se sienta como un regalo, no como una factura. Las cuentas tempranas siguen de cortesía.",
   "why.codeBefore": "El código está abierto en",
   "why.codeAfter":
     "si te da curiosidad cómo funciona. Pero no hace falta que lo ejecutes tú. Ven a leer, toma notas y construye sobre lo que aprendes.",
@@ -246,4 +257,42 @@ export const es: Record<MessageKey, string> = {
   "errors.handleTaken": "Ese handle ya está en uso.",
   "errors.localeInvalid": "Idioma no válido",
   "ask.error": "Hay un problema. Avísanos e inténtalo de nuevo más tarde.",
+  "billing.metaTitle": "Suscribirse",
+  "billing.metaDescription":
+    "Albuc cuesta $25 al año. Tu biblioteca, tus notas y Preguntar.",
+  "billing.price": "$25",
+  "billing.perYear": "al año",
+  "billing.priceLine": "$25 al año",
+  "billing.lede":
+    "Tu biblioteca, tus notas y Preguntar — un solo lugar que sigue siendo tuyo.",
+  "billing.featureLibrary": "Cada libro en un estante.",
+  "billing.featureNotes": "Notas con tus palabras.",
+  "billing.featureAsk": "Preguntar, respondido con lo que escribiste.",
+  "billing.refund":
+    "Reembolso de 14 días. Cancela la renovación cuando quieras; te quedas el año.",
+  "billing.continuePayment": "Seguir al pago",
+  "billing.confirming": "Confirmando tu pago…",
+  "billing.confirmingHint": "Suele tardar unos segundos.",
+  "billing.confirmingSlow":
+    "Seguimos esperando el pago. Recarga esta página, o vuelve a intentar el cobro.",
+  "billing.legalUnder": "El pago lo gestiona Creem.",
+  "billing.subscribeCta": "Suscribirse — $25 al año",
+  "billing.banner": "Albuc cuesta $25 al año. Quédate la biblioteca.",
+  "billing.teaserLede": "El resto de esta nota vuelve cuando te suscribes.",
+  "billing.teaserEmpty":
+    "Suscríbete para escribir notas y quedarte esta biblioteca.",
+  "billing.askLocked": "Preguntar va incluido en el año.",
+  "billing.addLocked": "Añadir libros va incluido en el año.",
+  "billing.settingsTitle": "Cobro",
+  "billing.exempt": "De cortesía — eres de los primeros de Albuc.",
+  "billing.renewsOn": "Se renueva el {date}.",
+  "billing.accessUntil": "Acceso hasta el {date}.",
+  "billing.manage": "Gestionar la suscripción",
+  "billing.refundIntro": "Para pedir un reembolso, escribe a",
+  "billing.refundTermsBefore": "Solo aplica según lo descrito en los",
+  "billing.refundTermsAfter": "— dentro de los 14 días del cobro.",
+  "billing.publicGoneTitle": "Este estante no es público ahora.",
+  "billing.publicGoneBody": "La biblioteca de esta persona es privada.",
+  "errors.subscribeRequired": "Suscríbete para seguir usando esto.",
+  "errors.rateLimited": "Vas un poco rápido. Inténtalo en un minuto.",
 };

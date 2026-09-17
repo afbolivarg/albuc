@@ -1,9 +1,10 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
+import { clearAuthSession } from "@/lib/auth/clear-session";
+import { requireWritableUser } from "@/lib/billing/require-write";
 import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 import {
@@ -13,28 +14,12 @@ import {
   searchBooks as searchOpenLibrary,
 } from "@/lib/open-library";
 import { persistBookCoverFromOpenLibrary } from "@/lib/supabase/book-covers.server";
-import { createClient as createServerClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/user";
 
 const log = createLogger("library.actions");
 
 export async function signOut() {
-  const cookieStore = await cookies();
-  const supabase = createServerClient(cookieStore);
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    log.warn("signOut supabase error", { message: error.message });
-  }
-
-  for (const cookie of cookieStore.getAll()) {
-    if (cookie.name.startsWith("sb-")) {
-      cookieStore.delete(cookie.name);
-    }
-  }
-
-  revalidatePath("/");
-  revalidatePath("/library");
+  await clearAuthSession();
   redirect("/sign-in");
 }
 
@@ -81,11 +66,11 @@ export async function addBookAction(
   formData: FormData,
 ): Promise<{ success: boolean; error?: string; bookId?: string }> {
   try {
-    const user = await getUser();
-
-    if (!user) {
-      return { success: false, error: "errors.signInAgain" };
+    const access = await requireWritableUser();
+    if (access.error) {
+      return { success: false, error: access.error };
     }
+    const user = access.user;
 
     const bookData = {
       workKey: formData.get("workKey") as string,

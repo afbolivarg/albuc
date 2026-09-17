@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { useActionMessage, useT } from "@/lib/i18n/client";
+import { useActionMessage, useLocale, useT } from "@/lib/i18n/client";
 import { normalizeHandle, publicProfilePath } from "@/lib/sharing";
 
 export function SettingsProfilePage({
@@ -29,6 +29,7 @@ export function SettingsProfilePage({
   onSaved: (handle: string, publicProfile: boolean) => void;
 }) {
   const t = useT();
+  const locale = useLocale();
   const actionMessage = useActionMessage();
   const normalized = normalizeHandle(handle);
 
@@ -65,7 +66,7 @@ export function SettingsProfilePage({
           </p>
           {normalized ? (
             <a
-              href={publicProfilePath(normalized)}
+              href={publicProfilePath(normalized, locale)}
               target="_blank"
               rel="noopener noreferrer"
               aria-label={t("profile.open")}

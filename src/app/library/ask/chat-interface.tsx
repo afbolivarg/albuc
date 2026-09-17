@@ -1,7 +1,6 @@
 "use client";
 
 import { useChat } from "@ai-sdk/react";
-import { useEffect, useRef, useState } from "react";
 import {
   Conversation,
   ConversationContent,
@@ -21,10 +20,6 @@ import { AlbucLogo } from "@/components/albuc-logo";
 import { getChatErrorKey } from "@/lib/ai/chat-errors";
 import type { AskMessage, AskSource } from "@/lib/ai/citations";
 import { joinTextParts } from "@/lib/ai/message-text";
-import {
-  type AIUsageSnapshot,
-  SOFT_MONTHLY_QUERY_LIMIT,
-} from "@/lib/ai/usage.shared";
 import { useT } from "@/lib/i18n/client";
 import { CitedResponse } from "./cited-response";
 
@@ -36,48 +31,13 @@ function messageText(message: AskMessage): string {
   return joinTextParts(message.parts);
 }
 
-interface ChatInterfaceProps {
-  initialUsage: Pick<
-    AIUsageSnapshot,
-    "queriesUsed" | "queryLimit" | "allowed" | "overSoftCap" | "tokensUsed"
-  >;
-  onQueryComplete?: () => void;
-}
-
-export function ChatInterface({
-  initialUsage,
-  onQueryComplete,
-}: ChatInterfaceProps) {
+export function ChatInterface() {
   const t = useT();
   const { messages, sendMessage, status, error, stop } = useChat<AskMessage>();
-  const [usage, setUsage] = useState(initialUsage);
-  const lastAssistantMessageIdRef = useRef<string | null>(null);
-
-  useEffect(() => {
-    if (messages.length === 0) return;
-
-    const lastMessage = messages[messages.length - 1];
-
-    if (
-      lastMessage.role === "assistant" &&
-      status !== "streaming" &&
-      status !== "submitted" &&
-      lastMessage.id !== lastAssistantMessageIdRef.current
-    ) {
-      lastAssistantMessageIdRef.current = lastMessage.id;
-      setUsage((prev) => ({
-        ...prev,
-        queriesUsed: prev.queriesUsed + 1,
-        overSoftCap:
-          prev.overSoftCap || prev.queriesUsed + 1 >= SOFT_MONTHLY_QUERY_LIMIT,
-      }));
-      onQueryComplete?.();
-    }
-  }, [messages, status, onQueryComplete]);
 
   const isLoading = status === "streaming" || status === "submitted";
   const displayError = error ? t(getChatErrorKey(error)) : undefined;
-  const inputDisabled = isLoading || !usage.allowed;
+  const inputDisabled = isLoading;
 
   const handleSubmit = (message: PromptInputMessage) => {
     const text = message.text.trim();
@@ -162,11 +122,6 @@ export function ChatInterface({
       </Conversation>
 
       <div className="mx-auto w-full max-w-4xl px-4 pb-[max(1rem,env(safe-area-inset-bottom,0px))] md:px-0">
-        {usage.overSoftCap ? (
-          <p className="mb-2 text-xs text-muted-foreground">
-            {usage.allowed ? t("ask.softCap") : t("ask.hardCap")}
-          </p>
-        ) : null}
         <PromptInput onSubmit={handleSubmit}>
           <PromptInputBody>
             <PromptInputTextarea
@@ -175,11 +130,7 @@ export function ChatInterface({
             />
           </PromptInputBody>
           <PromptInputFooter>
-            <PromptInputSubmit
-              disabled={!usage.allowed && status !== "streaming"}
-              onStop={stop}
-              status={status}
-            />
+            <PromptInputSubmit onStop={stop} status={status} />
           </PromptInputFooter>
         </PromptInput>
       </div>

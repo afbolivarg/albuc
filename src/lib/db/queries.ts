@@ -12,6 +12,7 @@ import {
   type User,
   users,
 } from "@/lib/db/schema";
+import { hasFullAccess } from "@/lib/billing/entitlement";
 import { getCurrentUser } from "@/lib/supabase/user";
 
 /**
@@ -232,6 +233,14 @@ export async function semanticSearchNotes(
   }>;
 }
 
+export async function getUserByHandle(handle: string) {
+  return (
+    (await db.query.users.findFirst({
+      where: eq(users.handle, handle.toLowerCase()),
+    })) ?? null
+  );
+}
+
 export async function getPublicProfileByHandle(handle: string) {
   "use cache";
   cacheTag("public-profile", publicProfileTag(handle));
@@ -239,7 +248,7 @@ export async function getPublicProfileByHandle(handle: string) {
   const user = await db.query.users.findFirst({
     where: eq(users.handle, handle.toLowerCase()),
   });
-  if (!user?.publicProfile || !user.handle) return null;
+  if (!user?.publicProfile || !user.handle || !hasFullAccess(user)) return null;
   const shelf = await db
     .select({
       id: books.id,
@@ -269,5 +278,6 @@ export async function getPublicNoteBySlug(slug: string) {
     with: { user: true },
   });
   if (!book) return null;
+  if (!hasFullAccess(book.user)) return null;
   return book;
 }

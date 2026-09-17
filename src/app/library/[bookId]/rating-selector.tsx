@@ -13,9 +13,14 @@ import { updateBookRatingAction } from "./actions";
 interface RatingSelectorProps {
   bookId: string;
   currentRating: number;
+  readonly?: boolean;
 }
 
-export function RatingSelector({ bookId, currentRating }: RatingSelectorProps) {
+export function RatingSelector({
+  bookId,
+  currentRating,
+  readonly = false,
+}: RatingSelectorProps) {
   const t = useT();
   const actionMessage = useActionMessage();
   const [state, formAction, isPending] = useActionState(
@@ -49,7 +54,8 @@ export function RatingSelector({ bookId, currentRating }: RatingSelectorProps) {
       <div className="flex items-center gap-2">
         <StarRating
           rating={optimisticRating}
-          onChange={handleRatingChange}
+          onChange={readonly ? undefined : handleRatingChange}
+          readonly={readonly}
           size="lg"
           className={isPending ? "pointer-events-none opacity-50" : ""}
         />

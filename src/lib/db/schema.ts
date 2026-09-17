@@ -51,9 +51,24 @@ export const users = pgTable(
     localeLocked: boolean("locale_locked").notNull().default(false),
     publicProfile: boolean("public_profile").notNull().default(false),
     onboardingCompletedAt: timestamp("onboarding_completed_at"),
+    billingExempt: boolean("billing_exempt").notNull().default(false),
+    creemCustomerId: text("creem_customer_id"),
+    creemSubscriptionId: text("creem_subscription_id"),
+    subscriptionStatus: text("subscription_status").notNull().default("none"),
+    subscriptionPeriodStart: timestamp("subscription_period_start"),
+    subscriptionPeriodEnd: timestamp("subscription_period_end"),
+    subscriptionCancelAtPeriodEnd: boolean("subscription_cancel_at_period_end")
+      .notNull()
+      .default(false),
     createdAt: timestamp("created_at").notNull().defaultNow(),
   },
-  (table) => [uniqueIndex("users_handle_unique").on(table.handle)],
+  (table) => [
+    uniqueIndex("users_handle_unique").on(table.handle),
+    uniqueIndex("users_creem_customer_id_unique").on(table.creemCustomerId),
+    uniqueIndex("users_creem_subscription_id_unique").on(
+      table.creemSubscriptionId,
+    ),
+  ],
 );
 
 export const books = pgTable(

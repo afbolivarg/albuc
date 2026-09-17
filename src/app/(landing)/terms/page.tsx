@@ -31,6 +31,12 @@ function TermsView({ locale }: { locale: Locale }) {
         </p>
       </section>
       <section className="space-y-3">
+        <h2 className="text-lg font-semibold">{copy("terms.billingTitle")}</h2>
+        <p className="leading-relaxed text-muted-foreground">
+          {copy("terms.billingBody")}
+        </p>
+      </section>
+      <section className="space-y-3">
         <h2 className="text-lg font-semibold">
           {copy("terms.guaranteesTitle")}
         </h2>

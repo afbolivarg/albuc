@@ -1,9 +1,9 @@
 "use client";
 
 import { ArrowUpRight } from "lucide-react";
-import Image from "next/image";
 import Link from "next/link";
 import { useId } from "react";
+import { Book3dCover } from "@/components/book-3d-cover";
 import {
   HoverCard,
   HoverCardContent,
@@ -11,37 +11,6 @@ import {
 } from "@/components/ui/hover-card";
 import type { AskSource } from "@/lib/ai/citations";
 import { cn } from "@/lib/utils";
-
-function BookCover({
-  source,
-  className,
-}: {
-  source: AskSource;
-  className?: string;
-}) {
-  if (!source.coverUrl) {
-    return (
-      <div
-        className={cn(
-          "flex items-center justify-center bg-muted font-serif text-[10px] text-muted-foreground",
-          className,
-        )}
-      >
-        {source.title.slice(0, 1)}
-      </div>
-    );
-  }
-
-  return (
-    <Image
-      src={source.coverUrl}
-      alt=""
-      width={48}
-      height={72}
-      className={cn("object-cover", className)}
-    />
-  );
-}
 
 function CitationCard({
   source,
@@ -60,9 +29,13 @@ function CitationCard({
       )}
     >
       <div className="flex gap-3">
-        <BookCover
-          source={source}
-          className="h-[72px] w-12 shrink-0 rounded-[4px]"
+        <Book3dCover
+          src={source.coverUrl}
+          title={source.title}
+          className="w-12 shrink-0"
+          width={48}
+          height={72}
+          sizes="48px"
         />
         <div className="min-w-0 flex-1">
           <p className="font-serif text-[15px] leading-tight font-semibold text-foreground">
@@ -139,9 +112,16 @@ export function SourceBooks({ sources }: { sources: AskSource[] }) {
           key={source.bookId}
           href={`/library/${source.bookId}`}
           prefetch
-          className="inline-flex items-center gap-2 rounded-full border border-border bg-background py-1 pr-2.5 pl-2.5 transition-colors hover:border-foreground/20"
+          className="bk3d-hover inline-flex items-center gap-2 rounded-full border border-border bg-background py-1 pr-2.5 pl-2.5 transition-colors hover:border-foreground/20"
         >
-          <BookCover source={source} className="h-6 w-4 rounded-[2px]" />
+          <Book3dCover
+            src={source.coverUrl}
+            title={source.title}
+            className="w-4 shrink-0"
+            width={16}
+            height={24}
+            sizes="16px"
+          />
           <span className="max-w-[140px] truncate text-[12.5px] text-foreground">
             {source.title}
           </span>

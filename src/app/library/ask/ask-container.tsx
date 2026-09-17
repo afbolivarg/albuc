@@ -2,36 +2,12 @@
 
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
-import {
-  type AIUsageSnapshot,
-  SOFT_MONTHLY_QUERY_LIMIT,
-} from "@/lib/ai/usage.shared";
+import { SubscribeCta } from "@/components/billing/subscribe-cta";
 import { useT } from "@/lib/i18n/client";
 import { ChatInterface } from "./chat-interface";
 
-type AskUsage = Pick<
-  AIUsageSnapshot,
-  "queriesUsed" | "queryLimit" | "allowed" | "overSoftCap" | "tokensUsed"
->;
-
-interface AskContainerProps {
-  initialUsage: AskUsage;
-}
-
-export function AskContainer({ initialUsage }: AskContainerProps) {
+export function AskContainer({ canAsk }: { canAsk: boolean }) {
   const t = useT();
-  const [usage, setUsage] = useState(initialUsage);
-
-  const handleQueryComplete = () => {
-    setUsage((prev) => ({
-      ...prev,
-      queriesUsed: prev.queriesUsed + 1,
-      allowed: prev.queriesUsed + 1 < prev.queryLimit,
-      overSoftCap:
-        prev.overSoftCap || prev.queriesUsed + 1 >= SOFT_MONTHLY_QUERY_LIMIT,
-    }));
-  };
 
   return (
     <div className="flex h-full flex-col bg-background">
@@ -45,10 +21,19 @@ export function AskContainer({ initialUsage }: AskContainerProps) {
         </Link>
       </header>
       <div className="min-h-0 flex-1">
-        <ChatInterface
-          initialUsage={usage}
-          onQueryComplete={handleQueryComplete}
-        />
+        {canAsk ? (
+          <ChatInterface />
+        ) : (
+          <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+            <p className="max-w-sm font-serif text-xl">
+              {t("billing.priceLine")}
+            </p>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              {t("billing.askLocked")}
+            </p>
+            <SubscribeCta />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -9,10 +9,10 @@ import {
   NotebookPen,
   Search,
 } from "lucide-react";
-import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
 import { AlbucLogo } from "@/components/albuc-logo";
+import { Book3dCover } from "@/components/book-3d-cover";
 import { LocaleSwitcher } from "@/components/locale-switcher";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -55,8 +55,15 @@ const TOUR = [
   },
 ] as const;
 
-export function OnboardingFlow({ user }: { user: User }) {
+export function OnboardingFlow({
+  user,
+  requiresSubscribe,
+}: {
+  user: User;
+  requiresSubscribe: boolean;
+}) {
   const router = useRouter();
+  const t = useT();
   const [step, setStep] = useState<Step>(() => {
     if (!user.firstName?.trim() || !user.lastName?.trim()) return "name";
     if (!user.handle?.trim()) return "username";
@@ -80,6 +87,10 @@ export function OnboardingFlow({ user }: { user: User }) {
       const result = await saveOnboardingNameAction({ firstName, lastName });
       if (!result.success) {
         setNameError(result.error ?? "errors.saveName");
+        return;
+      }
+      if (requiresSubscribe) {
+        router.replace("/subscribe");
         return;
       }
       setStep("username");
@@ -119,21 +130,30 @@ export function OnboardingFlow({ user }: { user: User }) {
       <header className="flex items-center justify-between px-6 pt-[max(1.5rem,env(safe-area-inset-top))] pb-2">
         <AlbucLogo className="text-xl" iconClassName="size-5" />
         <LocaleSwitcher />
-        <div className="flex items-center gap-1.5">
-          {STEPS.map((item, index) => (
-            <span
-              key={item}
-              className={cn(
-                "h-1.5 rounded-full transition-all duration-300",
-                index === stepIndex
-                  ? "w-6 bg-foreground"
-                  : index < stepIndex
-                    ? "w-1.5 bg-foreground/45"
-                    : "w-1.5 bg-foreground/15",
-              )}
-            />
-          ))}
-        </div>
+        {requiresSubscribe ? (
+          <a
+            href="/auth/sign-out"
+            className="text-sm text-muted-foreground underline-offset-4 hover:underline"
+          >
+            {t("auth.signOut")}
+          </a>
+        ) : (
+          <div className="flex items-center gap-1.5">
+            {STEPS.map((item, index) => (
+              <span
+                key={item}
+                className={cn(
+                  "h-1.5 rounded-full transition-all duration-300",
+                  index === stepIndex
+                    ? "w-6 bg-foreground"
+                    : index < stepIndex
+                      ? "w-1.5 bg-foreground/45"
+                      : "w-1.5 bg-foreground/15",
+                )}
+              />
+            ))}
+          </div>
+        )}
       </header>
 
       <main className="mx-auto flex w-full max-w-[440px] flex-1 flex-col justify-center px-6 py-10">
@@ -167,6 +187,14 @@ export function OnboardingFlow({ user }: { user: User }) {
         {step === "tour" && (
           <TourStep finishing={finishing} onFinish={handleFinish} />
         )}
+        <p className="mt-10 text-center text-sm">
+          <a
+            href="/auth/sign-out"
+            className="text-muted-foreground underline-offset-4 hover:underline"
+          >
+            {t("auth.signOut")}
+          </a>
+        </p>
       </main>
     </div>
   );
@@ -446,21 +474,16 @@ function BookStep({
                     type="button"
                     onClick={() => handleAdd(book)}
                     disabled={addingKey !== null}
-                    className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-background disabled:opacity-60"
+                    className="bk3d-hover flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-background disabled:opacity-60"
                   >
-                    <div className="flex h-11 w-[30px] shrink-0 items-center justify-center overflow-hidden rounded-[3px] bg-muted">
-                      {cover ? (
-                        <Image
-                          src={cover}
-                          alt=""
-                          width={30}
-                          height={44}
-                          className="h-full w-full object-cover"
-                        />
-                      ) : (
-                        <BookOpen className="size-4 text-muted-foreground" />
-                      )}
-                    </div>
+                    <Book3dCover
+                      src={cover}
+                      title={book.title}
+                      className="w-[30px] shrink-0"
+                      width={30}
+                      height={44}
+                      sizes="30px"
+                    />
                     <div className="min-w-0 flex-1">
                       <p className="truncate font-serif text-[14px] font-semibold">
                         {book.title}

@@ -1,5 +1,8 @@
 import { redirect } from "next/navigation";
+import { SubscribeCta } from "@/components/billing/subscribe-cta";
+import { hasFullAccess } from "@/lib/billing/entitlement";
 import { getUserWithBooks } from "@/lib/db/queries";
+import { t } from "@/lib/i18n/server";
 import { AddBookView } from "./add-book-view";
 
 export default async function AddBookPage() {
@@ -19,6 +22,18 @@ export default async function AddBookPage() {
       },
     ]),
   );
+
+  if (!hasFullAccess(user)) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-4 px-6 text-center">
+        <p className="font-serif text-2xl">{await t("billing.priceLine")}</p>
+        <p className="max-w-sm text-muted-foreground">
+          {await t("billing.addLocked")}
+        </p>
+        <SubscribeCta />
+      </div>
+    );
+  }
 
   return <AddBookView savedBooks={savedBooks} />;
 }

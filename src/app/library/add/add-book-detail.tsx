@@ -1,8 +1,8 @@
 "use client";
 
-import { BookOpen, ChevronLeft, Loader, Plus } from "lucide-react";
-import Image from "next/image";
+import { ChevronLeft, Loader, Plus } from "lucide-react";
 import Link from "next/link";
+import { Book3dCover } from "@/components/book-3d-cover";
 import { StarRating } from "@/components/star-rating";
 import { Button } from "@/components/ui/button";
 import {
@@ -168,20 +168,13 @@ function DetailCover({ book }: { book: AddBookDetailProps["book"] }) {
   const cover = getCoverUrl(book.coverId, "L");
 
   return (
-    <div className="h-[180px] w-[120px] flex-shrink-0 overflow-hidden rounded-[14px] bg-border shadow-[0_4px_24px_rgba(0,0,0,0.10)] md:h-[300px] md:w-[200px]">
-      {cover ? (
-        <Image
-          src={cover}
-          alt={book.title}
-          width={200}
-          height={300}
-          className="h-full w-full object-cover"
-        />
-      ) : (
-        <div className="flex h-full w-full items-center justify-center">
-          <BookOpen className="size-8 text-muted-foreground" />
-        </div>
-      )}
-    </div>
+    <Book3dCover
+      src={cover}
+      title={book.title}
+      className="w-[120px] shrink-0 md:w-[200px]"
+      width={200}
+      height={300}
+      sizes="(min-width: 768px) 200px, 120px"
+    />
   );
 }

@@ -6,7 +6,9 @@ import { generateEmbeddingResult } from "@/lib/ai/embedding";
 import { joinTextParts } from "@/lib/ai/message-text";
 import { getChatModel } from "@/lib/ai/provider";
 import { selectContextChunks, toAskSources } from "@/lib/ai/retrieve";
-import { checkAIUsageAllowed, recordAIUsage } from "@/lib/ai/usage";
+import { recordAIUsage } from "@/lib/ai/usage";
+import { hasFullAccess } from "@/lib/billing/entitlement";
+import { consumeAskRateLimit } from "@/lib/billing/rate-limit";
 import {
   getUser,
   listUserBooksForAsk,
@@ -99,9 +101,12 @@ export async function POST(req: Request) {
       return createChatErrorResponse(400);
     }
 
-    const usageCheck = await checkAIUsageAllowed(user.id);
-    if (!usageCheck.allowed) {
-      return createChatErrorResponse(402, "ask.hardCap");
+    if (!hasFullAccess(user)) {
+      return createChatErrorResponse(402, "errors.subscribeRequired");
+    }
+
+    if (!(await consumeAskRateLimit(user.id))) {
+      return createChatErrorResponse(429, "errors.rateLimited");
     }
 
     const [queryEmbedding, library] = await Promise.all([
@@ -127,7 +132,6 @@ export async function POST(req: Request) {
     after(() =>
       recordAIUsage({
         userId: user.id,
-        counterId: usageCheck.counterId,
         queries: 1,
         embeddingTokens: queryEmbedding.tokens,
       }),
@@ -146,7 +150,6 @@ export async function POST(req: Request) {
       onFinish: ({ usage }) => {
         void recordAIUsage({
           userId: user.id,
-          counterId: usageCheck.counterId,
           promptTokens: usage.inputTokens ?? 0,
           completionTokens: usage.outputTokens ?? 0,
         });

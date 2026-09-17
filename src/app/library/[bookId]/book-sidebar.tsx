@@ -1,8 +1,8 @@
 "use client";
 
-import { BookOpen, ChevronLeft } from "lucide-react";
-import Image from "next/image";
+import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
+import { Book3dCover } from "@/components/book-3d-cover";
 import type { Book } from "@/lib/db/schema";
 import { useT } from "@/lib/i18n/client";
 import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
@@ -10,7 +10,13 @@ import { NoteShareControls } from "./note-share-controls";
 import { RatingSelector } from "./rating-selector";
 import { StatusSelector } from "./status-selector";
 
-export function BookSidebar({ book }: { book: Book }) {
+export function BookSidebar({
+  book,
+  canWrite = true,
+}: {
+  book: Book;
+  canWrite?: boolean;
+}) {
   const t = useT();
   const coverUrl = getBookDisplayCoverUrl(book, "L");
   const authors =
@@ -29,28 +35,19 @@ export function BookSidebar({ book }: { book: Book }) {
           <ChevronLeft className="size-4" />
           {t("nav.library")}
         </Link>
-        <NoteShareControls book={book} />
+        {canWrite ? <NoteShareControls book={book} /> : null}
       </div>
 
       <div className="flex gap-4 px-5 pb-5 md:flex-col md:items-center md:gap-5 md:pt-2">
-        <div className="h-[120px] w-[80px] shrink-0 overflow-hidden rounded-[10px] bg-muted shadow-[0_4px_24px_rgba(0,0,0,0.08)] md:h-[240px] md:w-[160px] md:rounded-[14px]">
-          {coverUrl ? (
-            <Image
-              alt={book.title}
-              className="h-full w-full object-cover"
-              height={240}
-              loading="eager"
-              priority
-              sizes="(min-width: 768px) 160px, 80px"
-              src={coverUrl}
-              width={160}
-            />
-          ) : (
-            <div className="flex h-full w-full items-center justify-center">
-              <BookOpen className="size-7 text-muted-foreground md:size-8" />
-            </div>
-          )}
-        </div>
+        <Book3dCover
+          src={coverUrl}
+          title={book.title}
+          className="w-[80px] shrink-0 md:w-[160px]"
+          width={160}
+          height={240}
+          priority
+          sizes="(min-width: 768px) 160px, 80px"
+        />
 
         <div className="min-w-0 flex-1 md:w-full">
           <h1 className="font-serif text-[20px] font-bold leading-[1.15] tracking-tight md:text-center md:text-[22px]">
@@ -70,13 +67,21 @@ export function BookSidebar({ book }: { book: Book }) {
               <span className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                 {t("book.status")}
               </span>
-              <StatusSelector bookId={book.id} currentStatus={book.status} />
+              <StatusSelector
+                bookId={book.id}
+                currentStatus={book.status}
+                disabled={!canWrite}
+              />
             </div>
             <div className="flex flex-col gap-[7px]">
               <span className="text-[10px] font-semibold tracking-[0.08em] text-muted-foreground uppercase">
                 {t("book.rating")}
               </span>
-              <RatingSelector bookId={book.id} currentRating={rating} />
+              <RatingSelector
+                bookId={book.id}
+                currentRating={rating}
+                readonly={!canWrite}
+              />
             </div>
           </div>
         </div>

@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { hasFullAccess } from "@/lib/billing/entitlement";
 import { getUser, updateUserProfile } from "@/lib/db/queries";
 import { HANDLE_RE, normalizeHandle } from "@/lib/sharing";
 
@@ -42,6 +43,10 @@ export async function saveOnboardingHandleAction(input: {
     return { success: false, error: "errors.signInAgain" };
   }
 
+  if (!hasFullAccess(user)) {
+    return { success: false, error: "errors.subscribeRequired" };
+  }
+
   const handle = normalizeHandle(input.handle);
   if (!HANDLE_RE.test(handle)) {
     return { success: false, error: "errors.handleFormat" };
@@ -70,6 +75,10 @@ export async function completeOnboardingAction(): Promise<{
 
   if (!user.handle?.trim()) {
     return { success: false, error: "errors.addHandleFirst" };
+  }
+
+  if (!hasFullAccess(user)) {
+    return { success: false, error: "errors.subscribeRequired" };
   }
 
   await updateUserProfile(user.id, {

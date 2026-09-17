@@ -6,8 +6,11 @@ import {
   revalidatePublicNote,
   revalidatePublicProfile,
 } from "@/lib/cache-revalidate";
+import { requireWritableUser } from "@/lib/billing/require-write";
+import { consumeEmbedRateLimit } from "@/lib/billing/rate-limit";
 import { getUser, getUserBook, updateBook } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
+import { isLocale } from "@/lib/i18n/config";
 import {
   createShareSlug,
   publicNoteUrl,
@@ -32,10 +35,9 @@ export async function updateBookStatusAction(
   }
 
   try {
-    const user = await getUser();
-    if (!user) {
-      return { error: "errors.authRequired" };
-    }
+    const access = await requireWritableUser();
+    if (access.error) return { error: access.error };
+    const user = access.user;
 
     const currentBook = await getUserBook(user.id, bookId);
     if (!currentBook) {
@@ -77,10 +79,9 @@ export async function updateBookRatingAction(
   }
 
   try {
-    const user = await getUser();
-    if (!user) {
-      return { error: "errors.authRequired" };
-    }
+    const access = await requireWritableUser();
+    if (access.error) return { error: access.error };
+    const user = access.user;
 
     // Get the current book data
     const currentBook = await getUserBook(user.id, bookId);
@@ -120,9 +121,11 @@ export async function updateBookNotesAction(
   }
 
   try {
-    const user = await getUser();
-    if (!user) {
-      return { error: "errors.authRequired" };
+    const access = await requireWritableUser();
+    if (access.error) return { error: access.error };
+    const user = access.user;
+    if (!(await consumeEmbedRateLimit(user.id))) {
+      return { error: "errors.rateLimited" };
     }
 
     // Get the current book data
@@ -159,8 +162,9 @@ export async function togglePublicNoteAction(
   bookId: string,
   makePublic: boolean,
 ) {
-  const user = await getUser();
-  if (!user) return { error: "errors.authRequired" };
+  const access = await requireWritableUser();
+  if (access.error) return { error: access.error };
+  const user = access.user;
   const currentBook = await getUserBook(user.id, bookId);
   if (!currentBook) return { error: "errors.bookNotFound" };
 
@@ -184,7 +188,10 @@ export async function togglePublicNoteAction(
     shareSlug: updated[0].shareSlug,
     url:
       makePublic && updated[0].shareSlug
-        ? publicNoteUrl(updated[0].shareSlug)
+        ? publicNoteUrl(
+            updated[0].shareSlug,
+            isLocale(user.locale) ? user.locale : undefined,
+          )
         : null,
   };
 }

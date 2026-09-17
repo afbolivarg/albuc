@@ -1,6 +1,6 @@
 "use client";
 
-import { Globe, Languages } from "lucide-react";
+import { CreditCard, Globe, Languages } from "lucide-react";
 import { useRef, useState } from "react";
 import {
   Dialog,
@@ -22,10 +22,11 @@ import type { User } from "@/lib/db/schema";
 import { useT } from "@/lib/i18n/client";
 import { normalizeHandle } from "@/lib/sharing";
 import { cn } from "@/lib/utils";
+import { SettingsBillingPage } from "./settings-billing-page";
 import { SettingsLanguagePage } from "./settings-language-page";
 import { SettingsProfilePage } from "./settings-profile-page";
 
-type SettingsPage = "language" | "profile";
+type SettingsPage = "language" | "profile" | "billing";
 
 export function SettingsDialog({
   user,
@@ -49,6 +50,11 @@ export function SettingsDialog({
 
   const nav = [
     { id: "profile" as const, label: t("profile.title"), icon: Globe },
+    {
+      id: "billing" as const,
+      label: t("billing.settingsTitle"),
+      icon: CreditCard,
+    },
     { id: "language" as const, label: t("settings.language"), icon: Languages },
   ];
 
@@ -129,6 +135,15 @@ export function SettingsDialog({
                 )}
               >
                 <SettingsLanguagePage />
+              </div>
+              <div
+                className={cn(
+                  page === "billing"
+                    ? "animate-in fade-in slide-in-from-right-2 duration-200"
+                    : "hidden",
+                )}
+              >
+                <SettingsBillingPage user={user} />
               </div>
               <div
                 className={cn(

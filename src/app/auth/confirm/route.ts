@@ -2,6 +2,7 @@ import type { EmailOtpType } from "@supabase/supabase-js";
 import { eq } from "drizzle-orm";
 import { cookies } from "next/headers";
 import { type NextRequest, NextResponse } from "next/server";
+import { signedInPath } from "@/lib/billing/entitlement";
 import { db } from "@/lib/db";
 import { ensureAppUser } from "@/lib/db/queries";
 import { users } from "@/lib/db/schema";
@@ -31,10 +32,27 @@ function buildRedirectUrl(request: NextRequest, path: string): string {
   return `${origin}${path}`;
 }
 
+function confirmParams(request: NextRequest) {
+  const searchParams = request.nextUrl.searchParams;
+  let token_hash = searchParams.get("token_hash");
+  let type = searchParams.get("type") as EmailOtpType | null;
+
+  // Chat and some clients encode the whole query as one blob:
+  // /auth/confirm?token_hash%3D...%26type%3Dmagiclink
+  if (!token_hash) {
+    const decoded = decodeURIComponent(
+      request.nextUrl.search.replace(/^\?/, ""),
+    );
+    const fallback = new URLSearchParams(decoded);
+    token_hash = fallback.get("token_hash");
+    type = (fallback.get("type") as EmailOtpType | null) ?? type;
+  }
+
+  return { token_hash, type };
+}
+
 export async function GET(request: NextRequest) {
-  const { searchParams } = new URL(request.url);
-  const token_hash = searchParams.get("token_hash");
-  const type = searchParams.get("type") as EmailOtpType | null;
+  const { token_hash, type } = confirmParams(request);
 
   if (token_hash && type) {
     const supabase = createClient(await cookies());
@@ -55,9 +73,7 @@ export async function GET(request: NextRequest) {
             .set({ locale: cookieLocale, localeLocked: true })
             .where(eq(users.id, appUser.id));
         }
-        const destination = appUser.onboardingCompletedAt
-          ? "/library"
-          : "/onboarding";
+        const destination = signedInPath(appUser);
         const redirectResponse = NextResponse.redirect(
           buildRedirectUrl(request, destination),
         );

@@ -1,43 +1,58 @@
-import { BookOpen } from "lucide-react";
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { PublicGone } from "@/components/billing/public-gone";
+import { Book3dCover } from "@/components/book-3d-cover";
 import { PublicPageShell } from "@/components/public-page-shell";
-import { getPublicProfileByHandle } from "@/lib/db/queries";
-import { t } from "@/lib/i18n/server";
-import { APP_DESCRIPTION } from "@/lib/pwa";
-import { normalizeHandle } from "@/lib/sharing";
+import { getPublicProfileByHandle, getUserByHandle } from "@/lib/db/queries";
+import { translate } from "@/lib/i18n/translate";
+import {
+  publicProfileMetadata,
+  resolvePublicLocaleFrom,
+} from "@/lib/public-metadata";
+import { profileHandleFromParam, publicNotePath } from "@/lib/sharing";
 import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
 
-export const metadata: Metadata = {
-  title: "Library",
-  description: APP_DESCRIPTION,
+type PageProps = {
+  params: Promise<{ handle: string }>;
+  searchParams: Promise<{ lang?: string }>;
 };
 
-function profileHandleFromParam(handle: string) {
-  const decoded = decodeURIComponent(handle);
-  if (!decoded.startsWith("@")) return null;
-  const normalized = normalizeHandle(decoded);
-  return normalized || null;
+export async function generateMetadata({
+  params,
+  searchParams,
+}: PageProps): Promise<Metadata> {
+  const [{ handle }, locale] = await Promise.all([
+    params,
+    resolvePublicLocaleFrom(searchParams),
+  ]);
+  const username = profileHandleFromParam(handle);
+  if (!username) return { title: translate(locale, "nav.library") };
+  return publicProfileMetadata(username, locale);
 }
 
 export default async function PublicProfilePage({
   params,
-}: {
-  params: Promise<{ handle: string }>;
-}) {
+  searchParams,
+}: PageProps) {
   const { handle } = await params;
   const username = profileHandleFromParam(handle);
   if (!username) notFound();
 
-  const profile = await getPublicProfileByHandle(username);
-  if (!profile) notFound();
+  const [owner, profile, locale] = await Promise.all([
+    getUserByHandle(username),
+    getPublicProfileByHandle(username),
+    resolvePublicLocaleFrom(searchParams),
+  ]);
+  if (!owner) notFound();
+  if (!profile) return <PublicGone />;
 
-  const title = await t("public.shelfTitle", { handle: `@${username}` });
+  const title = translate(locale, "public.shelfTitle", {
+    handle: `@${username}`,
+  });
 
   return (
-    <PublicPageShell>
+    <PublicPageShell locale={locale}>
       <h1 className="font-serif text-4xl font-bold tracking-tight">{title}</h1>
       <ul className="mt-10 grid gap-4 sm:grid-cols-2">
         {profile.shelf.map((book, index) => {
@@ -46,23 +61,31 @@ export default async function PublicProfilePage({
             <li key={book.id}>
               {book.visibility === "public" && book.shareSlug ? (
                 <Link
-                  href={`/n/${book.shareSlug}`}
+                  href={publicNotePath(book.shareSlug, locale)}
                   prefetch={false}
-                  className="flex gap-3 rounded-xl p-2 hover:bg-muted"
+                  className="bk3d-hover flex gap-3 rounded-xl p-2 hover:bg-muted"
                 >
-                  <Cover
-                    cover={cover}
-                    priority={index === 0}
+                  <Book3dCover
+                    src={cover}
                     title={book.title}
+                    className="w-[58px] shrink-0"
+                    width={58}
+                    height={88}
+                    sizes="58px"
+                    priority={index === 0}
                   />
                   <BookMeta title={book.title} authors={book.authors} />
                 </Link>
               ) : (
                 <div className="flex gap-3 rounded-xl p-2">
-                  <Cover
-                    cover={cover}
-                    priority={index === 0}
+                  <Book3dCover
+                    src={cover}
                     title={book.title}
+                    className="w-[58px] shrink-0"
+                    width={58}
+                    height={88}
+                    sizes="58px"
+                    priority={index === 0}
                   />
                   <BookMeta title={book.title} authors={book.authors} />
                 </div>
@@ -72,37 +95,6 @@ export default async function PublicProfilePage({
         })}
       </ul>
     </PublicPageShell>
-  );
-}
-
-function Cover({
-  cover,
-  title,
-  priority = false,
-}: {
-  cover: string | null;
-  title: string;
-  priority?: boolean;
-}) {
-  return (
-    <div className="h-[88px] w-[58px] shrink-0 overflow-hidden rounded-md bg-muted">
-      {cover ? (
-        <Image
-          alt={title}
-          className="h-full w-full object-cover"
-          height={88}
-          loading={priority ? "eager" : "lazy"}
-          priority={priority}
-          sizes="58px"
-          src={cover}
-          width={58}
-        />
-      ) : (
-        <div className="flex h-full items-center justify-center">
-          <BookOpen className="size-5 text-muted-foreground" />
-        </div>
-      )}
-    </div>
   );
 }
 

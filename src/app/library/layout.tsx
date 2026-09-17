@@ -1,9 +1,9 @@
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { LocaleSync } from "@/components/locale-sync";
+import { signedInPath } from "@/lib/billing/entitlement";
 import { getUser } from "@/lib/db/queries";
 import { isLocale } from "@/lib/i18n/config";
-import { needsOnboarding } from "@/lib/user-profile";
 
 async function LibraryGuard({ children }: { children: React.ReactNode }) {
   const user = await getUser();
@@ -12,8 +12,9 @@ async function LibraryGuard({ children }: { children: React.ReactNode }) {
     redirect("/sign-in");
   }
 
-  if (needsOnboarding(user)) {
-    redirect("/onboarding");
+  const next = signedInPath(user);
+  if (next !== "/library") {
+    redirect(next);
   }
 
   const locale = isLocale(user.locale) ? user.locale : "en";

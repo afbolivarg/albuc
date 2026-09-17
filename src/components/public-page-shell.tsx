@@ -27,8 +27,14 @@ async function CachedPublicHeader({ locale }: { locale: Locale }) {
   );
 }
 
-async function LocalizedPublicShell({ children }: { children: ReactNode }) {
-  const locale = await getRequestLocale();
+async function LocalizedPublicShell({
+  children,
+  locale: localeProp,
+}: {
+  children: ReactNode;
+  locale?: Locale;
+}) {
+  const locale = localeProp ?? (await getRequestLocale());
   return (
     <div className="flex min-h-screen flex-col bg-background">
       <div className="mx-auto flex w-full max-w-3xl flex-1 flex-col px-5 py-8 md:px-6 md:py-12">
@@ -42,10 +48,16 @@ async function LocalizedPublicShell({ children }: { children: ReactNode }) {
   );
 }
 
-export function PublicPageShell({ children }: { children: ReactNode }) {
+export function PublicPageShell({
+  children,
+  locale,
+}: {
+  children: ReactNode;
+  locale?: Locale;
+}) {
   return (
     <Suspense fallback={null}>
-      <LocalizedPublicShell>{children}</LocalizedPublicShell>
+      <LocalizedPublicShell locale={locale}>{children}</LocalizedPublicShell>
     </Suspense>
   );
 }

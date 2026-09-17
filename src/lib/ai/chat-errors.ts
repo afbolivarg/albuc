@@ -4,13 +4,17 @@ import { isMessageKey } from "@/lib/i18n/translate";
 export function getChatErrorKey(error?: Error | null): MessageKey {
   const message = error?.message ?? "";
   if (isMessageKey(message)) return message;
+  if (message.includes("429") || message.includes("rateLimited")) {
+    return "errors.rateLimited";
+  }
   if (
     message.includes("Ask budget") ||
     message.includes("402") ||
     message.toLowerCase().includes("payment") ||
-    message.includes("ask.hardCap")
+    message.includes("ask.hardCap") ||
+    message.includes("subscribeRequired")
   ) {
-    return "ask.hardCap";
+    return "errors.subscribeRequired";
   }
   return "ask.error";
 }

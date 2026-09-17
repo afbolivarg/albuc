@@ -2,6 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 import { revalidatePublicProfile } from "@/lib/cache-revalidate";
+import { hasFullAccess } from "@/lib/billing/entitlement";
 import { getUser, updateUserProfile } from "@/lib/db/queries";
 import { HANDLE_RE, normalizeHandle, publicProfilePath } from "@/lib/sharing";
 
@@ -17,6 +18,9 @@ export async function updatePublicProfileAction(formData: FormData) {
   }
   if (publicProfile && !handle) {
     return { error: "errors.handleRequired" };
+  }
+  if (publicProfile && !hasFullAccess(user)) {
+    return { error: "errors.subscribeRequired" };
   }
 
   try {

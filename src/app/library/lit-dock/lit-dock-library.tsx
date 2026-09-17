@@ -3,6 +3,8 @@
 import { MessageSquare, Plus } from "lucide-react";
 import Link from "next/link";
 import { AlbucLogo } from "@/components/albuc-logo";
+import { BillingBanner } from "@/components/billing/billing-banner";
+import { hasBillingHistory, hasFullAccess } from "@/lib/billing/entitlement";
 import type { User } from "@/lib/db/schema";
 import { useT } from "@/lib/i18n/client";
 import { UserMenu } from "../user-menu";
@@ -23,6 +25,7 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
   const [rootRef, rootW] = useElementWidth(1112);
   const mobile = rootW < 560;
   const pad = mobile ? 20 : 40;
+  const showBanner = !hasFullAccess(user) && hasBillingHistory(user);
 
   return (
     <div
@@ -35,7 +38,9 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
           style={{
             paddingLeft: pad,
             paddingRight: pad,
-            paddingTop: "calc(88px + env(safe-area-inset-top, 0px))",
+            paddingTop: showBanner
+              ? "calc(128px + env(safe-area-inset-top, 0px))"
+              : "calc(88px + env(safe-area-inset-top, 0px))",
             paddingBottom: "calc(108px + env(safe-area-inset-bottom, 0px))",
           }}
         >
@@ -48,19 +53,22 @@ export function LitDockLibrary({ books: all, user }: LitDockLibraryProps) {
         )}
       </div>
 
-      <div
-        className="pointer-events-none absolute inset-x-0 top-0 z-20"
-        style={{
-          paddingTop: "max(16px, env(safe-area-inset-top, 0px))",
-          paddingLeft: pad,
-          paddingRight: pad,
-          paddingBottom: 56,
-          backgroundImage:
-            "linear-gradient(to bottom, var(--background) 0%, color-mix(in srgb, var(--background) 70%, transparent) 42%, color-mix(in srgb, var(--background) 28%, transparent) 72%, transparent 100%)",
-        }}
-      >
-        <div className="pointer-events-auto">
-          <FilterBar lib={lib} />
+      <div className="absolute inset-x-0 top-0 z-20">
+        {showBanner ? <BillingBanner /> : null}
+        <div
+          className="pointer-events-none"
+          style={{
+            paddingTop: "max(16px, env(safe-area-inset-top, 0px))",
+            paddingLeft: pad,
+            paddingRight: pad,
+            paddingBottom: 56,
+            backgroundImage:
+              "linear-gradient(to bottom, var(--background) 0%, color-mix(in srgb, var(--background) 70%, transparent) 42%, color-mix(in srgb, var(--background) 28%, transparent) 72%, transparent 100%)",
+          }}
+        >
+          <div className="pointer-events-auto">
+            <FilterBar lib={lib} />
+          </div>
         </div>
       </div>
 

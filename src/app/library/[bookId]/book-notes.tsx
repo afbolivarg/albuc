@@ -23,13 +23,16 @@ import {
 import type { Book } from "@/lib/db/schema";
 import { useActionMessage, useT } from "@/lib/i18n/client";
 import { cn } from "@/lib/utils";
+import { TeaserNote } from "@/components/billing/teaser-note";
+import { NOTE_TEASER_CHARS } from "@/lib/billing/entitlement";
 import { updateBookNotesAction } from "./actions";
 
 interface BookNotesProps {
   book: Book;
+  canWrite: boolean;
 }
 
-export function BookNotes({ book }: BookNotesProps) {
+export function BookNotes({ book, canWrite }: BookNotesProps) {
   const t = useT();
   const actionMessage = useActionMessage();
   const router = useRouter();
@@ -113,6 +116,16 @@ export function BookNotes({ book }: BookNotesProps) {
     }
     setIsEditing(false);
   };
+
+  if (!canWrite) {
+    const full = book.noteMarkdown || "";
+    return (
+      <TeaserNote
+        preview={full.slice(0, NOTE_TEASER_CHARS)}
+        hasMore={full.length > NOTE_TEASER_CHARS}
+      />
+    );
+  }
 
   const handleSave = () => {
     const markdown = editorRef.current?.getMarkdown() ?? draft;

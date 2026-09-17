@@ -20,9 +20,14 @@ import { updateBookStatusAction } from "./actions";
 interface StatusSelectorProps {
   bookId: string;
   currentStatus: Book["status"];
+  disabled?: boolean;
 }
 
-export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
+export function StatusSelector({
+  bookId,
+  currentStatus,
+  disabled = false,
+}: StatusSelectorProps) {
   const t = useT();
   const actionMessage = useActionMessage();
   const statusOptions = [
@@ -84,7 +89,7 @@ export function StatusSelector({ bookId, currentStatus }: StatusSelectorProps) {
       <Select
         value={optimisticStatus}
         onValueChange={handleStatusChange}
-        disabled={isPending}
+        disabled={disabled || isPending}
       >
         <SelectTrigger className="h-9 w-full shadow-none">
           <SelectValue>
