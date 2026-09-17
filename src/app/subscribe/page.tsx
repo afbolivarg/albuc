@@ -5,10 +5,10 @@ import { AlbucLogo } from "@/components/albuc-logo";
 import { CheckoutPending } from "@/components/billing/checkout-pending";
 import { Button } from "@/components/ui/button";
 import {
-  SUPPORT_EMAIL,
   hasBillingHistory,
   hasFullAccess,
   hasGivenName,
+  SUPPORT_EMAIL,
   signedInPath,
 } from "@/lib/billing/entitlement";
 import { getUser } from "@/lib/db/queries";
