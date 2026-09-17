@@ -170,12 +170,12 @@ export const en = {
     "I wanted one place: a library that felt like mine. Not a social feed, not a generic note app. Something where each book had a shelf, a status, a rating, and room for my own words. Something where I could later ask “what did I think about X?” and get an answer from my notes, not the internet.",
   "why.p3":
     "Goodreads gives you the catalog. Notion gives you the blank page. Neither gives you both, tied to the books you actually read. That gap is what Albuc fills.",
-  "why.freeTitle": "Why it's $25 a year",
+  "why.freeTitle": "Why I made it this way",
   "why.freeBody":
-    "I built this because I needed it. Friends asked to pay. A year costs $25 — cheap enough that renewing should feel like a gift, not a bill. Early accounts stay complimentary.",
+    "I built Albuc because I needed it. Friends asked to use it too, so I wanted the hosted product to stay as cheap as possible — cheap enough that people commit to a long-term library, not bounce in and out of a tool.",
   "why.codeBefore": "The code is open on",
   "why.codeAfter":
-    "if you're curious how it works. But you don't need to run anything yourself. Just come read, take notes, and build on what you learn.",
+    "if you're curious. Self-host if you want.",
   "why.cta": "Start your library",
   "home.metaDescription":
     "Your personal library and notes, beautifully organized.",

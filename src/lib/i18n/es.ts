@@ -176,12 +176,12 @@ export const es: Record<MessageKey, string> = {
     "Quería un solo lugar: una biblioteca que se sintiera mía. No un feed social, no una app de notas genérica. Algo donde cada libro tuviera un estante, un estado, una calificación y espacio para mis palabras. Algo donde después pudiera preguntar “¿qué pensé sobre X?” y recibir una respuesta de mis notas, no de internet.",
   "why.p3":
     "Goodreads te da el catálogo. Notion te da la página en blanco. Ninguno te da las dos cosas, unidas a los libros que de verdad leíste. Ese hueco es el que llena Albuc.",
-  "why.freeTitle": "Por qué son $25 al año",
+  "why.freeTitle": "Por qué lo hice así",
   "why.freeBody":
-    "Lo construí porque lo necesitaba. Unos amigos pidieron pagar. Un año cuesta $25 — lo bastante barato para que renovar se sienta como un regalo, no como una factura. Las cuentas tempranas siguen de cortesía.",
+    "Construí Albuc porque lo necesitaba. Unos amigos también querían usarlo, así que quise que el producto hospedado fuera lo más barato posible — barato como para que la gente se quede con una biblioteca a largo plazo, no entre y salga de una herramienta.",
   "why.codeBefore": "El código está abierto en",
   "why.codeAfter":
-    "si te da curiosidad cómo funciona. Pero no hace falta que lo ejecutes tú. Ven a leer, toma notas y construye sobre lo que aprendes.",
+    "si te da curiosidad. Self-host si quieres.",
   "why.cta": "Empieza tu biblioteca",
   "home.metaDescription":
     "Tu biblioteca personal y tus notas, organizadas con belleza.",
