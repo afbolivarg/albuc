@@ -27,7 +27,8 @@ const serverSchema = z.object({
   // sb_secret_... from Supabase Dashboard → Settings → API Keys
   SUPABASE_SECRET_KEY: z.string().min(1),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
-  OPENAI_API_KEY: z.string().min(1),
+  // Ask-only. Empty at build is fine; getChatModel() fails if missing at request time.
+  OPENAI_API_KEY: z.string().optional().default(""),
   CREEM_API_KEY: z.string().optional().default(""),
   CREEM_WEBHOOK_SECRET: z.string().optional().default(""),
   CREEM_PRODUCT_ID: z.string().optional().default(""),
