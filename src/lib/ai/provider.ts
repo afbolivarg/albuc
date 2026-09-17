@@ -11,16 +11,22 @@ export const CHAT_MODEL = "gpt-5.6-luna";
 export const EMBEDDING_MODEL = "gemini-embedding-001";
 export const EMBEDDING_DIMENSIONS = 768;
 
-const openai = createOpenAI({
-  apiKey: env.OPENAI_API_KEY,
-});
-
 const google = createGoogleGenerativeAI({
   apiKey: env.GOOGLE_GENERATIVE_AI_API_KEY,
 });
 
+function requireOpenAI() {
+  const apiKey = env.OPENAI_API_KEY;
+  if (!apiKey) {
+    throw new Error(
+      "OPENAI_API_KEY is missing. Ask requires this key at runtime.",
+    );
+  }
+  return createOpenAI({ apiKey });
+}
+
 export function getChatModel() {
-  return openai.responses(CHAT_MODEL);
+  return requireOpenAI().responses(CHAT_MODEL);
 }
 
 export function getEmbeddingModel() {
