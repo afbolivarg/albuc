@@ -8,6 +8,7 @@ import {
   hasBillingHistory,
   hasFullAccess,
   hasGivenName,
+  SUPPORT_EMAIL,
   signedInPath,
 } from "@/lib/billing/entitlement";
 import { getUser } from "@/lib/db/queries";
@@ -49,6 +50,7 @@ export default async function SubscribePage({
   const cta = await t("billing.continuePayment");
   const terms = await t("nav.terms");
   const privacy = await t("nav.privacy");
+  const support = await t("nav.support");
   const feature1 = await t("billing.featureLibrary");
   const feature2 = await t("billing.featureNotes");
   const feature3 = await t("billing.featureAsk");
@@ -87,7 +89,14 @@ export default async function SubscribePage({
             ·{" "}
             <Link href="/privacy" className="underline underline-offset-4">
               {privacy}
-            </Link>
+            </Link>{" "}
+            ·{" "}
+            <a
+              href={`mailto:${SUPPORT_EMAIL}`}
+              className="underline underline-offset-4"
+            >
+              {support}
+            </a>
           </p>
         </>
       )}

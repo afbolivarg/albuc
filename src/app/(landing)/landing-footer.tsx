@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { AlbucLogo } from "@/components/albuc-logo";
 import { LocaleSwitcher } from "@/components/locale-switcher";
+import { SUPPORT_EMAIL } from "@/lib/billing/entitlement";
 import type { Locale } from "@/lib/i18n/config";
 import type { MessageKey } from "@/lib/i18n/en";
 import { translate } from "@/lib/i18n/translate";
@@ -72,6 +73,14 @@ export function LandingFooter({
               >
                 {t("nav.terms")}
               </Link>
+            </li>
+            <li>
+              <a
+                href={`mailto:${SUPPORT_EMAIL}`}
+                className="underline-offset-4 hover:text-primary-foreground hover:underline"
+              >
+                {t("nav.support")}
+              </a>
             </li>
             <li>
               <a
