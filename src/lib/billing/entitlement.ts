@@ -3,6 +3,7 @@ import type { User } from "@/lib/db/schema";
 export const YEARLY_PRICE_USD = 25;
 export const REFUND_DAYS = 14;
 export const REFUND_EMAIL = "refunds@albuc.com";
+export const SUPPORT_EMAIL = "support@albuc.com";
 export const NOTE_TEASER_CHARS = 800;
 
 type MaybeDate = Date | string | null;

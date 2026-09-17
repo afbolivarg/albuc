@@ -4,11 +4,27 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import {
   REFUND_EMAIL,
+  SUPPORT_EMAIL,
   type BillingUser,
   hasFullAccess,
   toBillingDate,
 } from "@/lib/billing/entitlement";
 import { useT } from "@/lib/i18n/client";
+
+function SupportEmail() {
+  const t = useT();
+  return (
+    <p className="text-sm text-muted-foreground">
+      {t("billing.supportIntro")}{" "}
+      <a
+        className="underline underline-offset-4 hover:text-foreground"
+        href={`mailto:${SUPPORT_EMAIL}`}
+      >
+        {SUPPORT_EMAIL}
+      </a>
+    </p>
+  );
+}
 
 function formatDate(value: Date | string | null, locale: string) {
   const date = toBillingDate(value);
@@ -30,6 +46,7 @@ export function SettingsBillingPage({ user }: { user: BillingUser }) {
       <div className="space-y-3">
         <h2 className="text-base font-medium">{t("billing.settingsTitle")}</h2>
         <p className="text-sm text-muted-foreground">{t("billing.exempt")}</p>
+        <SupportEmail />
       </div>
     );
   }
@@ -72,6 +89,8 @@ export function SettingsBillingPage({ user }: { user: BillingUser }) {
           </Button>
         ) : null}
       </div>
+
+      <SupportEmail />
 
       <p className="text-sm text-muted-foreground">
         {t("billing.refundIntro")}{" "}
