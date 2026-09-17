@@ -51,15 +51,34 @@ function confirmParams(request: NextRequest) {
   return { token_hash, type };
 }
 
+function verifyTypes(type: EmailOtpType | null): EmailOtpType[] {
+  if (type === "magiclink" || type === "email" || !type) {
+    return ["email", "magiclink"];
+  }
+  return [type];
+}
+
 export async function GET(request: NextRequest) {
   const { token_hash, type } = confirmParams(request);
 
-  if (token_hash && type) {
+  if (token_hash) {
     const supabase = createClient(await cookies());
-    const { data, error } = await supabase.auth.verifyOtp({
-      type,
-      token_hash,
-    });
+    let data: Awaited<ReturnType<typeof supabase.auth.verifyOtp>>["data"] = {
+      user: null,
+      session: null,
+    };
+    let error: Awaited<ReturnType<typeof supabase.auth.verifyOtp>>["error"] =
+      null;
+
+    for (const verifyType of verifyTypes(type)) {
+      const result = await supabase.auth.verifyOtp({
+        type: verifyType,
+        token_hash,
+      });
+      data = result.data;
+      error = result.error;
+      if (!error && data.user) break;
+    }
 
     if (!error && data.user) {
       try {

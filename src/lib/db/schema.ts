@@ -49,7 +49,7 @@ export const users = pgTable(
     handle: text("handle"),
     locale: text("locale").notNull().default("en"),
     localeLocked: boolean("locale_locked").notNull().default(false),
-    publicProfile: boolean("public_profile").notNull().default(false),
+    publicProfile: boolean("public_profile").notNull().default(true),
     onboardingCompletedAt: timestamp("onboarding_completed_at"),
     billingExempt: boolean("billing_exempt").notNull().default(false),
     creemCustomerId: text("creem_customer_id"),

@@ -3,8 +3,9 @@
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { hasFullAccess } from "@/lib/billing/entitlement";
+import { revalidatePublicProfile } from "@/lib/cache-revalidate";
 import { getUser, updateUserProfile } from "@/lib/db/queries";
-import { HANDLE_RE, normalizeHandle } from "@/lib/sharing";
+import { HANDLE_RE, normalizeHandle, publicProfilePath } from "@/lib/sharing";
 
 const namePart = z
   .string()
@@ -53,7 +54,9 @@ export async function saveOnboardingHandleAction(input: {
   }
 
   try {
-    await updateUserProfile(user.id, { handle });
+    await updateUserProfile(user.id, { handle, publicProfile: true });
+    revalidatePath(publicProfilePath(handle));
+    revalidatePublicProfile(handle);
     return { success: true };
   } catch {
     return { success: false, error: "errors.handleTaken" };
@@ -83,6 +86,7 @@ export async function completeOnboardingAction(): Promise<{
 
   await updateUserProfile(user.id, {
     onboardingCompletedAt: new Date(),
+    publicProfile: true,
   });
   revalidatePath("/library");
   revalidatePath("/onboarding");

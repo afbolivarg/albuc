@@ -108,7 +108,8 @@ export const es: Record<MessageKey, string> = {
   "onboarding.continue": "Continuar",
   "onboarding.username": "Usuario",
   "onboarding.usernameTitle": "Elige un usuario",
-  "onboarding.usernameLede": "Así aparecerás en Albuc.",
+  "onboarding.usernameLede":
+    "Tu estante será público en esta dirección. Puedes apagarlo después.",
   "onboarding.usernamePlaceholder": "@andres",
   "onboarding.firstBook": "Tu primer libro",
   "onboarding.addBook": "{name}, añade un libro",
@@ -180,8 +181,7 @@ export const es: Record<MessageKey, string> = {
   "why.freeBody":
     "Construí Albuc porque lo necesitaba. Unos amigos también querían usarlo, así que quise que el producto hospedado fuera lo más barato posible — barato como para que la gente se quede con una biblioteca a largo plazo, no entre y salga de una herramienta.",
   "why.codeBefore": "El código está abierto en",
-  "why.codeAfter":
-    "si te da curiosidad. Self-host si quieres.",
+  "why.codeAfter": "si te da curiosidad. Self-host si quieres.",
   "why.cta": "Empieza tu biblioteca",
   "home.metaDescription":
     "Tu biblioteca personal y tus notas, organizadas con belleza.",

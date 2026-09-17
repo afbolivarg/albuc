@@ -103,7 +103,8 @@ export const en = {
   "onboarding.continue": "Continue",
   "onboarding.username": "Username",
   "onboarding.usernameTitle": "Choose a username",
-  "onboarding.usernameLede": "This is how you'll appear in Albuc.",
+  "onboarding.usernameLede":
+    "Your shelf will be public at this address. You can turn that off later.",
   "onboarding.usernamePlaceholder": "@andres",
   "onboarding.firstBook": "Your first book",
   "onboarding.addBook": "{name}, add a book",
@@ -174,8 +175,7 @@ export const en = {
   "why.freeBody":
     "I built Albuc because I needed it. Friends asked to use it too, so I wanted the hosted product to stay as cheap as possible — cheap enough that people commit to a long-term library, not bounce in and out of a tool.",
   "why.codeBefore": "The code is open on",
-  "why.codeAfter":
-    "if you're curious. Self-host if you want.",
+  "why.codeAfter": "if you're curious. Self-host if you want.",
   "why.cta": "Start your library",
   "home.metaDescription":
     "Your personal library and notes, beautifully organized.",
