@@ -1,6 +1,9 @@
-export const SOFT_MONTHLY_QUERY_LIMIT = 200;
+export {
+  HARD_MONTHLY_QUERY_LIMIT,
+  SOFT_MONTHLY_QUERY_LIMIT,
+} from "@albuc/domain";
+
 export const SOFT_MONTHLY_TOKEN_LIMIT = 250_000;
-export const HARD_MONTHLY_QUERY_LIMIT = 2_000;
 export const HARD_MONTHLY_TOKEN_LIMIT = 2_000_000;
 
 export const MONTHLY_BUDGET_MESSAGE =

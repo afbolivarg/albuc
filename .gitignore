@@ -38,6 +38,11 @@ bun-debug.log*
 # vercel
 .vercel
 
+# xcode
+apps/ios/**/xcuserdata/
+DerivedData/
+*.xcuserstate
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
