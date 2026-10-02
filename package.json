@@ -3,7 +3,9 @@
   "version": "0.1.0",
   "private": true,
   "packageManager": "bun@1.3.10",
-  "workspaces": ["packages/*"],
+  "workspaces": [
+    "packages/*"
+  ],
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",

@@ -6,11 +6,15 @@ enum AlbucConfig {
            let url = URL(string: override) {
             return url
         }
+        #if DEBUG
+        return URL(string: "http://127.0.0.1:3000")!
+        #else
         if let raw = Bundle.main.object(forInfoDictionaryKey: "AlbucAPIBaseURL") as? String,
            let url = URL(string: raw) {
             return url
         }
         return URL(string: "https://albuc.com")!
+        #endif
     }
 }
 
