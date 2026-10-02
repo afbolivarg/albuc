@@ -37,6 +37,18 @@ One repo for the web app, the native iOS app, and the shared domain rules.
 
 The phone does not reimplement search, notes, embeddings, or Ask. It calls the same server.
 
+## Organic GTM (books → social)
+
+Drop an EPUB, review one pack, approve. Docs: [`content/PIPELINE.md`](content/PIPELINE.md).
+
+```bash
+cp book.epub content/inbox/
+bun run content:run
+bun run content:approve <slug>
+```
+
+This tree is standalone (`content/`). It is not an npm workspace and does not affect the Next.js or iOS apps.
+
 ## iOS
 
 Open `apps/ios/Albuc.xcodeproj` in Xcode 16 or later, pick an iPhone simulator, and run. The app talks to `https://albuc.com` unless you change `AlbucAPIBaseURL` in `apps/ios/Albuc/Info.plist`.

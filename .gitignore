@@ -43,6 +43,11 @@ apps/ios/**/xcuserdata/
 DerivedData/
 *.xcuserstate
 
+# content pipeline (generated publish + dropped books)
+content/inbox/*.epub
+content/books/*/out/
+content/books/*/.cache/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts
