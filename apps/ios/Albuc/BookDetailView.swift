@@ -148,7 +148,7 @@ struct NotesView: View {
 
     var body: some View {
         TextEditor(text: $text)
-            .font(.body.leading(.serif))
+            .font(.body)
             .fontDesign(.serif)
             .padding(.horizontal, 8)
             .navigationTitle("Notes")
