@@ -2,7 +2,7 @@
 
 **Author:** Eric Ries  
 **Slug:** `the-lean-startup-how-today-s-entrepreneurs-use-continuous-innova`  
-**Gate:** **DRAFT**
+**Gate:** **DRAFT** — Prefer validated learning, Build-Measure-Learn, pivot, and real MVP beats from later method chapters — not jacket acclaim or intro memoir blurbs.
 
 This is the only file Andrés needs to read. Approve or request changes. Nothing publishes until the gate is APPROVED.
 

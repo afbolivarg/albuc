@@ -9,6 +9,8 @@ You don't have a reading problem. You have a keeping problem.
 
 A thread from The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses — Eric Ries.
 
+(revision: Prefer validated learning, Build-Measure-Learn, pivot, and real MVP beats from later method chapters — not jacket acclaim or intro memoir blurbs.)
+
 ## Tweet 2
 
 Five keepable ideas from The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses by Eric Ries — then a practice you can do tonight.
