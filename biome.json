@@ -16,7 +16,9 @@
       "!**/coverage",
       "!**/src/lib/db/migrations/meta",
       "!**/src/lib/supabase/templates",
-      "!**/bun.lock"
+      "!**/bun.lock",
+      "!**/content",
+      "!**/apps"
     ]
   },
   "formatter": {
