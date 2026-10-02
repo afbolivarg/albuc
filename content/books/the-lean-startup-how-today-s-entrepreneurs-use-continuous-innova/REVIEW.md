@@ -21,23 +21,23 @@ Five keepable ideas from The Lean Startup: How Today’s Entrepreneurs Use Conti
 
 ## Learnings
 
-- **L01** (Acclaim for THE LEAN STARTUP) — If you are thinking about becoming an entrepreneur, read this book
-- **L02** (Acclaim for THE LEAN STARTUP) — If you are just curious about entrepreneurship, read this book
-- **L03** (Acclaim for THE LEAN STARTUP) — Eric Ries’s revolutionary Lean Startup method will help bring your new business idea to an end result that is successful and sustainable
-- **L04** (Introduction) — I particularly remember a moment from back then: the moment I realized my company was going to fail
-- **L05** (Introduction) — We tried desperately to raise more capital, and we could not
-- **L06** (Introduction) — At the time, it had seemed we were doing everything right: we had a great product, a brilliant team, amazing technology, and the right idea at the right time
-- **L07** (Introduction) — I think there is something deeply appealing about this modern-day rags-to-riches story
-- **L08** (Introduction) — We do everything wrong: instead of spending years perfecting our technology, we build a minimum viable product, an early product that is terrible, full of bugs and crash-your-computer-yes-really stability problems
+- **L01** (8PIVOT (OR PERSEVERE)) — A pivot requires that we keep one foot rooted in what we’ve learned so far, while making a fundamental change in strategy in order to seek even greater validated learning
+- **L02** (Part TwoSTEER) — Although we write the feedback loop as Build-Measure-Learn because the activities happen in that order, our planning really works in the reverse order: we figure out what we need to learn, use innovation accounting to figure out what we need to measure to know if we are gaining validated learning, and then figure out what product we need to build to run that experiment and get that measurement
+- **L03** (Part TwoSTEER) — The MVP is that version of the product that enables a full turn of the Build-Measure-Learn loop with a minimum amount of effort and the least amount of development time
+- **L04** (7MEASURE) — Most important, teams working in this system begin to measure their productivity according to validated learning, not in terms of the production of new features
+- **L05** (8PIVOT (OR PERSEVERE)) — Before we get to David’s next pivot, notice how convincingly he was able to demonstrate validated learning
+- **L06** (3LEARN) — It is also the right way to think about productivity in a startup: not in terms of how much stuff we are building but in terms of how much validated learning we’re getting for our efforts
+- **L07** (3LEARN) — I call this validated learning because it is always demonstrated by positive improvements in the startup’s core metrics
+- **L08** (3LEARN) — In the Lean Startup model, we are rehabilitating learning with a concept I call validated learning
 
 ## Fair-use quotes (short, attributed)
 
-- “If you are thinking about becoming an entrepreneur, read this book.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Acclaim for THE LEAN STARTUP · 11 words
-- “If you are just curious about entrepreneurship, read this book.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Acclaim for THE LEAN STARTUP · 10 words
-- “Eric Ries’s revolutionary Lean Startup method will help bring your new business idea to an end result that is successful and sustainable.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Acclaim for THE LEAN STARTUP · 22 words
-- “I particularly remember a moment from back then: the moment I realized my company was going to fail.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Introduction · 18 words
-- “We tried desperately to raise more capital, and we could not.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Introduction · 11 words
-- “I think there is something deeply appealing about this modern-day rags-to-riches story.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Introduction · 12 words
+- “A pivot requires that we keep one foot rooted in what we’ve learned so far, while making a fundamental change in strategy in order to…” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · 8PIVOT (OR PERSEVERE) · 25 words
+- “Upon completing the Build-Measure-Learn loop, we confront the most difficult question any entrepreneur faces: whether to pivot the original strategy or persevere.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Part TwoSTEER · 22 words
+- “The MVP is that version of the product that enables a full turn of the Build-Measure-Learn loop with a minimum amount of effort and the…” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · Part TwoSTEER · 25 words
+- “Most important, teams working in this system begin to measure their productivity according to validated learning, not in terms of the production of new features.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · 7MEASURE · 25 words
+- “It is also the right way to think about productivity in a startup: not in terms of how much stuff we are building but in…” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · 3LEARN · 25 words
+- “Instead of making complex plans that are based on a lot of assumptions, you can make constant adjustments with a steering wheel called the Build-Measure-Learn…” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries · 1START · 25 words
 
 ## Packs
 

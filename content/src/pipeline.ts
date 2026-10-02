@@ -52,8 +52,8 @@ export async function processEpubFile(
 function writeGenerated(book: IngestedBook, changeNotes: string): string {
   const slug = book.meta.slug;
   const root = bookDir(slug);
-  const learnings = extractLearnings(book);
-  const quotes = collectQuotes(book, learnings);
+  const learnings = extractLearnings(book, changeNotes);
+  const quotes = collectQuotes(book, learnings, changeNotes);
   assertQuotes(quotes);
   const storyboard = buildStoryboard(
     book.meta.title,

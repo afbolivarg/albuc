@@ -17,31 +17,31 @@ Five keepable ideas from The Lean Startup: How Today’s Entrepreneurs Use Conti
 
 ## Tweet 3
 
-1/ If you are thinking about becoming an entrepreneur, read this book.
+1/ A pivot requires that we keep one foot rooted in what we’ve learned so far, while making a fundamental change in strategy in order to seek even greater validated learning.
 
 ## Tweet 4
 
-2/ If you are just curious about entrepreneurship, read this book.
+2/ Although we write the feedback loop as Build-Measure-Learn because the activities happen in that order, our planning really works in the reverse order: we figure out what we need to learn, use innovation accounting to figure out what we need to measure to know if we are gaining validated learning, and then figure out what product we need to build to run that experiment and get that measurement.
 
 ## Tweet 5
 
-3/ Eric Ries’s revolutionary Lean Startup method will help bring your new business idea to an end result that is successful and sustainable.
+3/ The MVP is that version of the product that enables a full turn of the Build-Measure-Learn loop with a minimum amount of effort and the least amount of development time.
 
 ## Tweet 6
 
-4/ I particularly remember a moment from back then: the moment I realized my company was going to fail.
+4/ Most important, teams working in this system begin to measure their productivity according to validated learning, not in terms of the production of new features.
 
 ## Tweet 7
 
-5/ We tried desperately to raise more capital, and we could not.
+5/ Before we get to David’s next pivot, notice how convincingly he was able to demonstrate validated learning.
 
 ## Tweet 8
 
-6/ At the time, it had seemed we were doing everything right: we had a great product, a brilliant team, amazing technology, and the right idea at the right time.
+6/ It is also the right way to think about productivity in a startup: not in terms of how much stuff we are building but in terms of how much validated learning we’re getting for our efforts.
 
 ## Tweet 9
 
-“If you are thinking about becoming an entrepreneur, read this book.”
+“A pivot requires that we keep one foot rooted in what we’ve learned so far, while making a fundamental change in strategy in order to…”
 — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries
 
 ## Tweet 10

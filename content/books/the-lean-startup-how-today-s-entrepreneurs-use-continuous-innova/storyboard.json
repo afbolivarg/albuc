@@ -6,23 +6,23 @@
       "name": "The leak",
       "beats": [
         "You don't have a reading problem. You have a keeping problem.",
-        "If you are thinking about becoming an entrepreneur, read this book",
-        "If you are just curious about entrepreneurship, read this book"
+        "A pivot requires that we keep one foot rooted in what we’ve learned so far, while making a fundamental change in strategy in order to seek even greater validated learning",
+        "Although we write the feedback loop as Build-Measure-Learn because the activities happen in that order, our planning really works in the reverse order: we figure out what we need to learn, use innovation accounting to figure out what we need to measure to know if we are gaining validated learning, and then figure out what product we need to build to run that experiment and get that measurement"
       ]
     },
     {
       "name": "The practice",
       "beats": [
-        "Eric Ries’s revolutionary Lean Startup method will help bring your new business idea to an end result that is successful and sustainable",
-        "I particularly remember a moment from back then: the moment I realized my company was going to fail",
-        "We tried desperately to raise more capital, and we could not"
+        "The MVP is that version of the product that enables a full turn of the Build-Measure-Learn loop with a minimum amount of effort and the least amount of development time",
+        "Most important, teams working in this system begin to measure their productivity according to validated learning, not in terms of the production of new features",
+        "Before we get to David’s next pivot, notice how convincingly he was able to demonstrate validated learning"
       ]
     },
     {
       "name": "The shelf",
       "beats": [
-        "At the time, it had seemed we were doing everything right: we had a great product, a brilliant team, amazing technology, and the right idea at the right time",
-        "I think there is something deeply appealing about this modern-day rags-to-riches story",
+        "It is also the right way to think about productivity in a startup: not in terms of how much stuff we are building but in terms of how much validated learning we’re getting for our efforts",
+        "I call this validated learning because it is always demonstrated by positive improvements in the startup’s core metrics",
         "Don't just read. Build ideas. https://albuc.com"
       ]
     }
@@ -31,45 +31,45 @@
   "ctaUrl": "https://albuc.com",
   "quotes": [
     {
-      "text": "If you are thinking about becoming an entrepreneur, read this book.",
-      "wordCount": 11,
+      "text": "A pivot requires that we keep one foot rooted in what we’ve learned so far, while making a fundamental change in strategy in order to…",
+      "wordCount": 25,
       "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
-      "location": "Acclaim for THE LEAN STARTUP",
+      "location": "8PIVOT (OR PERSEVERE)",
       "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
     },
     {
-      "text": "If you are just curious about entrepreneurship, read this book.",
-      "wordCount": 10,
-      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
-      "location": "Acclaim for THE LEAN STARTUP",
-      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
-    },
-    {
-      "text": "Eric Ries’s revolutionary Lean Startup method will help bring your new business idea to an end result that is successful and sustainable.",
+      "text": "Upon completing the Build-Measure-Learn loop, we confront the most difficult question any entrepreneur faces: whether to pivot the original strategy or persevere.",
       "wordCount": 22,
       "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
-      "location": "Acclaim for THE LEAN STARTUP",
+      "location": "Part TwoSTEER",
       "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
     },
     {
-      "text": "I particularly remember a moment from back then: the moment I realized my company was going to fail.",
-      "wordCount": 18,
+      "text": "The MVP is that version of the product that enables a full turn of the Build-Measure-Learn loop with a minimum amount of effort and the…",
+      "wordCount": 25,
       "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
-      "location": "Introduction",
+      "location": "Part TwoSTEER",
       "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
     },
     {
-      "text": "We tried desperately to raise more capital, and we could not.",
-      "wordCount": 11,
+      "text": "Most important, teams working in this system begin to measure their productivity according to validated learning, not in terms of the production of new features.",
+      "wordCount": 25,
       "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
-      "location": "Introduction",
+      "location": "7MEASURE",
       "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
     },
     {
-      "text": "I think there is something deeply appealing about this modern-day rags-to-riches story.",
-      "wordCount": 12,
+      "text": "It is also the right way to think about productivity in a startup: not in terms of how much stuff we are building but in…",
+      "wordCount": 25,
       "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
-      "location": "Introduction",
+      "location": "3LEARN",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    },
+    {
+      "text": "Instead of making complex plans that are based on a lot of assumptions, you can make constant adjustments with a steering wheel called the Build-Measure-Learn…",
+      "wordCount": 25,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "1START",
       "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
     }
   ]

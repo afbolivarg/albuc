@@ -2,7 +2,7 @@ Five keepable ideas from The Lean Startup: How Today’s Entrepreneurs Use Conti
 
 Ideas from The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses — Eric Ries. Short quotations for commentary; full book remains the author's.
 
-“If you are thinking about becoming an entrepreneur, read this book.” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries
+“A pivot requires that we keep one foot rooted in what we’ve learned so far, while making a fundamental change in strategy in order to…” — The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries
 
 Chapters
 0:00 The leak
