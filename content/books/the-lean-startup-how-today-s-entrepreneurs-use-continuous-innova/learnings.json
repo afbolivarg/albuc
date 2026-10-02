@@ -1,0 +1,106 @@
+[
+  {
+    "id": "L01",
+    "claim": "If you are thinking about becoming an entrepreneur, read this book",
+    "whyItMatters": "A usable takeaway from “Acclaim for THE LEAN STARTUP.”",
+    "chapter": "Acclaim for THE LEAN STARTUP",
+    "quote": {
+      "text": "If you are thinking about becoming an entrepreneur, read this book.",
+      "wordCount": 11,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Acclaim for THE LEAN STARTUP",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  },
+  {
+    "id": "L02",
+    "claim": "If you are just curious about entrepreneurship, read this book",
+    "whyItMatters": "A usable takeaway from “Acclaim for THE LEAN STARTUP.”",
+    "chapter": "Acclaim for THE LEAN STARTUP",
+    "quote": {
+      "text": "If you are just curious about entrepreneurship, read this book.",
+      "wordCount": 10,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Acclaim for THE LEAN STARTUP",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  },
+  {
+    "id": "L03",
+    "claim": "Eric Ries’s revolutionary Lean Startup method will help bring your new business idea to an end result that is successful and sustainable",
+    "whyItMatters": "A usable takeaway from “Acclaim for THE LEAN STARTUP.”",
+    "chapter": "Acclaim for THE LEAN STARTUP",
+    "quote": {
+      "text": "Eric Ries’s revolutionary Lean Startup method will help bring your new business idea to an end result that is successful and sustainable.",
+      "wordCount": 22,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Acclaim for THE LEAN STARTUP",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  },
+  {
+    "id": "L04",
+    "claim": "I particularly remember a moment from back then: the moment I realized my company was going to fail",
+    "whyItMatters": "A usable takeaway from “Introduction.”",
+    "chapter": "Introduction",
+    "quote": {
+      "text": "I particularly remember a moment from back then: the moment I realized my company was going to fail.",
+      "wordCount": 18,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Introduction",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  },
+  {
+    "id": "L05",
+    "claim": "We tried desperately to raise more capital, and we could not",
+    "whyItMatters": "A usable takeaway from “Introduction.”",
+    "chapter": "Introduction",
+    "quote": {
+      "text": "We tried desperately to raise more capital, and we could not.",
+      "wordCount": 11,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Introduction",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  },
+  {
+    "id": "L06",
+    "claim": "At the time, it had seemed we were doing everything right: we had a great product, a brilliant team, amazing technology, and the right idea at the right time",
+    "whyItMatters": "A usable takeaway from “Introduction.”",
+    "chapter": "Introduction",
+    "quote": {
+      "text": "I think there is something deeply appealing about this modern-day rags-to-riches story.",
+      "wordCount": 12,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Introduction",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  },
+  {
+    "id": "L07",
+    "claim": "I think there is something deeply appealing about this modern-day rags-to-riches story",
+    "whyItMatters": "A usable takeaway from “Introduction.”",
+    "chapter": "Introduction",
+    "quote": {
+      "text": "We viewed their input as only one source of information about our product and overall vision.",
+      "wordCount": 16,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Introduction",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  },
+  {
+    "id": "L08",
+    "claim": "We do everything wrong: instead of spending years perfecting our technology, we build a minimum viable product, an early product that is terrible, full of bugs and crash-your-computer-yes-really stability problems",
+    "whyItMatters": "A usable takeaway from “Introduction.”",
+    "chapter": "Introduction",
+    "quote": {
+      "text": "The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses Introduction S top me if you’ve heard this one before.",
+      "wordCount": 24,
+      "attribution": "— The Lean Startup: How Today’s Entrepreneurs Use Continuous Innovation to Create Radically Successful Businesses, Eric Ries",
+      "location": "Introduction",
+      "purpose": "Short attributed excerpt for social teaching, fair-use commentary."
+    }
+  }
+]
