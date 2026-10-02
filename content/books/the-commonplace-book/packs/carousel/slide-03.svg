@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1080" viewBox="0 0 1080 1080">
+  <rect width="1080" height="1080" fill="#faf9f6"/>
+  <rect x="48" y="48" width="984" height="984" fill="none" stroke="#e8e1d2" stroke-width="2"/>
+  <text x="80" y="140" fill="#c47a8a" font-family="Georgia, serif" font-size="22" letter-spacing="4">IDEA 2</text>
+  <foreignObject x="80" y="180" width="920" height="680">
+    <div xmlns="http://www.w3.org/1999/xhtml" style="font-family:Georgia,serif;color:#1d1a14;font-size:48px;line-height:1.2">If you cannot say it, you did not keep it</div>
+  </foreignObject>
+  <text x="80" y="960" fill="#5c564a" font-family="Georgia, serif" font-size="24">A usable takeaway from “The leak.”</text>
+  <text x="1000" y="1020" text-anchor="end" fill="#5c564a" font-family="Georgia, serif" font-size="20">3/8</text>
+</svg>

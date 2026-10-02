@@ -1,0 +1,26 @@
+{
+  "product": "Albuc",
+  "url": "https://albuc.com",
+  "tagline": "Don't just read. Build ideas.",
+  "voice": [
+    "Literary and practical, never hype",
+    "Short sentences. One idea at a time",
+    "Teach from the book, then invite people to keep their own notes",
+    "Always name the book and the author next to a quote"
+  ],
+  "avoid": [
+    "Growth-hack slang",
+    "Unattributed quotations",
+    "Long excerpts",
+    "Talking-head-only shorts",
+    "A second product name"
+  ],
+  "colors": {
+    "paper": "#faf9f6",
+    "ink": "#1d1a14",
+    "muted": "#5c564a",
+    "accent": "#c47a8a",
+    "forest": "#274234",
+    "cream": "#e8e1d2"
+  }
+}
