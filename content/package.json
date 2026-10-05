@@ -1,6 +1,0 @@
-{
-  "name": "albuc-content-pipeline",
-  "private": true,
-  "type": "module",
-  "description": "Standalone Albuc organic GTM pipeline. Not an npm workspace of the web app."
-}
