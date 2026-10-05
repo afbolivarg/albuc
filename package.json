@@ -15,13 +15,7 @@
     "check": "biome check --write .",
     "db:generate": "bun --env-file=.env --env-file=.env.local drizzle-kit generate",
     "db:migrate": "bun --env-file=.env --env-file=.env.local drizzle-kit migrate",
-    "db:studio": "bun --env-file=.env --env-file=.env.local drizzle-kit studio",
-    "content:run": "bun content/src/cli.ts run",
-    "content:watch": "bun content/src/cli.ts watch",
-    "content:approve": "bun content/src/cli.ts approve",
-    "content:changes": "bun content/src/cli.ts changes",
-    "content:publish": "bun content/src/cli.ts publish",
-    "content:status": "bun content/src/cli.ts status"
+    "db:studio": "bun --env-file=.env --env-file=.env.local drizzle-kit studio"
   },
   "dependencies": {
     "@albuc/domain": "workspace:*",
