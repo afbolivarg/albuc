@@ -1,15 +1,17 @@
-import { HANDLE_RE, normalizeHandle } from "@albuc/domain";
 import { nanoid } from "nanoid";
 import { env } from "@/lib/env";
 import { isLocale, type Locale } from "@/lib/i18n/config";
-
-export { HANDLE_RE, normalizeHandle };
 
 export function createShareSlug() {
   return nanoid(12);
 }
 
+export const HANDLE_RE = /^[a-z0-9](?:[a-z0-9-]{1,22}[a-z0-9])?$/;
 export const LANG_PARAM = "lang";
+
+export function normalizeHandle(raw: string) {
+  return decodeURIComponent(raw).trim().toLowerCase().replace(/^@+/, "");
+}
 
 export function profileHandleFromParam(handle: string) {
   const decoded = decodeURIComponent(handle);

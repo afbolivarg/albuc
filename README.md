@@ -26,9 +26,3 @@ bun dev
 Schema changes: `bun run db:generate` → review SQL in `src/lib/db/migrations/` → `bun run db:migrate`
 
 Lint and format: `bun run lint` · `bun run format` · `bun run check` (lint + format + fix)
-
-## Monorepo
-
-The web app lives at the repo root (`src/`). Shared domain rules (statuses, ratings, handles, cover URLs, and Ask limits) live in `packages/domain` as `@albuc/domain`.
-
-The native iOS app is work in progress and lives on the [`ios-wip`](https://github.com/afbolivarg/albuc/tree/ios-wip) branch.
