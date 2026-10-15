@@ -23,3 +23,4 @@ ts	phase	decision	why	evidence	result
 2026-10-15T19:26:00Z	search	a cosine neighbor query on the copied embeddings returned 3 rows	Ask uses that join	neon <=> limit 3	verified
 2026-10-15T19:27:00Z	storage	67 cover objects are public again. Creating albuc-covers returned 403, so production covers use the restored public bucket.	the other account's R2 key cannot create a bucket, and Cloudflare MCP is still signed out	cover HEAD 200, CreateBucket 403	open
 2026-10-15T19:27:00Z	production	/og/profile/afbolivarg/en returned 200 before the cover rebuild. That handle has 22 books.	the live app is already reading Neon	HTTP 200 image/png	verified
+2026-10-15T19:32:00Z	production	the rebuild of cc04b22 is Ready and includes NEXT_PUBLIC_COVERS_URL. The public cover object returns 200.	stored covers should show on the rebuilt site	deployment env key present, cover HEAD 200	verified
