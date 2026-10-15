@@ -56,6 +56,18 @@ export const users = pgTable(
   (table) => [uniqueIndex("users_handle_unique").on(table.handle)],
 );
 
+export const authTokens = pgTable(
+  "auth_tokens",
+  {
+    id: uuid("id").primaryKey().defaultRandom(),
+    email: text("email").notNull(),
+    tokenHash: text("token_hash").notNull().unique(),
+    expiresAt: timestamp("expires_at").notNull(),
+    usedAt: timestamp("used_at"),
+  },
+  (table) => [index("auth_tokens_email_idx").on(table.email)],
+);
+
 export const books = pgTable(
   "books",
   {
@@ -70,7 +82,7 @@ export const books = pgTable(
     authorKeys: text("author_keys").array(), // e.g. ["OL26320A"]
     publishYear: integer("publish_year"),
     coverId: integer("cover_id"), // from search "cover_i" (optional)
-    coverPath: text("cover_path"), // Supabase Storage path after upload (optional)
+    coverPath: text("cover_path"), // Object key in the covers bucket (optional)
     spineColors: text("spine_colors").array(), // [bg-light, bg-dark, ink] from cover extraction
     isbn10: text("isbn_10").array(),
     isbn13: text("isbn_13").array(),

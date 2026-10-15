@@ -15,8 +15,10 @@ const publicSchema = z.object({
     .url()
     .default("http://localhost:3000")
     .transform((url) => url.replace(/\/$/, "")),
-  NEXT_PUBLIC_SUPABASE_URL: z.url(),
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: z.string().min(1),
+  NEXT_PUBLIC_COVERS_URL: z
+    .string()
+    .default("")
+    .transform((url) => url.replace(/\/$/, "")),
 });
 
 const serverSchema = z.object({
@@ -24,8 +26,12 @@ const serverSchema = z.object({
     .enum(["development", "production", "test"])
     .default("development"),
   DATABASE_URL: z.string().min(1),
-  // sb_secret_... from Supabase Dashboard → Settings → API Keys
-  SUPABASE_SECRET_KEY: z.string().min(1),
+  AUTH_SECRET: z.string().min(1),
+  RESEND_API_KEY: z.string().min(1),
+  R2_ACCOUNT_ID: z.string().default(""),
+  R2_ACCESS_KEY_ID: z.string().default(""),
+  R2_SECRET_ACCESS_KEY: z.string().default(""),
+  R2_BUCKET: z.string().default("albuc-covers"),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
   OPENAI_API_KEY: z.string().min(1),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
@@ -49,9 +55,7 @@ const isServer = typeof window === "undefined";
  */
 const publicRuntime = {
   NEXT_PUBLIC_SITE_URL: process.env.NEXT_PUBLIC_SITE_URL,
-  NEXT_PUBLIC_SUPABASE_URL: process.env.NEXT_PUBLIC_SUPABASE_URL,
-  NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY:
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY,
+  NEXT_PUBLIC_COVERS_URL: process.env.NEXT_PUBLIC_COVERS_URL,
 };
 
 function reportInvalid(

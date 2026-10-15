@@ -1,11 +1,10 @@
 "use server";
 
-import { cookies } from "next/headers";
+import { createMagicLink, sendMagicLinkEmail } from "@/lib/auth/magic-link";
 import type { MessageKey } from "@/lib/i18n/en";
 import { localeFromFormData } from "@/lib/i18n/server";
 import { createLogger, toError } from "@/lib/logger";
 import { getRequestOrigin } from "@/lib/request-origin";
-import { createClient } from "@/lib/supabase/server";
 
 const log = createLogger("auth.actions");
 
@@ -25,26 +24,16 @@ export async function signIn(
   }
 
   try {
-    const supabase = createClient(await cookies());
     const origin = await getRequestOrigin();
-    const emailRedirectTo = `${origin}/auth/confirm`;
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo },
-    });
-
-    if (error) {
-      log.error("signInWithOtp failed", toError(error), {
-        email,
-        emailRedirectTo,
-        locale: localeFromFormData(formData),
-      });
-      return { error: "auth.sendFailed" };
-    }
-
+    const token = await createMagicLink(email);
+    const link = `${origin}/auth/confirm?token=${encodeURIComponent(token)}`;
+    await sendMagicLinkEmail(email, link);
     return { message: "auth.checkEmail" };
   } catch (e) {
-    log.error("signIn failed", toError(e), { email });
-    return { error: "auth.genericError" };
+    log.error("signIn failed", toError(e), {
+      email,
+      locale: localeFromFormData(formData),
+    });
+    return { error: "auth.sendFailed" };
   }
 }

@@ -1,7 +1,7 @@
-import type { User as SupabaseUser } from "@supabase/supabase-js";
 import { and, desc, eq, sql } from "drizzle-orm";
 import { cacheLife, cacheTag } from "next/cache";
 import { cache } from "react";
+import { getCurrentUser } from "@/lib/auth/current-user";
 import { publicNoteTag, publicProfileTag } from "@/lib/cache-tags";
 import { db } from "@/lib/db";
 import {
@@ -9,60 +9,22 @@ import {
   books,
   type NewBook,
   noteChunks,
-  type User,
   users,
 } from "@/lib/db/schema";
-import { getCurrentUser } from "@/lib/supabase/user";
-
-/**
- * Ensure an app user exists for the given Supabase auth user (create if missing).
- * Used after sign-in so library and other features have a local user record.
- */
-export async function ensureAppUser(supabaseUser: SupabaseUser): Promise<User> {
-  const existing = await db.query.users.findFirst({
-    where: eq(users.supabaseUserId, supabaseUser.id),
-  });
-  if (existing) {
-    return existing;
-  }
-  const [created] = await db
-    .insert(users)
-    .values({
-      supabaseUserId: supabaseUser.id,
-      email: supabaseUser.email ?? "",
-    })
-    .returning();
-  if (!created) throw new Error("Failed to create app user");
-  return created;
-}
 
 export const getUser = cache(async () => {
-  const supabaseUser = await getCurrentUser();
-
-  if (!supabaseUser) {
-    return null;
-  }
-
-  let user = await db.query.users.findFirst({
-    where: eq(users.supabaseUserId, supabaseUser.id),
-  });
-
-  if (!user) {
-    user = await ensureAppUser(supabaseUser);
-  }
-
-  return user;
+  return getCurrentUser();
 });
 
 export const getUserWithBooks = cache(async () => {
-  const supabaseUser = await getCurrentUser();
+  const current = await getCurrentUser();
 
-  if (!supabaseUser) {
+  if (!current) {
     return null;
   }
 
-  let user = await db.query.users.findFirst({
-    where: eq(users.supabaseUserId, supabaseUser.id),
+  const user = await db.query.users.findFirst({
+    where: eq(users.id, current.id),
     with: {
       books: {
         orderBy: desc(books.updatedAt),
@@ -70,30 +32,18 @@ export const getUserWithBooks = cache(async () => {
     },
   });
 
-  if (!user) {
-    await ensureAppUser(supabaseUser);
-    user = await db.query.users.findFirst({
-      where: eq(users.supabaseUserId, supabaseUser.id),
-      with: {
-        books: {
-          orderBy: desc(books.updatedAt),
-        },
-      },
-    });
-  }
-
   return user ?? null;
 });
 
 export const getUserWithBook = cache(async (bookId: string) => {
-  const supabaseUser = await getCurrentUser();
+  const current = await getCurrentUser();
 
-  if (!supabaseUser) {
+  if (!current) {
     return null;
   }
 
   const user = await db.query.users.findFirst({
-    where: eq(users.supabaseUserId, supabaseUser.id),
+    where: eq(users.id, current.id),
     with: {
       books: {
         where: eq(books.id, bookId),

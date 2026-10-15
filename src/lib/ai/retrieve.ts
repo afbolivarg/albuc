@@ -1,4 +1,4 @@
-import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/covers";
 import type { AskSource } from "./citations";
 
 export type RetrievedChunk = {

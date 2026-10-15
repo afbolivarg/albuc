@@ -1,5 +1,6 @@
 import "server-only";
 
+import { PutObjectCommand, S3Client } from "@aws-sdk/client-s3";
 import { revalidatePath } from "next/cache";
 import sharp from "sharp";
 import { updateBookCover } from "@/lib/db/queries";
@@ -9,26 +10,41 @@ import { getCoverUrl } from "@/lib/open-library.shared";
 import { extractSpineColorsFromImage } from "@/lib/spine-colors.server";
 import type { SpinePalette } from "@/lib/spine-colors.shared";
 import { serializeSpineColors } from "@/lib/spine-colors.shared";
-import { createAdminClient } from "@/lib/supabase/admin";
-import {
-  BOOK_COVER_CACHE_CONTROL,
-  BOOK_COVERS_BUCKET,
-} from "./book-covers.shared";
+import { BOOK_COVER_CACHE_CONTROL, BOOK_COVERS_BUCKET } from "./covers";
 
-const log = createLogger("supabase.book-covers");
+const log = createLogger("covers");
 
 type UploadedBookCover = {
   coverPath: string;
   spineColors: SpinePalette | null;
 };
 
+function r2Client(): S3Client | null {
+  if (
+    !env.R2_ACCOUNT_ID ||
+    !env.R2_ACCESS_KEY_ID ||
+    !env.R2_SECRET_ACCESS_KEY
+  ) {
+    return null;
+  }
+  return new S3Client({
+    region: "auto",
+    endpoint: `https://${env.R2_ACCOUNT_ID}.r2.cloudflarestorage.com`,
+    credentials: {
+      accessKeyId: env.R2_ACCESS_KEY_ID,
+      secretAccessKey: env.R2_SECRET_ACCESS_KEY,
+    },
+  });
+}
+
 async function uploadBookCoverFromOpenLibrary(options: {
-  supabaseUserId: string;
+  subjectId: string;
   bookId: string;
   coverId: number;
 }): Promise<UploadedBookCover | null> {
   const sourceUrl = getCoverUrl(options.coverId, "M");
-  if (!sourceUrl) {
+  const client = r2Client();
+  if (!sourceUrl || !client) {
     return null;
   }
 
@@ -48,7 +64,7 @@ async function uploadBookCoverFromOpenLibrary(options: {
       return null;
     }
 
-    const coverPath = `${options.supabaseUserId}/${options.bookId}.webp`;
+    const coverPath = `${options.subjectId}/${options.bookId}.webp`;
     const imageBuffer = Buffer.from(await response.arrayBuffer());
     const webpBuffer = await sharp(imageBuffer)
       .rotate()
@@ -57,22 +73,15 @@ async function uploadBookCoverFromOpenLibrary(options: {
       .toBuffer();
     const spineColors = await extractSpineColorsFromImage(webpBuffer);
 
-    const supabase = createAdminClient();
-    const { error } = await supabase.storage
-      .from(BOOK_COVERS_BUCKET)
-      .upload(coverPath, webpBuffer, {
-        contentType: "image/webp",
-        upsert: true,
-        cacheControl: BOOK_COVER_CACHE_CONTROL,
-      });
-
-    if (error) {
-      log.error("cover upload failed", toError(error), {
-        bookId: options.bookId,
-        coverPath,
-      });
-      return null;
-    }
+    await client.send(
+      new PutObjectCommand({
+        Bucket: env.R2_BUCKET || BOOK_COVERS_BUCKET,
+        Key: coverPath,
+        Body: webpBuffer,
+        ContentType: "image/webp",
+        CacheControl: `public, max-age=${BOOK_COVER_CACHE_CONTROL}`,
+      }),
+    );
 
     return { coverPath, spineColors };
   } catch (error) {
@@ -85,7 +94,7 @@ async function uploadBookCoverFromOpenLibrary(options: {
 }
 
 export async function persistBookCoverFromOpenLibrary(options: {
-  supabaseUserId: string;
+  subjectId: string;
   bookId: string;
   coverId: number;
 }): Promise<void> {

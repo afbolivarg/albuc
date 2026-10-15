@@ -10,7 +10,7 @@ import {
   resolvePublicLocaleFrom,
 } from "@/lib/public-metadata";
 import { profileHandleFromParam, publicNotePath } from "@/lib/sharing";
-import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/covers";
 
 type PageProps = {
   params: Promise<{ handle: string }>;

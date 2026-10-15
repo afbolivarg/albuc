@@ -1,6 +1,6 @@
 import type { Book } from "@/lib/db/schema";
 import { parseSpineColors } from "@/lib/spine-colors.shared";
-import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/covers";
 import { PALETTES, type PaletteKey } from "./constants";
 import type { ShelfBook, SortDir, SortKey } from "./types";
 

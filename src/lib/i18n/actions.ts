@@ -1,20 +1,22 @@
 "use server";
 
-import { sql } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { revalidatePath } from "next/cache";
+import { getCurrentUser } from "@/lib/auth/current-user";
 import { db } from "@/lib/db";
-import { getCurrentUser } from "@/lib/supabase/user";
+import { users } from "@/lib/db/schema";
 import { isLocale } from "./config";
 
 export async function setPreferredLocaleAction(locale: string) {
   if (!isLocale(locale)) return { error: "errors.localeInvalid" };
 
-  const supabaseUser = await getCurrentUser();
-  if (!supabaseUser) return { error: "errors.authRequired" };
+  const user = await getCurrentUser();
+  if (!user) return { error: "errors.authRequired" };
 
-  await db.execute(
-    sql`UPDATE users SET locale = ${locale}, locale_locked = true WHERE supabase_user_id = ${supabaseUser.id}`,
-  );
+  await db
+    .update(users)
+    .set({ locale, localeLocked: true })
+    .where(eq(users.id, user.id));
 
   revalidatePath("/", "layout");
   return { success: true as const };
