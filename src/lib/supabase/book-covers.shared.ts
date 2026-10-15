@@ -1,19 +1,14 @@
-import {
-  BOOK_COVERS_BUCKET,
-  type CoverSize,
-  displayCoverUrl,
-  storedCoverUrl,
-} from "@albuc/domain";
 import { env } from "@/lib/env";
+import { getCoverUrl } from "@/lib/open-library.shared";
 
-export { BOOK_COVERS_BUCKET };
-
+export const BOOK_COVERS_BUCKET = "book-covers";
 export const BOOK_COVER_CACHE_CONTROL = "31536000";
 
 export function getBookCoverUrl(
   coverPath: string | null | undefined,
 ): string | null {
-  return storedCoverUrl(env.NEXT_PUBLIC_SUPABASE_URL, coverPath);
+  if (!coverPath) return null;
+  return `${env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${BOOK_COVERS_BUCKET}/${coverPath}`;
 }
 
 export function getBookDisplayCoverUrl(
@@ -21,7 +16,10 @@ export function getBookDisplayCoverUrl(
     coverPath?: string | null;
     coverId?: number | null;
   },
-  size: CoverSize = "M",
+  size: "S" | "M" | "L" = "M",
 ): string | null {
-  return displayCoverUrl(book, env.NEXT_PUBLIC_SUPABASE_URL, size);
+  return (
+    getBookCoverUrl(book.coverPath) ??
+    getCoverUrl(book.coverId ?? undefined, size)
+  );
 }

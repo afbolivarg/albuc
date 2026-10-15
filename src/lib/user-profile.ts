@@ -1,18 +1,18 @@
-import {
-  displayName,
-  nameInitial,
-  needsOnboarding as onboardingIncomplete,
-} from "@albuc/domain";
 import type { User } from "@/lib/db/schema";
 
 export function needsOnboarding(user: User): boolean {
-  return onboardingIncomplete(user.onboardingCompletedAt);
+  return user.onboardingCompletedAt == null;
 }
 
 export function userDisplayName(user: User): string {
-  return displayName(user);
+  const name = [user.firstName, user.lastName]
+    .filter((part): part is string => Boolean(part?.trim()))
+    .join(" ")
+    .trim();
+  return name || user.email;
 }
 
 export function userInitial(user: User): string {
-  return nameInitial(user);
+  const source = user.firstName?.trim() || user.email;
+  return source.charAt(0).toUpperCase() || "?";
 }
