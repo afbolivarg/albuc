@@ -75,7 +75,7 @@ export async function sendMagicLinkEmail(email: string, link: string) {
       from: "Albuc <sign-in@albuc.com>",
       to: [normalizeEmail(email)],
       subject: "Sign in to Albuc",
-      html: `<p>Sign in to Albuc.</p><p><a href="${link}">Continue</a></p><p>This link expires in one hour.</p>`,
+      html: `<img src="${env.NEXT_PUBLIC_SITE_URL}/albuc-logo.png" width="94" height="28" alt="Albuc" style="display:block;border:0;margin:0 0 16px" /><p>Sign in to Albuc.</p><p><a href="${link}">Continue</a></p><p>This link expires in one hour.</p>`,
     }),
   });
   if (!response.ok) {
