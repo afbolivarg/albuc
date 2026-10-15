@@ -7,3 +7,10 @@ ts	phase	decision	why	evidence	result
 2026-10-15T17:55:00Z	mail	Resend accepted a message from sign-in@albuc.com	albuc.com is a verified domain	HTTP 200	verified
 2026-10-15T17:55:00Z	storage	Cloudflare tools still require sign-in, so no R2 bucket yet	covers fall back to Open Library until the bucket exists	GetDynamicTools needsAuth	open
 2026-10-15T17:55:00Z	data	Neon migrations applied on an empty database. Local Supabase tenant is gone. Production DATABASE_URL is sensitive and unreadable.	do not invent a row count for production	psql ENOTFOUND tenant	INCONCLUSIVE
+2026-10-15T18:04:04Z	production	a normal form post to /sign-in returned auth.checkEmail	the earlier 500 was React closing a bad action request, not Neon	Resend id created 2026-10-15 18:04:04Z to delivered@resend.dev	verified
+2026-10-15T18:05:00Z	production	confirm redirected to /onboarding, set albuc_session, and /library returned 200	that is the signed-in path on albuc.com	curl confirm then GET /library	verified
+2026-10-15T18:05:30Z	cleanup	deleted the probe user so Neon is empty again	the check created one user and one token	users 1 then users_after 0	verified
+2026-10-15T18:06:41Z	cleanup	removed SUPABASE_SECRET_KEY, NEXT_PUBLIC_SUPABASE_URL, and NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY from Vercel and .env.local	the live code does not read them	vercel env ls at 2026-10-15T18:06:41Z	verified
+2026-10-15T18:06:41Z	production	production and preview DATABASE_URL point at the Neon pooler without channel_binding	vercel redeploy keeps the previous deployment env, so a GitHub deploy was required	dpl_3uLAVDQVnaYNmvueUL8LvwFxgHJm host ep-lucky-scene-b8f1ktjv-pooler	verified
+2026-10-15T18:06:41Z	storage	no R2 bucket. Covers use Open Library.	Cloudflare MCP has no access token and wrangler is logged out	GetDynamicTools cloudflare needsAuth	open
+2026-10-15T18:06:41Z	data	did not copy rows from Supabase	the old tenant host does not resolve	prior row psql ENOTFOUND	INCONCLUSIVE
