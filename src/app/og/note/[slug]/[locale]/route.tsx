@@ -6,7 +6,7 @@ import { NoteOgImage } from "@/lib/og/images";
 import { renderOgImage, resolveCoverSrc } from "@/lib/og/render";
 import { parseOgLocale } from "@/lib/public-metadata";
 import { APP_NAME } from "@/lib/pwa";
-import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/covers";
 
 export async function GET(
   _request: Request,

@@ -4,6 +4,9 @@ import { revalidatePath } from "next/cache";
 import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import { after } from "next/server";
+import { getCurrentUser } from "@/lib/auth/current-user";
+import { SESSION_COOKIE } from "@/lib/auth/session";
+import { persistBookCoverFromOpenLibrary } from "@/lib/covers.server";
 import { createBook, getUser, getUserBookByWorkKey } from "@/lib/db/queries";
 import { createLogger, toError } from "@/lib/logger";
 import {
@@ -12,21 +15,12 @@ import {
   SEARCH_RESULT_LIMIT,
   searchBooks as searchOpenLibrary,
 } from "@/lib/open-library";
-import { persistBookCoverFromOpenLibrary } from "@/lib/supabase/book-covers.server";
-import { createClient as createServerClient } from "@/lib/supabase/server";
-import { getCurrentUser } from "@/lib/supabase/user";
 
 const log = createLogger("library.actions");
 
 export async function signOut() {
   const cookieStore = await cookies();
-  const supabase = createServerClient(cookieStore);
-  const { error } = await supabase.auth.signOut();
-
-  if (error) {
-    log.warn("signOut supabase error", { message: error.message });
-  }
-
+  cookieStore.delete(SESSION_COOKIE);
   for (const cookie of cookieStore.getAll()) {
     if (cookie.name.startsWith("sb-")) {
       cookieStore.delete(cookie.name);
@@ -132,7 +126,7 @@ export async function addBookAction(
 
     if (bookData.coverId) {
       const coverJob = {
-        supabaseUserId: user.supabaseUserId,
+        subjectId: user.supabaseUserId,
         bookId: createdBook.id,
         coverId: bookData.coverId,
       };

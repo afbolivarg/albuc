@@ -11,7 +11,7 @@ import {
   resolvePublicLocaleFrom,
 } from "@/lib/public-metadata";
 import { publicProfilePath } from "@/lib/sharing";
-import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/covers";
 import { PublicNoteMarkdown } from "./public-note-markdown";
 
 type PageProps = {

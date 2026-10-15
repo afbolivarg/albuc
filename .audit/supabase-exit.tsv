@@ -1,0 +1,9 @@
+ts	phase	decision	why	evidence	result
+2026-10-15T17:40:00Z	start	this run owns the Supabase exit from the first row	no earlier decision log	session on dev	open
+2026-10-15T17:40:00Z	frame	done means production sign-in, library, and covers work and the repo has no Supabase client	the app has to keep working for readers	src/lib/db/queries.ts semanticSearchNotes	open
+2026-10-15T17:40:00Z	frame	stack is Neon, R2, and an in-house magic link sent by Resend	already chosen, so no second design pass	conversation	open
+2026-10-15T17:55:00Z	session	signed cookies round-trip and reject a tampered token	proxy can trust the cookie without a database call	bun session check	verified
+2026-10-15T17:55:00Z	magic-link	created and consumed one token on Neon, second use failed, test user deleted	prove the sign-in table before mail	b users left 0	verified
+2026-10-15T17:55:00Z	mail	Resend accepted a message from sign-in@albuc.com	albuc.com is a verified domain	HTTP 200	verified
+2026-10-15T17:55:00Z	storage	Cloudflare tools still require sign-in, so no R2 bucket yet	covers fall back to Open Library until the bucket exists	GetDynamicTools needsAuth	open
+2026-10-15T17:55:00Z	data	Neon migrations applied on an empty database. Local Supabase tenant is gone. Production DATABASE_URL is sensitive and unreadable.	do not invent a row count for production	psql ENOTFOUND tenant	INCONCLUSIVE

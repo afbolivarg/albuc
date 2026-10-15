@@ -15,7 +15,6 @@
       "!**/build",
       "!**/coverage",
       "!**/src/lib/db/migrations/meta",
-      "!**/src/lib/supabase/templates",
       "!**/bun.lock"
     ]
   },

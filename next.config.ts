@@ -1,8 +1,8 @@
 import { withSerwist } from "@serwist/turbopack";
 import type { NextConfig } from "next";
 
-const supabaseHostname = process.env.NEXT_PUBLIC_SUPABASE_URL
-  ? new URL(process.env.NEXT_PUBLIC_SUPABASE_URL).hostname
+const coversHostname = process.env.NEXT_PUBLIC_COVERS_URL
+  ? new URL(process.env.NEXT_PUBLIC_COVERS_URL).hostname
   : null;
 
 const nextConfig: NextConfig = {
@@ -21,13 +21,13 @@ const nextConfig: NextConfig = {
         port: "",
         pathname: "/**",
       },
-      ...(supabaseHostname
+      ...(coversHostname
         ? [
             {
               protocol: "https" as const,
-              hostname: supabaseHostname,
+              hostname: coversHostname,
               port: "",
-              pathname: "/storage/v1/object/public/book-covers/**",
+              pathname: "/**",
             },
           ]
         : []),

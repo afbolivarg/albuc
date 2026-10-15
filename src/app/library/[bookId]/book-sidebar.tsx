@@ -5,7 +5,7 @@ import Link from "next/link";
 import { Book3dCover } from "@/components/book-3d-cover";
 import type { Book } from "@/lib/db/schema";
 import { useT } from "@/lib/i18n/client";
-import { getBookDisplayCoverUrl } from "@/lib/supabase/book-covers.shared";
+import { getBookDisplayCoverUrl } from "@/lib/covers";
 import { NoteShareControls } from "./note-share-controls";
 import { RatingSelector } from "./rating-selector";
 import { StatusSelector } from "./status-selector";
