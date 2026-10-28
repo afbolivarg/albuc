@@ -1,4 +1,9 @@
-import { convertToModelMessages, streamText, type UIMessage } from "ai";
+import {
+  APICallError,
+  convertToModelMessages,
+  streamText,
+  type UIMessage,
+} from "ai";
 import { after } from "next/server";
 import { createChatErrorResponse } from "@/lib/ai/chat-errors";
 import type { AskSource } from "@/lib/ai/citations";
@@ -156,6 +161,23 @@ export async function POST(req: Request) {
     return result.toUIMessageStreamResponse({
       headers: STREAM_HEADERS,
       originalMessages: messages,
+      onError: (error) => {
+        // Errors raised after streaming starts (e.g. the Gemini call) are
+        // otherwise masked as "An error occurred." with no server-side cause.
+        // Log status/code only; provider messages can echo key fragments.
+        const providerError = APICallError.isInstance(error)
+          ? (error.data as { error?: { code?: string; type?: string } })?.error
+          : undefined;
+        log.error("chat stream failed", undefined, {
+          errorName: toError(error).name,
+          statusCode: APICallError.isInstance(error)
+            ? error.statusCode
+            : undefined,
+          providerCode: providerError?.code,
+          providerType: providerError?.type,
+        });
+        return "ask.error";
+      },
       messageMetadata: ({ part }) => {
         if (part.type === "start" || part.type === "finish") {
           return { sources };

@@ -96,6 +96,11 @@ export async function checkAIUsageAllowed(
   return toSnapshot(counter);
 }
 
+// Providers can report NaN/undefined token counts; NaN breaks the SQL update.
+function finiteOrZero(value: number | undefined): number {
+  return typeof value === "number" && Number.isFinite(value) ? value : 0;
+}
+
 export async function recordAIUsage(options: {
   userId: string;
   counterId?: string;
@@ -104,10 +109,10 @@ export async function recordAIUsage(options: {
   completionTokens?: number;
   embeddingTokens?: number;
 }): Promise<void> {
-  const queries = options.queries ?? 0;
-  const promptTokens = options.promptTokens ?? 0;
-  const completionTokens = options.completionTokens ?? 0;
-  const embeddingTokens = options.embeddingTokens ?? 0;
+  const queries = finiteOrZero(options.queries);
+  const promptTokens = finiteOrZero(options.promptTokens);
+  const completionTokens = finiteOrZero(options.completionTokens);
+  const embeddingTokens = finiteOrZero(options.embeddingTokens);
 
   if (
     queries === 0 &&

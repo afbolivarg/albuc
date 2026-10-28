@@ -33,7 +33,6 @@ const serverSchema = z.object({
   R2_SECRET_ACCESS_KEY: z.string().default(""),
   R2_BUCKET: z.string().default("albuc-covers"),
   GOOGLE_GENERATIVE_AI_API_KEY: z.string().min(1),
-  OPENAI_API_KEY: z.string().min(1),
   LOG_LEVEL: z.enum(["debug", "info", "warn", "error"]).default("info"),
   LOG_PRETTY: z.preprocess((value) => {
     if (value === undefined || value === "") {
